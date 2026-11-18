@@ -57,7 +57,8 @@ def test_beta_chatbot_full_pipeline_and_register():
     session_id = core.create_session(metadata={"register": "formal"})
     result = core.chatbot().respond("Api menyentuh rumah kayu", session_id)
 
-    assert result["answer"].startswith("Ada kemungkinan")
+    assert result["generation"]["text"].startswith("Ada kemungkinan")
+    assert result["answer"].startswith("Saya ILIS, sistem kecerdasan bahasa.")
     assert result["metadata"]["reasoning_type"] == "verified_inference"
     assert result["metadata"]["confidence_score"] == 0.72
     assert result["metadata"]["conflict_status"] == "clear"
