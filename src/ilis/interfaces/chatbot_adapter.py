@@ -134,7 +134,9 @@ class ChatbotAdapter:
             }
 
         semantic = self.core.analyze_text(text, context_snapshot=snapshot)
-        reasoning = self.core.reasoning_engine.infer_semantic(semantic)
+        reasoning = self.core.reasoning_engine.infer_semantic(
+            semantic, context_snapshot=snapshot,
+        )
 
         legacy_match = self._TOUCHES_WOODEN_HOUSE.fullmatch(text)
         if legacy_match:
