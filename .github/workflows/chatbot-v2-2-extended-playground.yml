@@ -1,0 +1,154 @@
+name: ILIS V2.2 Extended Test Playground
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  extended-tests:
+    name: Verifikasi multi-turn A-E tanpa mengubah Core
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ILIS V2.2 development
+        uses: actions/checkout@v4
+        with:
+          ref: ilis-v2-development
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ILIS and test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m pip install pytest
+
+      - name: Run existing regression suite
+        run: python -m pytest -q
+
+      - name: Run extended multi-turn scenarios A-E
+        run: |
+          python - <<'PY'
+          import json
+          from ilis.interfaces import ILISCore, ChatbotAdapter, SessionManager
+          from ilis.persona import ApplicationProfile, CharacterProfile, PersonaConfig, MODE_B, MODE_C
+
+          results = {}
+
+          def record(name, passed, detail):
+              results[name] = {"status": "PASS" if passed else "FAIL", "detail": detail}
+              print(f"[{'PASS' if passed else 'FAIL'}] {name}: {detail}")
+
+          # A — Batas maksimal 5 turn. Turn keenam diperlukan untuk memicu eviction.
+          core = ILISCore()
+          bot = core.chatbot()
+          sid = bot.create_session()
+          messages = [
+              "Apakah api bisa membakar kayu?",
+              "Lalu kertas?",
+              "Lalu kain?",
+              "Lalu apa yang tidak bisa dibakar api?",
+              "Ulangi pertanyaan pertama.",
+              "Apakah api bisa membakar kayu?",
+          ]
+          used = []
+          for message in messages:
+              response = bot.respond(message, sid)
+              used.append(response["metadata"].get("context_turns_used"))
+          snapshot = bot.session_manager.get_context_snapshot(sid)
+          retained = snapshot.get("turns", [])
+          a_ok = used == [0, 1, 2, 3, 4, 5] and len(retained) == 5 and retained[0]["user_message"] == messages[1]
+          record("A — bounded history max 5", a_ok, {"context_turns_used": used, "retained_turns": len(retained), "oldest_retained": retained[0]["user_message"] if retained else None})
+          core.close()
+
+          # B — Rujukan tidak eksplisit: "yang tadi itu" harus merujuk api.
+          core = ILISCore()
+          bot = core.chatbot()
+          sid = bot.create_session()
+          bot.respond("Apakah api bisa membakar kayu?", sid)
+          follow = bot.respond("Kalau begitu apakah yang tadi itu juga bisa membakar kertas?", sid)
+          sem = follow.get("semantic_result", {}).get("semantics", {})
+          actor = sem.get("Actor/Subject")
+          patient = sem.get("Patient/Object")
+          b_ok = str(actor).casefold() == "api" and str(patient).casefold() == "kertas"
+          record("B — implicit reference", b_ok, {"actor": actor, "patient": patient, "context_turns_used": follow["metadata"].get("context_turns_used"), "answer": follow.get("answer")})
+          core.close()
+
+          # C — Dua sesi tidak boleh berbagi transcript.
+          core = ILISCore()
+          bot = core.chatbot()
+          sid_a = bot.create_session()
+          sid_b = bot.create_session()
+          bot.respond("Apakah api bisa membakar kayu?", sid_a)
+          bot.respond("Apakah air bisa memadamkan api?", sid_b)
+          a_next = bot.respond("Lalu bagaimana dengan kertas?", sid_a)
+          snap_a = bot.session_manager.get_context_snapshot(sid_a)
+          snap_b = bot.session_manager.get_context_snapshot(sid_b)
+          no_mix = all("air bisa memadamkan api" not in t["user_message"].casefold() for t in snap_a["turns"]) and all("membakar kayu" not in t["user_message"].casefold() for t in snap_b["turns"])
+          c_ok = no_mix and a_next["metadata"].get("context_turns_used") == 1
+          record("C — session isolation", c_ok, {"session_a_context_used": a_next["metadata"].get("context_turns_used"), "session_a_turns": len(snap_a["turns"]), "session_b_turns": len(snap_b["turns"]), "transcripts_separate": no_mix})
+          core.close()
+
+          # D — Reset hanya membersihkan transcript sesi aktif.
+          core = ILISCore()
+          bot = core.chatbot()
+          sid = bot.create_session()
+          bot.respond("Apakah api bisa membakar kayu?", sid)
+          bot.respond("Lalu apakah api bisa membakar kertas?", sid)
+          reset = bot.respond("Reset percakapan", sid)
+          after = bot.respond("Lalu kertas?", sid)
+          d_ok = reset["metadata"].get("response_type") == "session_reset" and after["metadata"].get("context_turns_used") == 0 and len(bot.session_manager.get_context_snapshot(sid)["turns"]) == 1
+          record("D — conversation reset", d_ok, {"reset_response_type": reset["metadata"].get("response_type"), "context_after_reset": after["metadata"].get("context_turns_used"), "turns_after_new_question": len(bot.session_manager.get_context_snapshot(sid)["turns"])})
+          core.close()
+
+          # E — Regresi identitas/persona dan instruksi register dalam konteks multi-turn.
+          core = ILISCore()
+          bot = core.chatbot()
+          sid = bot.create_session()
+          bot.respond("Halo, kita sedang mengobrol.", sid)
+          identity = bot.respond("Lu siapa?", sid)
+          e_a = identity["metadata"].get("response_type") == "identity_intent" and identity["metadata"].get("context_turns_used") == 1
+          core.close()
+
+          core = ILISCore()
+          config_b = PersonaConfig(mode=MODE_B, application=ApplicationProfile(application_id="host", display_name="Arunika", role="asisten aplikasi", identity_reply="Saya Arunika, asisten aplikasi ini."))
+          bot_b = ChatbotAdapter(core, persona_config=config_b, session_manager=SessionManager())
+          sid_b = bot_b.create_session()
+          bot_b.respond("Halo.", sid_b)
+          mode_b = bot_b.respond("Siapa kamu?", sid_b)
+          e_b = mode_b["answer"].startswith("Saya Arunika, asisten aplikasi ini.")
+          core.close()
+
+          core = ILISCore()
+          config_c = PersonaConfig(mode=MODE_C, character=CharacterProfile(character_id="raka", display_name="Raka", role="penjaga gerbang", identity_reply="Aku Raka, penjaga gerbang kerajaan."))
+          bot_c = ChatbotAdapter(core, persona_config=config_c, session_manager=SessionManager())
+          sid_c = bot_c.create_session()
+          bot_c.respond("Halo.", sid_c)
+          mode_c = bot_c.respond("Siapa kamu?", sid_c)
+          e_c = mode_c["answer"].startswith("Aku Raka, penjaga gerbang kerajaan.")
+          core.close()
+
+          core = ILISCore()
+          bot = core.chatbot()
+          sid = bot.create_session()
+          bot.respond("Apakah api bisa membakar kayu?", sid)
+          polite = bot.respond("Jawab dengan sopan, apakah api bisa membakar kertas?", sid)
+          e_style = polite["metadata"].get("register") == "formal" and polite["metadata"].get("context_turns_used") == 1
+          core.close()
+
+          record("E — Mode A identity + multi-turn", e_a, {"response_type": identity["metadata"].get("response_type"), "context_turns_used": identity["metadata"].get("context_turns_used")})
+          record("E — Mode B application persona", e_b, {"answer": mode_b["answer"]})
+          record("E — Mode C NPC persona", e_c, {"answer": mode_c["answer"]})
+          record("E — style instruction + multi-turn", e_style, {"register": polite["metadata"].get("register"), "context_turns_used": polite["metadata"].get("context_turns_used"), "answer": polite.get("answer")})
+
+          print("\n=== EXTENDED TEST SUMMARY ===")
+          print(json.dumps(results, ensure_ascii=False, indent=2))
+          failed = [name for name, item in results.items() if item["status"] != "PASS"]
+          if failed:
+              raise SystemExit("Extended tests failed: " + ", ".join(failed))
+          print("\nALL EXTENDED SCENARIOS PASSED")
+          PY
