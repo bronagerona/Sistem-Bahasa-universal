@@ -25,7 +25,7 @@ _VERBS = {
     "melihat", "menakuti", "membeli", "membawa", "memberi", "memasak", "lari",
     "beli", "pulang", "membakar", "bakar", "bunyi", "bunyikan",
     "menyalakan", "matikan", "tutup", "buka", "ambil", "berikan",
-    "panggil", "dengarkan", "lihat", "buat", "simpan", "hapus",
+    "panggil", "dengarkan", "lihat", "buat", "simpan", "hapus", "jawab",
 }
 _COMPLEX_MARKERS = {
     "dan", "tetapi", "namun", "karena", "sehingga", "ketika", "meskipun",
@@ -36,7 +36,7 @@ _INTERROGATIVE_MARKERS = {
     "kapan", "dimana", "di mana", "mana",
 }
 _COMMAND_MARKERS = {"tolong", "silakan", "harap", "mohon"}
-_IMPERATIVE_VERBS = {"bunyikan", "menyalakan", "matikan", "tutup", "buka", "ambil", "berikan", "panggil", "dengarkan", "simpan", "hapus"}
+_IMPERATIVE_VERBS = {"bunyikan", "menyalakan", "matikan", "tutup", "buka", "ambil", "berikan", "panggil", "dengarkan", "simpan", "hapus", "jawab"}
 _TIME_WORDS = {
     "sekarang", "tadi", "kemarin", "besok", "lusa", "nanti",
     "pagi", "siang", "sore", "malam", "subuh", "dinihari",

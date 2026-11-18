@@ -60,6 +60,13 @@ def analyze_semantics(text: str) -> dict[str, object]:
 
     normalized_text = " ".join(normalized_tokens)
     normalized_text = re.sub(r"\s+([.,!?;:])", r"\1", normalized_text)
+    # A trailing response-style instruction is metadata for generation, not part
+    # of the proposition. Keep original_text untouched for traceability.
+    normalized_text = re.sub(
+        r"\s+(?:tolong\s+)?(?:jawab|jelaskan|uraikan|terangkan)\s+"
+        r"(?:dengan\s+)?(?:sopan|singkat|ringkas|jelas|santai)\s*[.!?]*$",
+        "", normalized_text, flags=re.IGNORECASE,
+    ).strip()
     payload = {
         "contract_version": "1.0",
         "original_text": text,

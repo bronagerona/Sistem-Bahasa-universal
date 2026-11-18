@@ -96,3 +96,21 @@ def test_chatbot_preserves_legacy_v1_assertion_adapter_behavior():
     assert result["reasoning_result"]["reasoning_type"] == "verified_inference"
     assert result["metadata"]["confidence_score"] == 0.72
     assert "kemungkinan" in result["answer"].casefold()
+
+
+
+def test_chatbot_separates_question_from_trailing_politeness_instruction():
+    core, session_id, chatbot = _chatbot()
+    result = chatbot.respond("Apakah api bisa membakar kayu? Jawab dengan sopan.", session_id)
+    assert result["semantic_result"]["status"] == "supported"
+    assert result["semantic_result"]["semantics"]["Patient/Object"] == "kayu"
+    assert "kayu" in result["answer"].casefold()
+    assert "jawab dengan sopan" not in result["answer"].casefold()
+
+
+def test_chatbot_acknowledges_standalone_polite_answer_command():
+    core, session_id, chatbot = _chatbot()
+    result = chatbot.respond("Tolong jawab dengan sopan.", session_id)
+    assert result["semantic_result"]["status"] == "supported"
+    assert result["semantic_result"]["semantics"]["Predicate"] == "jawab"
+    assert "menjawab dengan sopan" in result["answer"].casefold()

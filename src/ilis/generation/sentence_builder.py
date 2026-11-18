@@ -112,6 +112,10 @@ class SentenceBuilder:
     def _command(meaning: dict[str, Any], register: str) -> str:
         predicate = SentenceBuilder._phrase(meaning.get("predicate"), "")
         patient = SentenceBuilder._phrase(meaning.get("patient"), "")
+        if predicate == "jawab" and "sopan" in patient:
+            if register == "formal": return "Baik, saya akan menjawab dengan sopan"
+            if register == "informal": return "Oke, aku akan jawab dengan sopan"
+            return "Siap, aku jawab dengan sopan"
         if predicate in {"bunyikan", "bunyi"} and patient == "lonceng":
             if register == "formal": return "Baik, lonceng akan dibunyikan"
             if register == "informal": return "Oke, loncengnya akan dibunyikan"
