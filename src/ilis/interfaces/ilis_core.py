@@ -10,7 +10,6 @@ from ilis.cognition.reasoning_engine import ReasoningEngine
 from ilis.generation.language_generator import LanguageGenerator
 from ilis.learning.learning_engine import LearningEngine
 from ilis.semantics.semantic_engine import SemanticEngine
-from ilis.storage import SQLiteStorageProvider
 
 
 class ILISCore:
@@ -26,9 +25,12 @@ class ILISCore:
     ) -> None:
         if storage not in {"memory", "sqlite"}:
             raise ValueError("storage must be 'memory' or 'sqlite'")
-        self.storage_provider = (
-            SQLiteStorageProvider(db_path) if storage == "sqlite" else None
-        )
+        self.storage_provider = None
+        if storage == "sqlite":
+            # Deliberately import only when persistence is explicitly enabled.
+            from ilis.storage import SQLiteStorageProvider
+            self.storage_provider = SQLiteStorageProvider(db_path)
+
         self.semantic_engine = SemanticEngine()
         self.knowledge_engine = KnowledgeEngine(
             seed_core_knowledge=seed_core_knowledge,
