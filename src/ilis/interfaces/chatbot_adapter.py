@@ -7,6 +7,7 @@ from typing import Any
 
 from ilis.interfaces.ilis_core import ILISCore
 from ilis.persona import PersonaConfig, PersonaRenderer
+from ilis.persona.profiles import MODE_A
 
 
 class ChatbotAdapter:
@@ -16,6 +17,21 @@ class ChatbotAdapter:
         r"^\s*(?P<source>api)\s+menyentuh\s+"
         r"(?P<target>rumah)\s+(?P<material>kayu)\s*[.!?]?\s*$",
         re.IGNORECASE,
+    )
+
+    _IDENTITY_INTENT = re.compile(
+        r"\b(?:siapa\s+kamu|apa\s+yang\s+bisa\s+kamu\s+lakukan|"
+        r"kemampuanmu|jelaskan\s+kemampuanmu)\b",
+        re.IGNORECASE,
+    )
+    _IDENTITY_CAPABILITIES_REPLY = (
+        "ILIS dapat membantu memahami pertanyaan berbahasa Indonesia, "
+        "mengolah makna kalimat, dan menarik kesimpulan berdasarkan aturan "
+        "serta fakta yang tersedia. ILIS juga dapat menyusun jawaban dalam "
+        "ragam bahasa yang didukung, seperti formal dan santai.\n\n"
+        "ILIS bekerja secara deterministik tanpa menggunakan model bahasa "
+        "besar (LLM). Karena itu, jawaban bergantung pada aturan, pengetahuan, "
+        "dan informasi yang tersedia di dalam sistem."
     )
 
     _STYLE_INSTRUCTION = re.compile(
@@ -37,6 +53,9 @@ class ChatbotAdapter:
         if not isinstance(core, ILISCore):
             raise TypeError("core must be an ILISCore instance")
         self.core = core
+        self.persona_config = (
+            self.persona_config
+        )
         # Chatbot integrations identify as ILIS unless the host supplies
         # another explicitly validated chatbot/application profile.
         self.persona_renderer = PersonaRenderer(
@@ -49,6 +68,37 @@ class ChatbotAdapter:
     ) -> dict[str, Any]:
         if not isinstance(text, str) or not text.strip():
             raise ValueError("text must be a non-empty string")
+
+        # Identity questions belong to the chatbot integration, not ILIS Core.
+        # Only the canonical Mode A chatbot may answer as ILIS; host applications
+        # and game characters continue through the ordinary Core pipeline.
+        normalized_text = " ".join(text.casefold().split())
+        if (
+            self.persona_config.mode == MODE_A
+            and self._IDENTITY_INTENT.search(normalized_text)
+        ):
+            # Preserve the adapter's invalid-session behavior without running
+            # Semantic, Reasoning, Language Generator, or storage mutations.
+            self.core.context_engine.get_context(session_id)
+            static_answer = self._IDENTITY_CAPABILITIES_REPLY
+            final_answer = self.persona_renderer.render(static_answer)
+            return {
+                "answer": final_answer,
+                "text": final_answer,
+                "metadata": {
+                    "register": "formal",
+                    "confidence_score": 1.0,
+                    "reasoning_type": "identity_intent",
+                    "conflict_status": "clear",
+                    "evidence": [],
+                    "semantic_status": "identity_intent",
+                    "response_type": "identity_intent",
+                    "session_id": session_id,
+                },
+                "semantic_result": None,
+                "reasoning_result": None,
+                "generation": None,
+            }
 
         processed = self.core.context_engine.process_message(
             session_id, speaker, text, ingest_semantics=False
