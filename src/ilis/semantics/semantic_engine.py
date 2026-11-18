@@ -36,7 +36,7 @@ _COMPLEX_MARKERS = {
     "dan", "tetapi", "namun", "karena", "sehingga", "ketika", "meskipun",
     "walaupun", "sedangkan", "sementara",
 }
-_INTERROGATIVE_MARKERS = {"apakah", "siapa", "apa", "mengapa", "kenapa", "bagaimana", "kapan", "dimana", "di", "mana"}
+_INTERROGATIVE_MARKERS = {"apakah", "siapa", "apa", "mengapa", "kenapa", "bagaimana", "kapan", "dimana", "mana"}
 _COMMAND_MARKERS = {"tolong", "silakan", "harap"}
 _TIME_WORDS = {
     "sekarang", "tadi", "kemarin", "besok", "nanti", "pagi", "siang",
