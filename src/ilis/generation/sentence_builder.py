@@ -55,7 +55,7 @@ class SentenceBuilder:
         if register == "informal":
             core = f"Kayaknya {target} bisa kebakaran"
             if material:
-                core += f karena berbahan {material} dan terkena {source}"
+                core += f" karena berbahan {material} dan terkena {source}"
             return core + (" lho" if uncertainty else "")
         core = f"Kayaknya {target} bisa kebakaran"
         if material:
