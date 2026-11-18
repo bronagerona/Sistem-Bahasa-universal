@@ -42,6 +42,8 @@ class LanguageGenerator:
         """Render reasoning using register metadata and optional session context."""
         if not isinstance(reasoning_result, dict):
             raise TypeError("reasoning_result must be a dictionary")
+        if register is not None and register not in SentenceBuilder.REGISTERS:
+            raise ValueError(f"register must be one of {sorted(SentenceBuilder.REGISTERS)}")
         if semantic_result is not None and not isinstance(semantic_result, dict):
             raise TypeError("semantic_result must be a dictionary")
         if context is not None and not isinstance(context, dict):
