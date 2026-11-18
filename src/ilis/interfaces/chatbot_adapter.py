@@ -6,10 +6,11 @@ import re
 from typing import Any
 
 from ilis.interfaces.ilis_core import ILISCore
+from ilis.persona import PersonaConfig, PersonaRenderer
 
 
 class ChatbotAdapter:
-    """Run semantic analysis, reasoning, then register-aware generation."""
+    """Run semantic analysis, reasoning, generation, then chatbot identity."""
 
     _TOUCHES_WOODEN_HOUSE = re.compile(
         r"^\s*(?P<source>api)\s+menyentuh\s+"
@@ -30,10 +31,17 @@ class ChatbotAdapter:
             return None
         return "formal" if match.group("style").casefold() == "sopan" else "informal"
 
-    def __init__(self, core: ILISCore) -> None:
+    def __init__(
+        self, core: ILISCore, *, persona_config: PersonaConfig | None = None
+    ) -> None:
         if not isinstance(core, ILISCore):
             raise TypeError("core must be an ILISCore instance")
         self.core = core
+        # Chatbot integrations identify as ILIS unless the host supplies
+        # another explicitly validated chatbot/application profile.
+        self.persona_renderer = PersonaRenderer(
+            persona_config if persona_config is not None else PersonaConfig.chatbot_ilis()
+        )
 
     def respond(
         self, text: str, session_id: str, *, speaker: str = "user",
@@ -106,10 +114,13 @@ class ChatbotAdapter:
             reasoning, register=effective_register, semantic_result=semantic,
             session_id=session_id, polite=instruction_register == "formal",
         )
+        # Persona decorates only the generated text. Semantic, Reasoning,
+        # generation metadata, and the raw Language Generator output stay intact.
+        final_answer = self.persona_renderer.render(generated["text"])
         conflicts = self.core.knowledge_engine.detect_conflicts()
         return {
-            "answer": generated["text"],
-            "text": generated["text"],
+            "answer": final_answer,
+            "text": final_answer,
             "metadata": {
                 "register": generated["register"],
                 "confidence_score": generated["confidence_score"],
