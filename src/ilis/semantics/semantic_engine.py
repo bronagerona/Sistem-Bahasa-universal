@@ -36,6 +36,8 @@ _COMPLEX_MARKERS = {
     "dan", "tetapi", "namun", "karena", "sehingga", "ketika", "meskipun",
     "walaupun", "sedangkan", "sementara",
 }
+_INTERROGATIVE_MARKERS = {"apakah", "siapa", "apa", "mengapa", "kenapa", "bagaimana", "kapan", "dimana", "di", "mana"}
+_COMMAND_MARKERS = {"tolong", "silakan", "harap"}
 _TIME_WORDS = {
     "sekarang", "tadi", "kemarin", "besok", "nanti", "pagi", "siang",
     "sore", "malam", "hari",
@@ -73,6 +75,11 @@ class SemanticEngine:
         original_words = re.findall(r"[a-zA-ZÀ-ÿ]+", original.casefold())
 
         if not words:
+            return None, "unsupported"
+        # V1 is declarative-only: explicitly reject questions and common commands.
+        if "?" in original or any(word in _INTERROGATIVE_MARKERS for word in words):
+            return None, "unsupported"
+        if words[0] in _COMMAND_MARKERS or words[0] in _VERBS:
             return None, "unsupported"
         if any(word in _COMPLEX_MARKERS for word in words):
             return None, "unsupported"
