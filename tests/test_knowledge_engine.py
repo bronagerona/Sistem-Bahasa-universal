@@ -63,9 +63,9 @@ def test_search_facts_by_subject_or_object():
 
 def test_conflicting_objects_mark_all_related_facts_conflicting():
     engine = KnowledgeEngine(seed_core_knowledge=False)
-    first = engine.add_fact("pohon", "made_of", "kayu", "verified", "core_knowledge")
+    first = engine.add_fact("api", "can_burn", "kayu", "verified", "core_knowledge")
 
-    second = engine.add_fact("pohon", "made_of", "air", "hypothesis", "user_input")
+    second = engine.add_fact("api", "can_burn", "air", "hypothesis", "user_input")
 
     assert second["status"] == "conflicting"
     facts = engine.search_facts("api")
