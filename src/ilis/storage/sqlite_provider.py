@@ -57,13 +57,18 @@ class SQLiteStorageProvider:
             self._connection = sqlite3.connect(self.db_path)
             self._connection.row_factory = sqlite3.Row
             self._initialize_schema()
-        except (OSError, sqlite3.Error) as exc:
+        except Exception as exc:
             if self._connection is not None:
-                self._connection.close()
-                self._closed = True
-            raise RuntimeError(
-                f"Unable to initialize ILIS SQLite database at {self.db_path!r}: {exc}"
-            ) from exc
+                try:
+                    self._connection.close()
+                finally:
+                    self._connection = None
+                    self._closed = True
+            if isinstance(exc, (OSError, sqlite3.Error)):
+                raise RuntimeError(
+                    f"Unable to initialize ILIS SQLite database at {self.db_path!r}: {exc}"
+                ) from exc
+            raise
 
     def _require_connection(self) -> sqlite3.Connection:
         if self._closed or self._connection is None:
