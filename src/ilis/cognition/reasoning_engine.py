@@ -333,7 +333,13 @@ class ReasoningEngine:
             fact for fact in self.knowledge_engine.fact_store.all()
             if fact.get("subject") == actor.casefold() and fact.get("relation") == relation
         ]
-        if (relation not in MULTI_VALUED_RELATIONS and len({fact.get("object") for fact in related}) > 1) or any(
+        relation_conflict = any(
+            group[0].get("subject") == actor.casefold()
+            and group[0].get("relation") == relation
+            for group in self.knowledge_engine.detect_conflicts()
+            if group
+        )
+        if relation_conflict or any(
             fact.get("status") == "conflicting" for fact in matches
         ):
             evidence = sorted({fact["id"] for fact in related})
