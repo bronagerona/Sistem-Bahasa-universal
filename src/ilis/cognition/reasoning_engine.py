@@ -12,6 +12,11 @@ from ilis.cognition.inference_rules import (
     matching_rule_premises,
 )
 from ilis.cognition.knowledge_engine import KnowledgeEngine, MULTI_VALUED_RELATIONS
+from ilis.concept_engine import (
+    ConfidenceLevel,
+    ConceptStore,
+    InferenceEngine,
+)
 from ilis.language.pipeline import analyze_semantics
 from ilis.semantics.contract_validator import ContractValidationError, validate_output
 
@@ -23,10 +28,27 @@ class ReasoningEngine:
     is used. V1 implements only the explicit burn-risk rule.
     """
 
-    def __init__(self, knowledge_engine: KnowledgeEngine) -> None:
+    def __init__(
+        self,
+        knowledge_engine: KnowledgeEngine,
+        *,
+        concept_store: ConceptStore | None = None,
+        inference_engine: InferenceEngine | None = None,
+    ) -> None:
         if not isinstance(knowledge_engine, KnowledgeEngine):
             raise TypeError("knowledge_engine must be a KnowledgeEngine instance")
+        if concept_store is not None and not isinstance(concept_store, ConceptStore):
+            raise TypeError("concept_store must be a ConceptStore instance")
+        if inference_engine is not None and not isinstance(inference_engine, InferenceEngine):
+            raise TypeError("inference_engine must be an InferenceEngine instance")
+        if concept_store is not None and inference_engine is not None:
+            raise ValueError("provide concept_store or inference_engine, not both")
         self.knowledge_engine = knowledge_engine
+        self.concept_store = concept_store if concept_store is not None else ConceptStore()
+        self.inference_engine = (
+            inference_engine if inference_engine is not None
+            else InferenceEngine(self.concept_store)
+        )
 
     def infer_burn_risk(self, source: str, target: str) -> dict[str, Any]:
         """Assess whether a source may cause a target to burn.
@@ -363,6 +385,13 @@ class ReasoningEngine:
                 uncertainty="Tinjau fakta dan provenance sebelum menjawab.",
             )
         if not matches:
+            # Exact KnowledgeEngine lookup above always has priority. Only the
+            # supported V3 burn-property rule may run as a fallback; legacy
+            # conflicts and the dragon/bell path have already been handled.
+            if relation == "can_burn":
+                return self._infer_concept_fallback(
+                    actor, patient, context_note=context_note,
+                )
             return self._result(
                 conclusion=f"Belum ada bukti yang cukup untuk menjawab apakah {actor} {predicate} {patient}.",
                 confidence_score=0.0, evidence=[], reasoning_type="unknown",
@@ -398,6 +427,53 @@ class ReasoningEngine:
             ] + ([context_note] if context_note else []),
             uncertainty="Kesimpulan berbasis aturan, bukan kepastian universal." if verified
                 else "Premis masih berupa hipotesis dan belum diverifikasi.",
+        )
+
+    def _infer_concept_fallback(
+        self,
+        actor: str,
+        patient: str,
+        *,
+        context_note: str | None = None,
+    ) -> dict[str, Any]:
+        """Map the standalone V3 inference result into the unchanged six-key API."""
+        result = self.inference_engine.infer(
+            actor,
+            patient,
+            relation_type="can_burn",
+            required_property="mudah_terbakar",
+        )
+        status = result.status
+        if status is ConfidenceLevel.KNOWN:
+            confidence_score = 0.72
+            reasoning_type = "concept_inference_known"
+            conclusion = f"Tahu Pasti: {result.conclusion}"
+        elif status is ConfidenceLevel.PARTIAL:
+            confidence_score = 0.48
+            reasoning_type = "concept_inference_partial"
+            conclusion = f"Tahu Sebagian: {result.conclusion}"
+        else:
+            confidence_score = 0.0
+            reasoning_type = "concept_inference_unknown"
+            conclusion = f"Tidak Tahu: {result.conclusion}"
+
+        reasons = list(result.reasons)
+        reasons.insert(
+            0,
+            "KnowledgeEngine tidak menemukan fakta persis; jalur fallback Concept Engine V3 dijalankan.",
+        )
+        if context_note:
+            reasons.append(context_note)
+        uncertainty = " ".join(result.uncertainty) or (
+            "Tidak ada ketidakpastian tambahan yang tercatat."
+        )
+        return self._result(
+            conclusion=conclusion,
+            confidence_score=confidence_score,
+            evidence=list(result.evidence),
+            reasoning_type=reasoning_type,
+            reasons=reasons,
+            uncertainty=uncertainty,
         )
 
     def _ensure_dragon_bell_core_facts(self) -> None:
