@@ -1,0 +1,114 @@
+name: ILIS Multi-Turn Playground
+
+on:
+  workflow_dispatch:
+    inputs:
+      message_1:
+        description: "Pesan pertama"
+        required: true
+        type: string
+        default: "Apakah api bisa membakar kayu?"
+      message_2:
+        description: "Pesan kedua dalam sesi yang sama"
+        required: true
+        type: string
+        default: "Lalu apakah api juga bisa membakar kertas?"
+
+permissions:
+  contents: read
+
+jobs:
+  multi-turn:
+    name: Uji dua pesan dalam satu sesi ILIS V2.2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ambil kode implementasi multi-turn
+        uses: actions/checkout@v4
+        with:
+          ref: ilis-v2-2-multi-turn-implementation
+
+      - name: Siapkan Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pasang ILIS
+        run: python -m pip install -e .
+
+      - name: Kirim dua pesan memakai session_id yang sama
+        env:
+          ILIS_TEST_MESSAGE_1: ${{ inputs.message_1 }}
+          ILIS_TEST_MESSAGE_2: ${{ inputs.message_2 }}
+        run: |
+          python - <<'PY'
+          import html
+          import json
+          import os
+          import sys
+
+          from ilis.interfaces import ILISCore
+
+          first = os.environ.get("ILIS_TEST_MESSAGE_1", "")
+          second = os.environ.get("ILIS_TEST_MESSAGE_2", "")
+          if not first.strip() or not second.strip():
+              print("ERROR: Kedua pesan wajib diisi.", file=sys.stderr)
+              raise SystemExit(2)
+
+          core = ILISCore()
+          chatbot = core.chatbot()
+          session_id = chatbot.create_session(
+              metadata={"source": "github_actions_multi_turn_playground"}
+          )
+          try:
+              result_1 = chatbot.respond(first, session_id)
+              result_2 = chatbot.respond(second, session_id)
+
+              metadata_1 = result_1["metadata"]
+              metadata_2 = result_2["metadata"]
+              snapshot = chatbot.session_manager.get_context_snapshot(session_id)
+
+              print("SESSION ID (sama untuk kedua pesan):")
+              print(session_id)
+              print("\\nPESAN 1:")
+              print(first)
+              print("\\nJAWABAN ILIS 1:")
+              print(result_1["answer"])
+              print("\\nPESAN 2:")
+              print(second)
+              print("\\nJAWABAN ILIS 2:")
+              print(result_2["answer"])
+              print("\\nMETADATA PESAN 1:")
+              print(json.dumps(metadata_1, ensure_ascii=False, indent=2))
+              print("\\nMETADATA PESAN 2:")
+              print(json.dumps(metadata_2, ensure_ascii=False, indent=2))
+              print("\\nSNAPSHOT SESI:")
+              print(json.dumps(snapshot, ensure_ascii=False, indent=2))
+
+              if metadata_1.get("context_turns_used") != 0:
+                  raise AssertionError("Pesan pertama seharusnya memakai 0 turn konteks.")
+              if metadata_2.get("context_turns_used") != 1:
+                  raise AssertionError("Pesan kedua seharusnya menerima 1 turn sebelumnya.")
+              if len(snapshot.get("turns", [])) != 2:
+                  raise AssertionError("Sesi seharusnya menyimpan tepat 2 turn.")
+
+              summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+              if summary_path:
+                  summary = (
+                      "<h2>Hasil uji multi-turn ILIS V2.2</h2>"
+                      f"<p><b>Session ID:</b> {html.escape(session_id)}</p>"
+                      f"<h3>Pesan 1</h3><pre>{html.escape(first)}</pre>"
+                      f"<h3>Jawaban 1</h3><pre>{html.escape(str(result_1['answer']))}</pre>"
+                      f"<p>context_turns_used: {metadata_1.get('context_turns_used')}</p>"
+                      f"<h3>Pesan 2</h3><pre>{html.escape(second)}</pre>"
+                      f"<h3>Jawaban 2</h3><pre>{html.escape(str(result_2['answer']))}</pre>"
+                      f"<p>context_turns_used: {metadata_2.get('context_turns_used')}</p>"
+                      "<p><b>PASS:</b> Kedua pesan diproses dalam session_id yang sama; "
+                      "pesan kedua menerima satu turn konteks sebelumnya.</p>"
+                  )
+                  with open(summary_path, "a", encoding="utf-8") as file:
+                      file.write(summary + "\\n")
+
+              print("\\nMULTI-TURN CHECK: PASS")
+          finally:
+              core.close()
+          PY
