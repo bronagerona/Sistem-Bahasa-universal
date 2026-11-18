@@ -121,12 +121,18 @@ class KnowledgeEngine:
     def detect_conflicts(self) -> list[list[dict[str, Any]]]:
         groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
         for fact in self.fact_store.all():
-            if fact["relation"] in MULTI_VALUED_RELATIONS:
-                continue
             groups.setdefault((fact["subject"], fact["relation"]), []).append(fact)
         return [
-            facts for facts in groups.values()
+            facts for (subject, relation), facts in groups.items()
             if len({fact["object"] for fact in facts}) > 1
+            and not (
+                relation in MULTI_VALUED_RELATIONS
+                and all(
+                    fact.get("status") == "verified"
+                    and fact.get("source") == "core_knowledge"
+                    for fact in facts
+                )
+            )
         ]
 
     def ingest_semantic_result(
@@ -157,12 +163,15 @@ class KnowledgeEngine:
         return self.provenance.get(fact_id)
 
     def _mark_conflicts(self, subject: str, relation: str) -> None:
-        if relation in MULTI_VALUED_RELATIONS:
-            return
         matching = [
             fact for fact in self.fact_store.all()
             if fact["subject"] == subject and fact["relation"] == relation
         ]
+        if relation in MULTI_VALUED_RELATIONS and all(
+            fact.get("status") == "verified" and fact.get("source") == "core_knowledge"
+            for fact in matching
+        ):
+            return
         if len({fact["object"] for fact in matching}) <= 1:
             return
         for fact in matching:
