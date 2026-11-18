@@ -6,10 +6,11 @@ import re
 from typing import Any
 
 from ilis.interfaces.ilis_core import ILISCore
+from ilis.persona import PersonaConfig, PersonaRenderer
 
 
 class GameEngineAdapter:
-    """Record game events and turn supported evidence into NPC dialogue."""
+    """Record game events and optionally render dialogue as a configured persona."""
 
     _FEAR_EVENT = re.compile(
         r"^\s*(?P<subject>naga)\s+takut\s+(?P<object>lonceng)\s*[.!?]?\s*$",
@@ -20,10 +21,17 @@ class GameEngineAdapter:
         re.IGNORECASE,
     )
 
-    def __init__(self, core: ILISCore) -> None:
+    def __init__(
+        self, core: ILISCore, *, persona_config: PersonaConfig | None = None
+    ) -> None:
         if not isinstance(core, ILISCore):
             raise TypeError("core must be an ILISCore instance")
         self.core = core
+        # A generic game adapter has no safe default character identity.
+        # The host game opts in by passing a Mode B or Mode C configuration.
+        self.persona_renderer = (
+            PersonaRenderer(persona_config) if persona_config is not None else None
+        )
 
     def handle_event(
         self, event: str, session_id: str, *, entities: list[str] | None = None,
@@ -71,10 +79,16 @@ class GameEngineAdapter:
         generated = self.core.language_generator.generate(
             reasoning, context=context
         )
+        raw_dialogue = generated["text"]
+        dialogue = (
+            self.persona_renderer.render(raw_dialogue)
+            if self.persona_renderer is not None
+            else raw_dialogue
+        )
         return {
             "npc": npc,
-            "dialogue": generated["text"],
-            "answer": generated["text"],
+            "dialogue": dialogue,
+            "answer": dialogue,
             "metadata": {
                 "session_id": session_id,
                 "episode_id": episode["episode_id"],
