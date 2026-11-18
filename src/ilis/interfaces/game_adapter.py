@@ -77,9 +77,10 @@ class GameEngineAdapter:
             conversation_id = conversation_session_id or session_id
             metadata = dict(legacy_context.get("session", {}).get("metadata", {}))
             metadata["_episodic_session_id"] = session_id
-            self.session_manager.ensure_session(conversation_id, metadata=metadata)
+            if self.session_manager.get_session(conversation_id) is None:
+                self.session_manager.ensure_session(conversation_id, metadata=metadata)
             session = self.session_manager.require_session(conversation_id)
-            episodic_session_id = session_id
+            episodic_session_id = session.metadata.get("_episodic_session_id") or session_id
 
         if not isinstance(episodic_session_id, str) or not episodic_session_id:
             raise ValueError("game conversation has no episodic memory scope")
