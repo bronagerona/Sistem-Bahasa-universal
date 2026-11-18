@@ -266,6 +266,14 @@ class ReasoningEngine:
                 reasons=["Negasi tidak dipetakan menjadi relasi fakta positif."],
                 uncertainty="Diperlukan aturan khusus untuk pertanyaan negatif.",
             )
+        # The dragon/bell rule is exposed through the validated semantic question path.
+        if (
+            actor.casefold() == "lonceng"
+            and predicate.casefold() in {"menakuti", "takut"}
+            and patient.casefold() == "naga"
+        ):
+            return self.infer_dragon_bell()
+
         relation_aliases = {"membakar": "can_burn", "bakar": "can_burn"}
         relation = relation_aliases.get(predicate.casefold(), predicate.casefold())
         matches = [

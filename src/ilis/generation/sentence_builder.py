@@ -25,6 +25,8 @@ class SentenceBuilder:
         if register not in self.REGISTERS:
             raise ValueError(f"register must be one of {sorted(self.REGISTERS)}")
 
+        # Register "unknown" is normalized by LanguageGenerator to "formal"
+        # before build(); this builder accepts only concrete register values.
         kind = meaning.get("kind", "statement")
         if kind == "burn_risk":
             sentence = self._burn_risk(meaning, register, uncertainty)

@@ -9,7 +9,7 @@ from ilis.interfaces.ilis_core import ILISCore
 
 
 class ChatbotAdapter:
-    """Run semantic analysis, context storage, reasoning, then generation."""
+    """Run semantic analysis, reasoning, then register-aware generation."""
 
     _TOUCHES_WOODEN_HOUSE = re.compile(
         r"^\s*(?P<source>api)\s+menyentuh\s+"
@@ -28,23 +28,56 @@ class ChatbotAdapter:
     ) -> dict[str, Any]:
         if not isinstance(text, str) or not text.strip():
             raise ValueError("text must be a non-empty string")
+
         processed = self.core.context_engine.process_message(
             session_id, speaker, text, ingest_semantics=False
         )
         semantic = processed["semantic_result"]
-        match = self._TOUCHES_WOODEN_HOUSE.fullmatch(text)
-        if match:
+
+        # Always enter the validated Semantic -> Reasoning path first. Unsupported
+        # and low-confidence payloads are converted by infer_semantic() to unknown.
+        reasoning = self.core.reasoning_engine.infer_semantic(semantic)
+
+        legacy_match = self._TOUCHES_WOODEN_HOUSE.fullmatch(text)
+        if legacy_match:
+            # Preserve the exact V1 adapter behavior for this legacy sentence.
+            # V1 did not expose a usable Semantic confidence for this pattern, so
+            # a neutral multiplier (1.0) keeps its historical 0.72 score intact.
             reasoning = self.core.reasoning_engine.infer_burn_risk(
-                match.group("source").casefold(), match.group("target").casefold()
+                legacy_match.group("source").casefold(),
+                legacy_match.group("target").casefold(),
             )
+            semantic_confidence = 1.0
         else:
-            reasoning = {
-                "conclusion": "Belum cukup data untuk menyusun kesimpulan dari kalimat ini.",
-                "confidence_score": 0.0, "evidence": [],
-                "reasoning_type": "unknown",
-                "reasons": ["Pola kalimat ini belum didukung adapter chatbot V1."],
-                "uncertainty": "Diperlukan pola semantik atau aturan yang didukung.",
-            }
+            semantics = semantic.get("semantics")
+            confidence = semantics.get("Confidence") if isinstance(semantics, dict) else None
+            if (
+                isinstance(confidence, (int, float))
+                and not isinstance(confidence, bool)
+                and 0.0 <= confidence <= 1.0
+            ):
+                semantic_confidence = float(confidence)
+            else:
+                semantic_confidence = 0.0
+
+        # Confidence propagation: final reasoning confidence is the rule-based
+        # reasoning score multiplied by Semantic Engine confidence. This adjusts
+        # the numeric score only; it never upgrades unknown/conflicting or changes
+        # verified/hypothetical reasoning_type.
+        base_confidence = reasoning.get("confidence_score", 0.0)
+        if not isinstance(base_confidence, (int, float)) or isinstance(base_confidence, bool):
+            base_confidence = 0.0
+        reasoning["confidence_score"] = round(
+            max(0.0, min(1.0, float(base_confidence)))
+            * semantic_confidence,
+            6,
+        )
+        reasoning["reasons"] = list(reasoning.get("reasons") or [])
+        reasoning["reasons"].append(
+            "Confidence akhir = confidence Reasoning × confidence Semantic "
+            f"({float(base_confidence):.6f} × {semantic_confidence:.6f})."
+        )
+
         effective_register = register
         if effective_register is None:
             semantic_register = (semantic.get("semantics") or {}).get("Register")
@@ -54,6 +87,7 @@ class ChatbotAdapter:
                 semantic_register = metadata.get("register") if isinstance(metadata, dict) else None
             if semantic_register in {"formal", "informal", "slang"}:
                 effective_register = semantic_register
+
         generated = self.core.language_generator.generate(
             reasoning, register=effective_register, semantic_result=semantic,
             session_id=session_id,

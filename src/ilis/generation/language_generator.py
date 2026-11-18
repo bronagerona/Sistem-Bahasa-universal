@@ -80,7 +80,7 @@ class LanguageGenerator:
             return dict(supplied)
         reasoning_type = result.get("reasoning_type", "unknown")
         conclusion = result.get("conclusion", "")
-        if isinstance(conclusion, str) and "lonceng" in conclusion.casefold() and "naga" in conclusion.casefold() and "takut" in conclusion.casefold():
+        if isinstance(conclusion, str) and "lonceng" in conclusion.casefold() and "naga" in conclusion.casefold() and any(marker in conclusion.casefold() for marker in ("takut", "menakuti")):
             return {"kind": "dragon_bell", "proposition": conclusion}
         if semantic_result and semantic_result.get("status") == "supported":
             semantics = semantic_result.get("semantics")
@@ -130,6 +130,7 @@ class LanguageGenerator:
                 candidate = metadata.get("register")
         if candidate in {"formal", "informal", "slang"}:
             return candidate
+        # Missing or unknown Semantic/session register defaults to formal.
         return "formal"
 
     @staticmethod
