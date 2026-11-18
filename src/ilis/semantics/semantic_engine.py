@@ -1,0 +1,225 @@
+"""Rule-based, explainable Semantic Engine for simple Indonesian assertions.
+
+No LLM, embedding model, or external AI service is used. This V1 parser deliberately
+supports a small, explicit set of sentence patterns and declines complex input.
+"""
+
+from __future__ import annotations
+
+import re
+from typing import Any
+
+from ilis.semantics.constants import CONTRACT_VERSION
+from ilis.semantics.contract_validator import (
+    validate_input,
+    validate_output,
+)
+
+
+_PRONOUNS = {
+    "saya": ("saya", "formal"),
+    "aku": ("aku", "informal"),
+    "gue": ("saya", "slang"),
+    "gw": ("saya", "slang"),
+    "gua": ("saya", "slang"),
+    "kamu": ("kamu", "informal"),
+    "lu": ("kamu", "slang"),
+    "lo": ("kamu", "slang"),
+    "dia": ("dia", "unknown"),
+    "kita": ("kita", "unknown"),
+}
+_VERBS = {
+    "makan", "minum", "pergi", "berangkat", "datang", "tidur", "baca",
+    "membaca", "menulis", "belajar", "bekerja", "main", "bermain",
+    "melihat", "membeli", "membawa", "memberi", "memasak", "lari",
+    "beli", "pulang",
+}
+_COMPLEX_MARKERS = {
+    "dan", "tetapi", "namun", "karena", "sehingga", "ketika", "meskipun",
+    "walaupun", "sedangkan", "sementara",
+}
+_INTERROGATIVE_MARKERS = {"apakah", "siapa", "apa", "mengapa", "kenapa", "bagaimana", "kapan", "dimana", "mana"}
+_COMMAND_MARKERS = {"tolong", "silakan", "harap"}
+_TIME_WORDS = {
+    "sekarang", "tadi", "kemarin", "besok", "nanti", "pagi", "siang",
+    "sore", "malam", "hari", "pagian",
+}
+_LOCATION_PREPOSITIONS = {"di", "ke", "dari", "menuju"}
+_ASPECT_MARKERS = {
+    "progressive": {"lagi", "sedang"},
+    "prospective": {"akan", "bakal"},
+    "completed": {"sudah", "telah"},
+    "habitual": {"biasanya", "sering", "selalu"},
+}
+
+
+class SemanticEngine:
+    """Parse simple Indonesian declarative sentences using deterministic rules."""
+
+    def analyze(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """Validate an ILVE input and return a contract-1.0 semantic result.
+
+        The original text and validated ILVE payload are retained in the result
+        for traceability. They are not replaced by normalized text.
+        """
+        validated = validate_input(payload)
+        original = validated["original_text"]
+        normalized = validated["ilve"]["normalized_text"]
+        semantics, status = self._parse(original, normalized, validated["ilve"]["variation_hints"])
+        result = {
+            "contract_version": CONTRACT_VERSION,
+            "status": status,
+            "semantics": semantics,
+            "original_text": original,
+            "ilve": validated["ilve"],
+        }
+        validate_output(result)
+        return result
+
+    def _parse(
+        self, original: str, normalized: str, variation_hints: list[dict[str, str]]
+    ) -> tuple[dict[str, Any] | None, str]:
+        words = re.findall(r"[a-zA-ZÀ-ÿ]+", normalized.casefold())
+        original_words = re.findall(r"[a-zA-ZÀ-ÿ]+", original.casefold())
+
+        if not words:
+            return None, "unsupported"
+        # V1 is declarative-only: explicitly reject questions and common commands.
+        if "?" in original or any(word in _INTERROGATIVE_MARKERS for word in words):
+            return None, "unsupported"
+        if words[0] in _COMMAND_MARKERS:
+            return None, "unsupported"
+        if any(word in _COMPLEX_MARKERS for word in words):
+            return None, "unsupported"
+        # A second known predicate is a conservative signal of multiple clauses.
+        verb_positions = [i for i, word in enumerate(words) if word in _VERBS]
+        if len(verb_positions) > 1:
+            return None, "unsupported"
+
+        if len(words) < 2:
+            return None, "unsupported"
+
+        actor_index = next((i for i, word in enumerate(words) if word in _PRONOUNS), None)
+        if actor_index is None:
+            predicate = words[verb_positions[0]] if verb_positions else None
+            return self._partial_semantics(predicate=predicate), "low_confidence"
+
+        actor_word = words[actor_index]
+        actor, inferred_register = _PRONOUNS[actor_word]
+        predicate_index = next(
+            (i for i, word in enumerate(words) if word in _VERBS and i > actor_index),
+            None,
+        )
+        if predicate_index is None:
+            partial = self._partial_semantics(actor=actor, register=inferred_register)
+            return partial, "low_confidence"
+        predicate = words[predicate_index]
+
+        before_predicate = words[actor_index + 1:predicate_index]
+        after_predicate = words[predicate_index + 1:]
+        aspect = "unspecified"
+        negation = "none"
+        modality = "none"
+
+        for aspect_name, markers in _ASPECT_MARKERS.items():
+            if any(word in markers for word in before_predicate):
+                aspect = aspect_name
+                break
+
+        if "belum" in before_predicate:
+            negation = "not_yet"
+        elif any(word in {"tidak", "tak", "gak", "ga", "nggak", "enggak"} for word in before_predicate):
+            negation = "negative"
+        elif "bukan" in before_predicate:
+            negation = "identity_negative"
+
+        if any(word in {"bisa", "dapat", "mampu"} for word in before_predicate):
+            modality = "ability"
+        elif any(word in {"harus", "wajib"} for word in before_predicate):
+            modality = "obligation"
+        elif any(word in {"mungkin", "barangkali"} for word in before_predicate):
+            modality = "possibility"
+        elif any(word in {"ingin", "mau", "pengen"} for word in before_predicate):
+            modality = "desire"
+        elif "boleh" in before_predicate:
+            modality = "permission"
+
+        # Preserve common hyphenated time expression as one semantic value.
+        if re.search(r"\bpagi[-\s]+pagian\b", original.casefold()):
+            time = "pagi-pagian"
+        else:
+            time = next((word for word in words if word in _TIME_WORDS), None)
+
+        location = None
+        patient = None
+        if after_predicate:
+            for i, word in enumerate(after_predicate):
+                if word in _LOCATION_PREPOSITIONS and i + 1 < len(after_predicate):
+                    location = after_predicate[i + 1]
+                    break
+            if location is None:
+                patient_start = next(
+                    (
+                        i for i, word in enumerate(after_predicate)
+                        if word not in _TIME_WORDS and word not in _LOCATION_PREPOSITIONS
+                    ),
+                    None,
+                )
+                if patient_start is not None:
+                    patient_words = []
+                    for word in after_predicate[patient_start:]:
+                        if word in _TIME_WORDS or word in _LOCATION_PREPOSITIONS:
+                            break
+                        patient_words.append(word)
+                    patient = " ".join(patient_words) or None
+
+        # ILVE hints preserve surface/register evidence even when normalized_text
+        # contains only canonical lexical forms.
+        hint_surfaces = {hint["surface"].casefold() for hint in variation_hints}
+        if any(word in {"gue", "gw", "gua", "lu", "lo"} for word in original_words) or hint_surfaces.intersection({"gue", "gw", "gua", "lu", "lo"}):
+            register = "slang"
+        elif actor_word == "aku":
+            register = "informal"
+        elif actor_word == "saya":
+            register = "formal"
+        else:
+            register = inferred_register
+
+        confidence = 0.98 if predicate in {"makan", "pergi"} else 0.93
+        semantics = {
+            "Actor": actor,
+            "Predicate": predicate,
+            "Patient/Object": patient,
+            "Recipient": None,
+            "Location": location,
+            "Time": time,
+            "Aspect": aspect,
+            "Negation": negation,
+            "Modality": modality,
+            "Intent": "assertion",
+            "Register": register,
+            "Confidence": confidence,
+        }
+        return semantics, "supported"
+
+    @staticmethod
+    def _partial_semantics(
+        actor: str | None = None,
+        predicate: str | None = None,
+        register: str = "unknown",
+    ) -> dict[str, Any]:
+        """Build a contract-complete partial result without guessing missing roles."""
+        return {
+            "Actor": actor,
+            "Predicate": predicate,
+            "Patient/Object": None,
+            "Recipient": None,
+            "Location": None,
+            "Time": None,
+            "Aspect": "unspecified",
+            "Negation": "none",
+            "Modality": "none",
+            "Intent": "assertion",
+            "Register": register,
+            "Confidence": 0.25,
+        }
