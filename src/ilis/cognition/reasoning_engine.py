@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from ilis.cognition.inference_rules import (
@@ -10,7 +11,8 @@ from ilis.cognition.inference_rules import (
     matching_burn_risk_premises,
     matching_rule_premises,
 )
-from ilis.cognition.knowledge_engine import KnowledgeEngine
+from ilis.cognition.knowledge_engine import KnowledgeEngine, MULTI_VALUED_RELATIONS
+from ilis.language.pipeline import analyze_semantics
 from ilis.semantics.contract_validator import ContractValidationError, validate_output
 
 
@@ -215,11 +217,15 @@ class ReasoningEngine:
                 "Setidaknya satu premis masih berupa hipotesis; " + DRAGON_BELL_RULE["uncertainty"],
         )
 
-    def infer_semantic(self, semantic_result: dict[str, Any]) -> dict[str, Any]:
-        """Answer supported semantic questions; keep commands and assertions distinct.
+    def infer_semantic(
+        self, semantic_result: dict[str, Any], *,
+        context_snapshot: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Answer semantic questions, using prior turns only to resolve follow-ups.
 
-        Accepts the SemanticEngine.analyze() result without changing either
-        engine's contract. The returned reasoning result keeps the six V1 keys.
+        Conversation context is read-only and never becomes evidence. Every
+        factual conclusion still requires a matching KnowledgeEngine fact.
+        The Semantic 12-field and Reasoning six-key contracts remain unchanged.
         """
         try:
             validated_result = validate_output(semantic_result)
@@ -238,7 +244,53 @@ class ReasoningEngine:
                 reasons=[f"Semantic Engine memberikan status {validated_result['status']}."],
                 uncertainty="Perjelas atau sederhanakan kalimat.",
             )
-        semantics = validated_result["semantics"]
+        # Work on a private interpretation copy. The Semantic 12-field result
+        # returned to callers remains untouched by contextual resolution.
+        semantics = dict(validated_result["semantics"])
+        context_note = None
+        if context_snapshot is not None:
+            if not isinstance(context_snapshot, dict):
+                raise TypeError("context_snapshot must be a dictionary or None")
+            turns = context_snapshot.get("turns", [])
+            current_text = str(validated_result.get("original_text", ""))
+            is_follow_up = bool(
+                isinstance(turns, list) and turns
+                and re.match(
+                    r"^\s*(?:lalu|kemudian|terus|kalau\s+begitu|bagaimana\s+dengan)\b",
+                    current_text, flags=re.IGNORECASE,
+                )
+            )
+            if is_follow_up:
+                previous_text = turns[-1].get("user_message") if isinstance(turns[-1], dict) else None
+                if isinstance(previous_text, str) and previous_text.strip():
+                    previous_semantic = analyze_semantics(previous_text)
+                    previous_fields = (
+                        previous_semantic.get("semantics", {})
+                        if previous_semantic.get("status") == "supported" else {}
+                    )
+                    # Resolve only omitted actor/predicate. The current turn
+                    # must still provide its own patient/object.
+                    for field in ("Actor", "Predicate"):
+                        current_value = semantics.get(field)
+                        needs_context = not (
+                            isinstance(current_value, str) and current_value.strip()
+                        )
+                        # The bounded Semantic parser can mistake a discourse
+                        # particle in a follow-up ("Lalu ... juga ...") for the
+                        # nominal actor. Treat these particles as omitted actors.
+                        if field == "Actor" and isinstance(current_value, str):
+                            needs_context = needs_context or current_value.casefold() in {
+                                "lalu", "kemudian", "terus", "juga", "begitu",
+                            }
+                        if needs_context:
+                            prior_value = previous_fields.get(field)
+                            if isinstance(prior_value, str) and prior_value.strip():
+                                semantics[field] = prior_value
+                    context_note = (
+                        "Penanda pertanyaan lanjutan ditafsirkan dengan membaca "
+                        "giliran sebelumnya; riwayat hanya membantu memahami "
+                        "kalimat dan bukan bukti faktual."
+                    )
         intent = semantics.get("Intent")
         if intent != "question":
             label = "perintah" if intent == "command" else "pernyataan"
@@ -294,7 +346,13 @@ class ReasoningEngine:
             fact for fact in self.knowledge_engine.fact_store.all()
             if fact.get("subject") == actor.casefold() and fact.get("relation") == relation
         ]
-        if len({fact.get("object") for fact in related}) > 1 or any(
+        relation_conflict = any(
+            group[0].get("subject") == actor.casefold()
+            and group[0].get("relation") == relation
+            for group in self.knowledge_engine.detect_conflicts()
+            if group
+        )
+        if relation_conflict or any(
             fact.get("status") == "conflicting" for fact in matches
         ):
             evidence = sorted({fact["id"] for fact in related})
@@ -334,8 +392,10 @@ class ReasoningEngine:
             confidence_score=0.72 if verified else 0.48,
             evidence=[fact["id"]],
             reasoning_type="verified_inference" if verified else "hypothetical_inference",
-            reasons=[f"Fakta {fact['id']}: {actor} {relation} {patient} ({fact['status']}).",
-                     "Jawaban diturunkan dari fakta yang cocok dengan pertanyaan semantik."],
+            reasons=[
+                f"Fakta {fact['id']}: {actor} {relation} {patient} ({fact['status']}).",
+                "Jawaban diturunkan dari fakta yang cocok dengan pertanyaan semantik.",
+            ] + ([context_note] if context_note else []),
             uncertainty="Kesimpulan berbasis aturan, bukan kepastian universal." if verified
                 else "Premis masih berupa hipotesis dan belum diverifikasi.",
         )

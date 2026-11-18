@@ -11,6 +11,8 @@ from ilis.cognition.relation_store import RelationStore
 
 
 FACT_STATUSES = frozenset({"verified", "hypothesis", "conflicting"})
+# A source can burn multiple materials; these are cumulative, not exclusive facts.
+MULTI_VALUED_RELATIONS = frozenset({"can_burn"})
 
 
 class KnowledgeEngine:
@@ -40,9 +42,24 @@ class KnowledgeEngine:
             for record in self.storage_provider.load_provenance():
                 self.provenance.load(record)
 
-        if seed_core_knowledge and not self.fact_store.all():
-            self.add_fact("api", "can_burn", "kayu", "verified", "core_knowledge")
-            self.add_fact("rumah", "made_of", "kayu", "verified", "core_knowledge")
+        if seed_core_knowledge:
+            # Seed each canonical fact independently so existing SQLite stores
+            # receive newly added knowledge without duplicating prior records.
+            core_facts = (
+                ("api", "can_burn", "kayu"),
+                ("rumah", "made_of", "kayu"),
+                ("api", "can_burn", "kertas"),
+            )
+            existing = {
+                (fact["subject"], fact["relation"], fact["object"])
+                for fact in self.fact_store.all()
+            }
+            for subject, relation, object_ in core_facts:
+                if (subject, relation, object_) not in existing:
+                    self.add_fact(
+                        subject, relation, object_,
+                        status="verified", source="core_knowledge",
+                    )
 
     def add_concept(self, concept: str) -> str:
         return self.concept_store.add(concept)
@@ -106,8 +123,16 @@ class KnowledgeEngine:
         for fact in self.fact_store.all():
             groups.setdefault((fact["subject"], fact["relation"]), []).append(fact)
         return [
-            facts for facts in groups.values()
+            facts for (subject, relation), facts in groups.items()
             if len({fact["object"] for fact in facts}) > 1
+            and not (
+                relation in MULTI_VALUED_RELATIONS
+                and all(
+                    fact.get("status") == "verified"
+                    and fact.get("source") == "core_knowledge"
+                    for fact in facts
+                )
+            )
         ]
 
     def ingest_semantic_result(
@@ -142,6 +167,11 @@ class KnowledgeEngine:
             fact for fact in self.fact_store.all()
             if fact["subject"] == subject and fact["relation"] == relation
         ]
+        if relation in MULTI_VALUED_RELATIONS and all(
+            fact.get("status") == "verified" and fact.get("source") == "core_knowledge"
+            for fact in matching
+        ):
+            return
         if len({fact["object"] for fact in matching}) <= 1:
             return
         for fact in matching:
