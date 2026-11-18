@@ -69,6 +69,15 @@ def analyze_semantics(text: str) -> dict[str, object]:
         normalized_text, flags=re.IGNORECASE,
     )
     if not standalone_style_command:
+        # Remove a leading style command when it introduces a question.
+        # Example: "Tolong jawab dengan sopan, apakah naga takut lonceng?"
+        normalized_text = re.sub(
+            r"^(?:tolong\s+)?(?:jawab|jelaskan|uraikan|terangkan)\s+"
+            r"(?:dengan\s+)?(?:sopan|singkat|ringkas|jelas|santai)"
+            r"\s*[,;:]?\s*(?=(?:apakah|siapa|apa|mengapa|kenapa|"
+            r"bagaimana|kapan|dimana|di\s+mana|mana)\b)",
+            "", normalized_text, flags=re.IGNORECASE,
+        ).strip()
         normalized_text = re.sub(
             r"\s+(?:tolong\s+)?(?:jawab|jelaskan|uraikan|terangkan)\s+"
             r"(?:dengan\s+)?(?:sopan|singkat|ringkas|jelas|santai)\s*[.!?]*$",

@@ -22,7 +22,7 @@ _PRONOUNS = {
 _VERBS = {
     "makan", "minum", "pergi", "berangkat", "datang", "tidur", "baca",
     "membaca", "menulis", "belajar", "bekerja", "main", "bermain",
-    "melihat", "menakuti", "membeli", "membawa", "memberi", "memasak", "lari",
+    "melihat", "menakuti", "takut", "membeli", "membawa", "memberi", "memasak", "lari",
     "beli", "pulang", "membakar", "bakar", "bunyi", "bunyikan",
     "menyalakan", "matikan", "tutup", "buka", "ambil", "berikan",
     "panggil", "dengarkan", "lihat", "buat", "simpan", "hapus", "jawab",

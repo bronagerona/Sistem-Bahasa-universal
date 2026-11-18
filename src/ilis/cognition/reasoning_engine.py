@@ -268,9 +268,16 @@ class ReasoningEngine:
             )
         # The dragon/bell rule is exposed through the validated semantic question path.
         if (
-            actor.casefold() == "lonceng"
-            and predicate.casefold() in {"menakuti", "takut"}
-            and patient.casefold() == "naga"
+            (
+                actor.casefold() == "lonceng"
+                and predicate.casefold() == "menakuti"
+                and patient.casefold() == "naga"
+            )
+            or (
+                actor.casefold() == "naga"
+                and predicate.casefold() == "takut"
+                and patient.casefold() == "lonceng"
+            )
         ):
             self._ensure_dragon_bell_core_facts()
             return self.infer_dragon_bell()

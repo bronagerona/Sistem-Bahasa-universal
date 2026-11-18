@@ -158,3 +158,23 @@ def test_chatbot_dragon_bell_question_with_polite_instruction_uses_seeded_rule()
     assert result["answer"].startswith("Dengan senang hati,")
     assert "menakuti naga" in result["answer"].casefold()
     assert result["metadata"]["confidence_score"] == pytest.approx(0.648)
+
+
+
+def test_chatbot_handles_leading_politeness_instruction_for_dragon_bell_question():
+    core, session_id, chatbot = _chatbot()
+    result = chatbot.respond(
+        "Tolong jawab dengan sopan, apakah naga takut lonceng?", session_id
+    )
+
+    assert result["semantic_result"]["status"] == "supported"
+    assert result["semantic_result"]["semantics"]["Intent"] == "question"
+    assert result["semantic_result"]["semantics"]["Actor"] == "naga"
+    assert result["semantic_result"]["semantics"]["Predicate"] == "takut"
+    assert result["semantic_result"]["semantics"]["Patient/Object"] == "lonceng"
+    assert result["reasoning_result"]["reasoning_type"] == "verified_inference"
+    assert result["reasoning_result"]["confidence_score"] == pytest.approx(0.648)
+    assert len(result["reasoning_result"]["evidence"]) == 2
+    assert result["metadata"]["register"] == "formal"
+    assert result["answer"].startswith("Dengan senang hati,")
+    assert "jawab dengan sopan" not in result["answer"].casefold()

@@ -197,3 +197,18 @@ def test_pipeline_recognizes_standalone_polite_answer_command():
     assert result["status"] == "supported"
     assert result["semantics"]["Intent"] == "command"
     assert result["semantics"]["Predicate"] == "jawab"
+
+
+
+def test_pipeline_separates_leading_politeness_instruction_from_question():
+    result = analyze_semantics(
+        "Tolong jawab dengan sopan, apakah naga takut lonceng?"
+    )
+    assert result["original_text"] == (
+        "Tolong jawab dengan sopan, apakah naga takut lonceng?"
+    )
+    assert result["status"] == "supported"
+    assert result["semantics"]["Intent"] == "question"
+    assert result["semantics"]["Actor"] == "naga"
+    assert result["semantics"]["Predicate"] == "takut"
+    assert result["semantics"]["Patient/Object"] == "lonceng"
