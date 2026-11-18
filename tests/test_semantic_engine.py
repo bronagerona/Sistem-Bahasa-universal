@@ -163,3 +163,19 @@ def test_missing_actor_returns_low_confidence_with_all_fields(engine):
     assert set(result["semantics"]) == set(SEMANTIC_FIELDS)
     assert result["semantics"]["Actor"] is None
     assert result["semantics"]["Predicate"] == "makan"
+
+
+def test_output_validator_rejects_additional_semantic_field():
+    payload = make_input("Saya makan.", "saya makan.", ["saya", "makan"])
+    payload.update({
+        "status": "supported",
+        "semantics": {
+            "Actor": "saya", "Predicate": "makan", "Patient/Object": None,
+            "Recipient": None, "Location": None, "Time": None,
+            "Aspect": "unspecified", "Negation": "none", "Modality": "none",
+            "Intent": "assertion", "Register": "formal", "Confidence": 0.95,
+            "Unexpected": "tidak boleh diterima",
+        },
+    })
+    with pytest.raises(ContractValidationError, match="unexpected: Unexpected"):
+        validate_output(payload)
