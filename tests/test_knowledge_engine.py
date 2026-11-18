@@ -20,7 +20,7 @@ def test_core_knowledge_seed_contains_verified_api_kayu_kertas_and_rumah_facts()
     assert engine.get_provenance(paper_fact["id"]) == {
         "fact_id": paper_fact["id"], "source": "core_knowledge", "status": "verified",
     }
-    assert engine.concept_store.all() == ["api", "kayu", "rumah", "kertas"]
+    assert engine.concept_store.all() == ["api", "kayu", "kertas", "rumah"]
     assert engine.relation_store.all() == ["can_burn", "made_of"]
 
 
