@@ -80,6 +80,7 @@ def test_can_burn_relation_accepts_multiple_verified_materials_without_conflict(
     burn_facts = [fact for fact in engine.search_facts("api")]
     assert {fact["object"] for fact in burn_facts} == {"kayu", "kertas"}
     assert {fact["status"] for fact in burn_facts} == {"verified"}
+    assert {fact["source"] for fact in burn_facts} == {"core_knowledge"}
     assert engine.detect_conflicts() == []
 
 
