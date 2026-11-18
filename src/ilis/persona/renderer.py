@@ -18,7 +18,7 @@ from .profiles import (
 )
 
 
-_ILIS_MENTION_PATTERN = re.compile(r"\\bILIS\\b", re.IGNORECASE)
+_ILIS_MENTION_PATTERN = re.compile(r"\bILIS\b", re.IGNORECASE)
 
 
 class PersonaRenderer:
@@ -64,7 +64,7 @@ class PersonaRenderer:
 
         if not raw_answer:
             return identity_reply
-        return f"{identity_reply}\\n\\n{raw_answer}"
+        return f"{identity_reply}\n\n{raw_answer}"
 
 
 __all__ = ["PersonaRenderer"]
