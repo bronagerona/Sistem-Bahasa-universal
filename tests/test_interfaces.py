@@ -53,10 +53,7 @@ def test_game_adapter_records_dragon_fears_bell_and_generates_npc_conclusion():
     assert result["metadata"]["reasoning_type"] == "hypothetical_inference"
     assert result["metadata"]["confidence_score"] == 0.48
     assert len(core.context_engine.get_context(session_id)["episodic_memory"]) == 1
-    assert core.knowledge_engine.fact_store.all() == [
-        core.knowledge_engine.fact_store.all()[0],
-        core.knowledge_engine.fact_store.all()[1],
-    ]
+    assert len(core.knowledge_engine.fact_store.all()) == 2
 
 
 def test_game_adapter_uses_reasoning_engine_for_supported_burn_event():
