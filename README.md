@@ -6,82 +6,57 @@ Visi ILIS adalah menyediakan fondasi bahasa dan makna yang dapat digunakan untuk
 
 ## Status
 
-**✅ Rilis ILIS V1.0 Prototype Sudah Tersedia**
+**✅ ILIS V1.0 Prototype tersedia**
 
-- Rilis: [ILIS V1.0 Prototype](https://github.com/bronagerona/Sistem-Bahasa-universal/releases/tag/v1.0-prototype)
-- Branch integrasi: `main`
-- Validasi rilis: GitHub Actions — **92 pengujian lulus**.
+- Rilis V1: [ILIS V1.0 Prototype](https://github.com/bronagerona/Sistem-Bahasa-universal/releases/tag/v1.0-prototype)
+- Baseline rilis V1 berada di branch `main`.
+- Branch `ilis-v2-development` memuat pengembangan V2 Alpha.
 
-V1.0 Prototype merupakan fondasi sistem yang sudah berjalan dan terintegrasi. Rilis ini bukan klaim bahwa ILIS telah menyamai kemampuan LLM atau memiliki pemahaman bahasa umum.
+**🧪 ILIS V2.0-alpha — tahap benchmark dan evaluasi**
 
-## Cakupan bahasa V1
+V2 memperluas pemrosesan pertanyaan dan perintah sederhana, penalaran berbasis bukti untuk skenario api–kayu–rumah dan naga–lonceng, variasi keluaran generator, serta persistensi SQLite opsional. Mode in-memory tetap menjadi default.
 
-ILIS V1 menargetkan variasi bahasa Indonesia berikut:
-- formal dan baku;
-- santai dan percakapan sehari-hari;
-- gaul/slang;
-- singkatan;
-- bentuk tidak baku;
-- variasi ejaan dan typo.
+V2 masih alpha: cakupan bahasa dan aturan terbatas, confidence score belum terkalibrasi sebagai probabilitas, dan sistem belum setara LLM atau mengklaim pemahaman bahasa universal. Status rilis final alpha mengikuti hasil GitHub Actions pada branch pengembangan.
 
-Bahasa daerah dan pencampuran lintas bahasa belum menjadi cakupan yang dijamin pada V1.
+Dokumen evaluasi: [Laporan Evaluasi V2 Alpha](docs/v2_alpha_evaluation_report.md).  
+Rencana berikutnya: [Roadmap V3](docs/v3_roadmap.md).
 
-## Modul yang sudah berjalan di V1
+## Cakupan bahasa
+
+ILIS menargetkan variasi bahasa Indonesia formal, santai, gaul/slang, singkatan, bentuk tidak baku, dan variasi ejaan/typo. Dukungan setiap variasi bergantung pada pola dan leksikon yang tersedia; bahasa daerah dan code-mixing lintas bahasa belum dijamin.
+
+## Modul utama
 
 1. **Language Foundation** — tokenizer dan ILVE sebagai fondasi pemrosesan bahasa.
-2. **Semantic Engine V1** — pemrosesan dan representasi semantik.
-3. **Concept & Knowledge Engine V1** — struktur konsep dan pengetahuan.
-4. **Reasoning Engine V1** — penalaran berbasis mekanisme dan aturan yang tersedia.
-5. **Context & Memory Engine V1** — pengelolaan konteks serta memori.
-6. **Learning Engine V1** — mekanisme pembelajaran dalam batas desain V1.
-7. **Language Generator V1** — pembentukan keluaran bahasa.
+2. **Semantic Engine** — representasi semantik eksplisit dengan kontrak teruji.
+3. **Concept & Knowledge Engine** — konsep, relasi, fakta, dan provenance.
+4. **Reasoning Engine** — penalaran deterministik berbasis aturan dan bukti.
+5. **Context & Memory Engine** — konteks percakapan dan memori episodik.
+6. **Learning Engine** — mekanisme pembelajaran dalam batas desain implementasi.
+7. **Language Generator** — konstruksi keluaran bahasa berdasarkan makna dan reasoning.
 8. **Interface** — Chatbot Adapter dan Game Adapter.
-9. **Beta Test Suite & Evaluasi** — rangkaian pengujian untuk memeriksa perilaku dan kemampuan sistem.
+9. **Storage V2** — opsi persistensi SQLite untuk fakta, provenance, sesi, dan memori episodik.
 
 ## Prinsip desain
 
-1. **Meaning-first:** memisahkan bentuk permukaan kalimat dari representasi maknanya.
-2. **Dynamic construction:** membangun pemahaman dan keluaran dari struktur, bukan hanya mengambil kalimat template.
-3. **Modular:** setiap subsistem memiliki tanggung jawab dan batas yang jelas.
-4. **Deterministik dan dapat diuji:** perilaku inti dirancang agar dapat ditelusuri serta diuji.
-5. **Evidence-aware:** membedakan fakta, dugaan, sumber, dan tingkat keyakinan sesuai dukungan implementasi.
-6. **No LLM as the core:** LLM bukan mesin utama ILIS. Visi ini merupakan prinsip arsitektur, bukan sekadar opsi konfigurasi.
+- **Meaning-first:** memisahkan bentuk permukaan kalimat dari representasi makna.
+- **Dynamic construction:** membangun keluaran dari struktur dan aturan, bukan hanya mengambil template.
+- **Modular:** setiap subsistem memiliki tanggung jawab dan batas yang jelas.
+- **Deterministik dan dapat diuji:** perilaku inti dapat ditelusuri serta diuji.
+- **Evidence-aware:** membedakan fakta, dugaan, sumber, dan tingkat keyakinan.
+- **No LLM as the core:** LLM bukan mesin utama ILIS.
 
-## Batasan ILIS V1
+## Batasan
 
-V1.0 adalah prototype yang sudah terintegrasi, tetapi kemampuannya masih memiliki batasan:
+ILIS masih prototype/alpha. Semantik, penalaran, generator, dan adapter dibatasi implementasi pola, kosakata, fakta, dan aturan yang tersedia. Sistem tidak menjamin kebenaran fakta dunia, tidak melakukan pembelajaran bebas seperti manusia, dan belum menyediakan pemahaman bahasa umum setara LLM.
 
-- Cakupan semantik dan pola pemahaman masih terbatas; belum setara pemahaman bahasa umum.
-- Normalisasi slang, singkatan, bentuk tidak baku, dan typo masih bergantung pada aturan serta leksikon yang tersedia.
-- Penalaran masih terbatas pada aturan dan pola yang diimplementasikan.
-- Penyimpanan memori masih berbasis proses/in-memory dan belum menyediakan persistensi penuh.
-- Pembelajaran V1 tidak berarti sistem belajar bebas seperti manusia atau melakukan pembaruan model bahasa.
-- Generator bahasa masih memiliki keterbatasan variasi dan konstruksi keluaran.
-- Sebagian fallback adapter masih spesifik terhadap frasa atau pola tertentu.
-- Belum tersedia benchmark formal untuk performa, beban, dan konkurensi.
-- ILIS tidak menjamin verifikasi kebenaran fakta secara mandiri.
-- Bahasa daerah dan code-mixing lintas bahasa belum dijamin.
+## Pengujian dan pengembangan
 
-Karena itu, ILIS V1 **belum setara LLM dan belum mengklaim kecerdasan atau pemahaman universal**. Kemampuan yang belum didukung implementasi harus diperlakukan sebagai pekerjaan pengembangan berikutnya.
+Instalasi dan tes:
 
-## Roadmap V2
+```bash
+python -m pip install -e ".[dev]"
+python -m pytest
+```
 
-Arah pengembangan berikutnya mencakup:
-
-- memperluas cakupan semantik dan normalisasi typo/slang;
-- memperkuat registry aturan dan penalaran untuk domain game;
-- mengembangkan generator berbasis semantic frame agar konstruksi bahasa lebih fleksibel;
-- menambahkan persistensi memori, termasuk opsi SQLite;
-- memperluas dataset, skenario, dan benchmark evaluasi;
-- meningkatkan observability, provenance, serta kualitas adapter;
-- memperluas pengujian integrasi dan evaluasi performa.
-
-Roadmap ini adalah sasaran pengembangan, bukan daftar kemampuan yang sudah tersedia di V1.
-
-## Pengembangan
-
-Proyek menggunakan Python. Untuk instruksi instalasi, pengujian, arsitektur, dan kontribusi, lihat dokumentasi di repository:
-
-- [Dokumentasi arsitektur](docs/architecture.md)
-- [Panduan kontribusi](CONTRIBUTING.md)
-
+Untuk rincian arsitektur, kontrak, benchmark, dan kontribusi, lihat dokumentasi di direktori `docs/` serta [Panduan kontribusi](CONTRIBUTING.md).
