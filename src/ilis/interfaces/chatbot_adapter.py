@@ -21,7 +21,10 @@ class ChatbotAdapter:
 
     _IDENTITY_INTENT = re.compile(
         r"\b(?:siapa\s+kamu|apa\s+yang\s+bisa\s+kamu\s+lakukan|"
-        r"kemampuanmu|jelaskan\s+kemampuanmu)\b",
+        r"kemampuanmu|jelaskan\s+kemampuanmu|"
+        r"lu\s+siapa|kamu\s+bisa\s+ngapain|"
+        r"kemampuan\s+lu\s+apa\s+aja|km\s+bs\s+ngapain|"
+        r"jelasin\s+dong\s+siapa\s+dirimu)\b",
         re.IGNORECASE,
     )
     _IDENTITY_CAPABILITIES_REPLY = (
