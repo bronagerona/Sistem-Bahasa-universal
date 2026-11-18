@@ -198,7 +198,7 @@ class LearningEngine:
             status = "conflicting"
             reason = "conflict_detected_confirmation_required"
         else:
-            status = "hypothesis_baru"
+            status = "hipotesis_baru"
             reason = "stored_as_hypothesis_not_verified"
         tracker_item = self.hypothesis_tracker.track(
             origin=origin, candidate=candidate, fact=fact, status=status,
