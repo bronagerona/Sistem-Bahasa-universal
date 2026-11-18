@@ -10,11 +10,14 @@ from ilis.cognition.reasoning_engine import ReasoningEngine
 from ilis.generation.language_generator import LanguageGenerator
 from ilis.learning.learning_engine import LearningEngine
 from ilis.semantics.semantic_engine import SemanticEngine
+from ilis.language.pipeline import analyze_semantics
 
 
 class ILISCore:
     """Initialize and expose the complete ILIS engine stack.
 
+    Conversation transcript is owned by adapters. Core accepts an optional
+    immutable context snapshot per call but never stores conversation state.
     Default storage='memory' preserves V1 behavior. Use storage='sqlite' to
     persist knowledge and episodic memory across process restarts.
     """
@@ -27,7 +30,6 @@ class ILISCore:
             raise ValueError("storage must be 'memory' or 'sqlite'")
         self.storage_provider = None
         if storage == "sqlite":
-            # Deliberately import only when persistence is explicitly enabled.
             from ilis.storage import SQLiteStorageProvider
             self.storage_provider = SQLiteStorageProvider(db_path)
 
@@ -45,7 +47,24 @@ class ILISCore:
         )
         self.language_generator = LanguageGenerator(self.context_engine)
 
+    def analyze_text(
+        self, text: str, *,
+        context_snapshot: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Analyze one utterance; context is an external, per-call input only.
+
+        The snapshot is deliberately not inserted into the Semantic payload:
+        Semantic's stable 12-field contract only describes the current text.
+        The adapter may pass the same snapshot separately to LanguageGenerator.
+        """
+        if not isinstance(text, str) or not text.strip():
+            raise ValueError("text must be a non-empty string")
+        if context_snapshot is not None and not isinstance(context_snapshot, dict):
+            raise TypeError("context_snapshot must be a dictionary or None")
+        return analyze_semantics(text)
+
     def create_session(self, metadata: dict[str, Any] | None = None) -> str:
+        """Legacy ContextEngine session API for knowledge/episodic integrations."""
         return self.context_engine.create_session(metadata)
 
     def close_session(
@@ -54,7 +73,6 @@ class ILISCore:
         return self.context_engine.close_session(session_id, clear_working=clear_working)
 
     def close(self) -> None:
-        """Close optional persistence resources; safe for in-memory mode."""
         if self.storage_provider is not None:
             self.storage_provider.close()
 
