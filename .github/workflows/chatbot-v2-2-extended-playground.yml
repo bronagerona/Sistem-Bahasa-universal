@@ -72,10 +72,25 @@ jobs:
           bot.respond("Apakah api bisa membakar kayu?", sid)
           follow = bot.respond("Kalau begitu apakah yang tadi itu juga bisa membakar kertas?", sid)
           sem = follow.get("semantic_result", {}).get("semantics", {})
-          actor = sem.get("Actor/Subject")
-          patient = sem.get("Patient/Object")
-          b_ok = str(actor).casefold() == "api" and str(patient).casefold() == "kertas"
-          record("B — implicit reference", b_ok, {"actor": actor, "patient": patient, "context_turns_used": follow["metadata"].get("context_turns_used"), "answer": follow.get("answer")})
+          reasoning = follow.get("reasoning_result") or {}
+          # Semantic publik memang tetap mentah; resolusi konteks diuji pada hasil Reasoning.
+          conclusion = str(reasoning.get("conclusion", "")).casefold()
+          reasons = reasoning.get("reasons") or []
+          context_resolved = any("giliran sebelumnya" in str(reason).casefold() for reason in reasons)
+          b_ok = (
+              follow["metadata"].get("context_turns_used") == 1
+              and "api" in conclusion
+              and "kertas" in conclusion
+              and bool(reasoning.get("evidence"))
+              and context_resolved
+          )
+          record("B — implicit reference (Reasoning layer)", b_ok, {
+              "raw_semantic_actor": sem.get("Actor/Subject"),
+              "raw_semantic_patient": sem.get("Patient/Object"),
+              "reasoning": reasoning,
+              "context_turns_used": follow["metadata"].get("context_turns_used"),
+              "answer": follow.get("answer"),
+          })
           core.close()
 
           # C — Dua sesi tidak boleh berbagi transcript.
