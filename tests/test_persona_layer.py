@@ -311,3 +311,12 @@ def test_renderer_returns_identity_reply_when_core_answer_is_empty():
     renderer = PersonaRenderer(PersonaConfig.chatbot_ilis())
 
     assert renderer.render("") == ILIS_IDENTITY_REPLY
+
+
+def test_renderer_preserves_raw_core_answer_text_exactly():
+    renderer = PersonaRenderer(PersonaConfig.chatbot_ilis())
+    raw_answer = "  Jawaban inti tetap apa adanya.  "
+
+    result = renderer.render(raw_answer)
+
+    assert result.endswith(raw_answer)
