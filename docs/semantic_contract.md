@@ -86,6 +86,14 @@ Untuk input “Gue lagi makan nasi.”, hasil yang diharapkan:
 {
   "contract_version": "1.0",
   "status": "supported",
+  "original_text": "Gue lagi makan nasi.",
+  "ilve": {
+    "normalized_text": "saya lagi makan nasi.",
+    "tokens": ["saya", "lagi", "makan", "nasi", "."],
+    "variation_hints": [
+      {"surface": "Gue", "normalized": "saya", "category": "slang"}
+    ]
+  },
   "semantics": {
     "Actor": "saya",
     "Predicate": "makan",
