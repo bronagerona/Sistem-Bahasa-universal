@@ -55,7 +55,8 @@ BETA_DATASET = [
 def test_beta_chatbot_full_pipeline_and_register():
     core = ILISCore()
     session_id = core.create_session(metadata={"register": "formal"})
-    adapter = core.chatbot()\n    result = adapter.respond("Api menyentuh rumah kayu", session_id)
+    adapter = core.chatbot()
+    result = adapter.respond("Api menyentuh rumah kayu", session_id)
 
     assert result["generation"]["text"].startswith("Ada kemungkinan")
     assert result["answer"].startswith("Saya ILIS, sistem kecerdasan bahasa.")
@@ -63,7 +64,8 @@ def test_beta_chatbot_full_pipeline_and_register():
     assert result["metadata"]["confidence_score"] == 0.72
     assert result["metadata"]["conflict_status"] == "clear"
     assert result["metadata"]["semantic_status"] in {"unsupported", "low_confidence"}
-    assert len(core.context_engine.get_context(session_id)["conversation_history"]) == 0\n    assert len(adapter.session_manager.get_recent_turns(session_id)) == 1
+    assert len(core.context_engine.get_context(session_id)["conversation_history"]) == 0
+    assert len(adapter.session_manager.get_recent_turns(session_id)) == 1
 
 
 def test_beta_semantic_and_slang_pipeline_preserves_register():
