@@ -45,8 +45,17 @@ class ChatbotAdapter:
                 "reasons": ["Pola kalimat ini belum didukung adapter chatbot V1."],
                 "uncertainty": "Diperlukan pola semantik atau aturan yang didukung.",
             }
+        effective_register = register
+        if effective_register is None:
+            semantic_register = (semantic.get("semantics") or {}).get("Register")
+            if semantic_register not in {"formal", "informal", "slang"}:
+                session = self.core.context_engine.get_context(session_id)["session"]
+                metadata = session.get("metadata", {})
+                semantic_register = metadata.get("register") if isinstance(metadata, dict) else None
+            if semantic_register in {"formal", "informal", "slang"}:
+                effective_register = semantic_register
         generated = self.core.language_generator.generate(
-            reasoning, register=register, semantic_result=semantic,
+            reasoning, register=effective_register, semantic_result=semantic,
             session_id=session_id,
         )
         conflicts = self.core.knowledge_engine.detect_conflicts()
