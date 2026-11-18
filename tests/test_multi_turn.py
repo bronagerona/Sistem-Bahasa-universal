@@ -114,6 +114,18 @@ def test_multi_turn_game_adapter_accepts_distinct_conversation_session_id():
     assert manager.get_session("player-npc-1") is not None
 
 
+def test_multi_turn_game_adapter_can_create_session_without_supplied_id():
+    core = ILISCore()
+    manager = SessionManager()
+    game = GameEngineAdapter(core, session_manager=manager)
+    first = game.handle_event("naga takut lonceng")
+    sid = first["metadata"]["session_id"]
+    second = game.handle_event("api menyentuh rumah kayu", sid)
+    assert second["metadata"]["session_id"] == sid
+    assert second["metadata"]["context_turns_used"] == 1
+    assert len(manager.get_recent_turns(sid)) == 2
+
+
 def test_multi_turn_game_second_turn_receives_first_turn_snapshot():
     core = ILISCore()
     core_sid = core.create_session()
