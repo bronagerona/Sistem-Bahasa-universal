@@ -118,3 +118,37 @@ python -m pytest
 Tes mencakup inferensi verified, hipotesis, konflik relevan, data tidak
 tersedia, provenance hilang/tidak konsisten, konflik yang tidak relevan,
 dan validasi input.
+
+
+## Perluasan Reasoning Engine V2
+
+V2 menambahkan aturan deterministik `dragon_bell_fear_v2` dengan dua premis:
+
+1. `naga --fears--> suara_keras`
+2. `lonceng --produces--> suara_keras`
+
+Jika kedua fakta tersedia, status fakta dan provenance konsisten, dan tidak ada
+konflik, sistem menyimpulkan bahwa lonceng dapat menakuti naga. Kedua ID fakta
+disimpan pada `evidence`. Skor 0.72 digunakan untuk premis verified dan 0.48
+jika ada premis hypothesis; nilai ini skor heuristik, bukan probabilitas.
+
+### Pertanyaan dari Semantic Engine
+
+Gunakan `ReasoningEngine.infer_semantic(hasil_semantic)` untuk menerima hasil
+`SemanticEngine.analyze()`. Untuk pertanyaan sederhana dengan pola subjek-
+predikat-objek, relasi `membakar`/ `bakar` dipetakan ke fakta `can_burn`.
+Contoh `Apakah api bisa membakar kayu?` dijawab dari fakta
+`api --can_burn--> kayu`, beserta confidence score dan ID evidence.
+
+Intent `question`, `command`, dan `assertion` dibedakan. Perintah dan
+pernyataan tidak diperlakukan sebagai pertanyaan. Pertanyaan yang belum
+tercakup, negasi yang belum memiliki aturan khusus, fakta hilang, dan
+provenance yang tidak lengkap menghasilkan status `unknown`; konflik tetap
+menghasilkan `conflicting`.
+
+### Kompatibilitas
+
+Bentuk hasil tidak berubah: `conclusion`, `confidence_score`, `evidence`,
+`reasoning_type`, `reasons`, dan `uncertainty`. Aturan risiko kebakaran
+V1 dan API `infer_burn_risk()`/`infer()` tetap dipertahankan. Semantic Engine
+dan Storage tidak dimodifikasi.

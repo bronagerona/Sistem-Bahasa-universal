@@ -99,3 +99,58 @@ def test_empty_query_concepts_are_rejected(source, target):
     reasoning = ReasoningEngine(KnowledgeEngine())
     with pytest.raises(ValueError):
         reasoning.infer_burn_risk(source, target)
+
+
+
+def test_v2_dragon_bell_rule_uses_two_premises_and_keeps_evidence():
+    knowledge = KnowledgeEngine(seed_core_knowledge=False)
+    knowledge.add_fact("naga", "fears", "suara_keras", "verified", "game_lore")
+    knowledge.add_fact("lonceng", "produces", "suara_keras", "verified", "game_lore")
+
+    result = ReasoningEngine(knowledge).infer_dragon_bell()
+
+    assert result["reasoning_type"] == "verified_inference"
+    assert result["confidence_score"] == 0.72
+    assert len(result["evidence"]) == 2
+    assert "menakuti naga" in result["conclusion"]
+
+
+def test_v2_dragon_bell_rule_returns_unknown_without_both_premises():
+    knowledge = KnowledgeEngine(seed_core_knowledge=False)
+    knowledge.add_fact("naga", "fears", "suara_keras", "verified", "game_lore")
+    result = ReasoningEngine(knowledge).infer_dragon_bell()
+    assert result["reasoning_type"] == "unknown"
+    assert result["evidence"] == []
+
+
+def test_v2_semantic_question_is_answered_from_matching_knowledge_fact():
+    from ilis.semantics.semantic_engine import SemanticEngine
+
+    sentence = "Apakah api bisa membakar kayu?"
+    words = ["apakah", "api", "bisa", "membakar", "kayu"]
+    semantic = SemanticEngine().analyze({
+        "contract_version": "1.0",
+        "original_text": sentence,
+        "ilve": {"normalized_text": "apakah api bisa membakar kayu?",
+                 "tokens": words + ["?"], "variation_hints": []},
+    })
+    result = ReasoningEngine(KnowledgeEngine()).infer_semantic(semantic)
+    assert result["reasoning_type"] == "verified_inference"
+    assert result["confidence_score"] == 0.72
+    assert result["evidence"]
+
+
+def test_v2_semantic_intents_are_distinguished():
+    from ilis.semantics.semantic_engine import SemanticEngine
+
+    engine = SemanticEngine()
+    reasoner = ReasoningEngine(KnowledgeEngine())
+    payload = lambda text, tokens: {
+        "contract_version": "1.0", "original_text": text,
+        "ilve": {"normalized_text": text.casefold(), "tokens": tokens,
+                 "variation_hints": []},
+    }
+    command = engine.analyze(payload("Bunyikan lonceng", ["bunyikan", "lonceng"]))
+    assertion = engine.analyze(payload("Saya makan nasi.", ["saya", "makan", "nasi", "."]))
+    assert reasoner.infer_semantic(command)["reasoning_type"] == "command"
+    assert reasoner.infer_semantic(assertion)["reasoning_type"] == "assertion"
