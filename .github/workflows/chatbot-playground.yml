@@ -1,0 +1,36 @@
+name: ILIS Chatbot Playground
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "Tulis pesan bahasa Indonesia untuk dicoba ke chatbot ILIS V2"
+        required: true
+        type: string
+        default: "Apakah api bisa membakar kayu?"
+
+permissions:
+  contents: read
+
+jobs:
+  chatbot:
+    name: Coba chatbot ILIS V2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ambil kode ILIS V2
+        uses: actions/checkout@v4
+        with:
+          ref: ilis-v2-development
+
+      - name: Siapkan Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pasang ILIS
+        run: python -m pip install -e .
+
+      - name: Jalankan pesan ke chatbot
+        env:
+          ILIS_TEST_MESSAGE: ${{ inputs.message }}
+        run: python scripts/run_chatbot_test.py
