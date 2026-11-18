@@ -68,6 +68,14 @@ def validate_output(payload: Any) -> dict[str, Any]:
         raise ContractValidationError("output must be an object")
     if payload.get("contract_version") != CONTRACT_VERSION:
         raise ContractValidationError("output contract_version must be '1.0'")
+    # The result must retain the exact source and validated ILVE payload.
+    validate_input(
+        {
+            "contract_version": payload.get("contract_version"),
+            "original_text": payload.get("original_text"),
+            "ilve": payload.get("ilve"),
+        }
+    )
     status = payload.get("status")
     if status not in STATUSES:
         raise ContractValidationError(f"status must be one of {sorted(STATUSES)}")
