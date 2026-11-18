@@ -9,6 +9,9 @@ class ProvenanceStore:
     def __init__(self) -> None:
         self._records: dict[str, dict[str, Any]] = {}
 
+    def load(self, record: dict[str, Any]) -> None:
+        self._records[record["fact_id"]] = dict(record)
+
     def record(self, fact_id: str, source: str, status: str) -> dict[str, Any]:
         entry = {"fact_id": fact_id, "source": source, "status": status}
         self._records[fact_id] = entry

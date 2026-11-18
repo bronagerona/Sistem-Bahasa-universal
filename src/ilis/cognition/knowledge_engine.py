@@ -1,8 +1,4 @@
-"""Deterministic concept, relation, fact, and provenance management.
-
-This module stores claims and detects direct conflicts. It does not infer new
-knowledge, reason over relations, verify sources, or call an AI/LLM service.
-"""
+"""Deterministic concept, relation, fact, and provenance management."""
 
 from __future__ import annotations
 
@@ -18,14 +14,32 @@ FACT_STATUSES = frozenset({"verified", "hypothesis", "conflicting"})
 
 
 class KnowledgeEngine:
-    """Manage explicit knowledge triples and their provenance."""
+    """Manage explicit knowledge triples and their provenance.
 
-    def __init__(self, seed_core_knowledge: bool = True) -> None:
+    storage_provider is optional. Without it, V1 behavior remains in-memory.
+    """
+
+    def __init__(
+        self,
+        seed_core_knowledge: bool = True,
+        storage_provider: Any | None = None,
+    ) -> None:
+        self.storage_provider = storage_provider
         self.concept_store = ConceptStore()
         self.relation_store = RelationStore()
         self.fact_store = FactStore()
         self.provenance = ProvenanceStore()
-        if seed_core_knowledge:
+
+        if self.storage_provider is not None:
+            for fact in self.storage_provider.load_facts():
+                self.fact_store.load(fact)
+                self.concept_store.add(fact["subject"])
+                self.concept_store.add(fact["object"])
+                self.relation_store.add(fact["relation"])
+            for record in self.storage_provider.load_provenance():
+                self.provenance.load(record)
+
+        if seed_core_knowledge and not self.fact_store.all():
             self.add_fact("api", "can_burn", "kayu", "verified", "core_knowledge")
             self.add_fact("rumah", "made_of", "kayu", "verified", "core_knowledge")
 
@@ -43,7 +57,6 @@ class KnowledgeEngine:
         status: str = "hypothesis",
         source: str = "user_input",
     ) -> dict[str, Any]:
-        """Store a fact and mark same-subject/relation disagreements as conflicting."""
         subject_key = self.add_concept(subject)
         relation_key = self.add_relation(relation)
         object_key = self.add_concept(object_)
@@ -56,33 +69,37 @@ class KnowledgeEngine:
             subject_key, relation_key, object_key, status, source.strip()
         )
         self.provenance.record(fact["id"], fact["source"], fact["status"])
+        self._persist_fact(fact)
+        self._persist_provenance(fact["id"])
         self._mark_conflicts(subject_key, relation_key)
         return self.fact_store.get(fact["id"])  # type: ignore[return-value]
 
+    def _persist_fact(self, fact: dict[str, Any]) -> None:
+        if self.storage_provider is not None:
+            self.storage_provider.save_fact(fact)
+
+    def _persist_provenance(self, fact_id: str) -> None:
+        if self.storage_provider is not None:
+            record = self.provenance.get(fact_id)
+            if record is not None:
+                self.storage_provider.save_provenance(record)
+
     def search_facts(self, concept: str) -> list[dict[str, Any]]:
-        """Find facts where concept appears as subject or object."""
         normalized = " ".join(concept.casefold().split())
         return self.fact_store.find_by_concept(normalized)
 
     def detect_conflicts(self) -> list[list[dict[str, Any]]]:
-        """Return groups sharing subject/relation but asserting different objects."""
         groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
         for fact in self.fact_store.all():
             groups.setdefault((fact["subject"], fact["relation"]), []).append(fact)
-        conflicts = []
-        for facts in groups.values():
-            if len({fact["object"] for fact in facts}) > 1:
-                conflicts.append(facts)
-        return conflicts
+        return [
+            facts for facts in groups.values()
+            if len({fact["object"] for fact in facts}) > 1
+        ]
 
     def ingest_semantic_result(
         self, result: dict[str, Any], source: str = "semantic_engine"
     ) -> dict[str, Any]:
-        """Convert a supported, positive SVO assertion into a hypothesis fact.
-
-        Semantic parsing confidence is not factual verification. Unsupported,
-        incomplete, negated, or modal statements are not converted to triples.
-        """
         if not isinstance(result, dict) or result.get("status") != "supported":
             return {"accepted": False, "fact": None, "reason": "semantic_result_not_supported"}
         semantics = result.get("semantics")
@@ -101,14 +118,8 @@ class KnowledgeEngine:
         if not all(isinstance(value, str) and value.strip() for value in (subject, relation, object_)):
             return {"accepted": False, "fact": None, "reason": "incomplete_subject_relation_object"}
 
-        fact = self.add_fact(
-            subject, relation, object_, status="hypothesis", source=source
-        )
-        return {
-            "accepted": True,
-            "fact": fact,
-            "reason": "stored_as_hypothesis_not_verified",
-        }
+        fact = self.add_fact(subject, relation, object_, status="hypothesis", source=source)
+        return {"accepted": True, "fact": fact, "reason": "stored_as_hypothesis_not_verified"}
 
     def get_provenance(self, fact_id: str) -> dict[str, Any] | None:
         return self.provenance.get(fact_id)
@@ -123,3 +134,5 @@ class KnowledgeEngine:
         for fact in matching:
             self.fact_store.update_status(fact["id"], "conflicting")
             self.provenance.update_status(fact["id"], "conflicting")
+            self._persist_fact(self.fact_store.get(fact["id"]))
+            self._persist_provenance(fact["id"])
