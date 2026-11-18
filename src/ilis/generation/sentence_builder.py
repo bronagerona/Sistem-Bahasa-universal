@@ -18,6 +18,7 @@ class SentenceBuilder:
         register: str = "formal",
         uncertainty: bool = True,
         context: dict[str, Any] | None = None,
+        polite: bool = False,
     ) -> str:
         """Build a sentence from a normalized meaning representation."""
         if not isinstance(meaning, dict):
@@ -42,6 +43,9 @@ class SentenceBuilder:
             sentence = self._dragon_bell(meaning, register, uncertainty)
         else:
             sentence = self._generic(meaning, register, uncertainty)
+
+        if polite and register == "formal" and kind == "question":
+            sentence = "Dengan senang hati, " + sentence[:1].lower() + sentence[1:]
 
         # Only an explicitly supplied grounded referent may personalize wording.
         referent = meaning.get("contextual_referent")

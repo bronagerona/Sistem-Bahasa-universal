@@ -17,6 +17,19 @@ class ChatbotAdapter:
         re.IGNORECASE,
     )
 
+    _STYLE_INSTRUCTION = re.compile(
+        r"(?:jawab|jelaskan|uraikan|terangkan)\s+(?:dengan\s+)?(?P<style>sopan|santai)",
+        re.IGNORECASE,
+    )
+
+    @classmethod
+    def _instruction_register(cls, text: str) -> str | None:
+        """Map explicit response-style instructions to generator registers."""
+        match = cls._STYLE_INSTRUCTION.search(text)
+        if not match:
+            return None
+        return "formal" if match.group("style").casefold() == "sopan" else "informal"
+
     def __init__(self, core: ILISCore) -> None:
         if not isinstance(core, ILISCore):
             raise TypeError("core must be an ILISCore instance")
@@ -78,7 +91,8 @@ class ChatbotAdapter:
             f"({float(base_confidence):.6f} × {semantic_confidence:.6f})."
         )
 
-        effective_register = register
+        instruction_register = self._instruction_register(text)
+        effective_register = register or instruction_register
         if effective_register is None:
             semantic_register = (semantic.get("semantics") or {}).get("Register")
             if semantic_register not in {"formal", "informal", "slang"}:
@@ -90,7 +104,7 @@ class ChatbotAdapter:
 
         generated = self.core.language_generator.generate(
             reasoning, register=effective_register, semantic_result=semantic,
-            session_id=session_id,
+            session_id=session_id, polite=instruction_register == "formal",
         )
         conflicts = self.core.knowledge_engine.detect_conflicts()
         return {

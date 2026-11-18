@@ -38,6 +38,7 @@ class LanguageGenerator:
         semantic_result: dict[str, Any] | None = None,
         context: dict[str, Any] | None = None,
         session_id: str | None = None,
+        polite: bool = False,
     ) -> dict[str, Any]:
         """Render reasoning using register metadata and optional session context."""
         if not isinstance(reasoning_result, dict):
@@ -61,6 +62,7 @@ class LanguageGenerator:
             register=selected_register,
             uncertainty=uncertain,
             context=context,
+            polite=polite,
         )
         return {
             "text": sentence,

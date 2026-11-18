@@ -139,3 +139,23 @@ def test_dragon_bell_has_formal_informal_and_slang_variants():
     assert all("naga" in item["text"].casefold() for item in outputs)
     assert len({item["text"] for item in outputs}) == 3
     assert all(item["uncertainty_preserved"] for item in outputs)
+
+def test_explicit_polite_generation_adds_polite_formal_opening():
+    from ilis.semantics.semantic_engine import SemanticEngine
+    semantic = SemanticEngine().analyze(_semantic_payload(
+        "Apakah api bisa membakar kayu?", ["apakah", "api", "bisa", "membakar", "kayu", "?"]
+    ))
+    reasoning = {
+        "conclusion": "Ya, berdasarkan fakta yang tersimpan, api dapat membakar kayu.",
+        "confidence_score": 0.72,
+        "reasoning_type": "verified_inference",
+        "evidence": ["fact_1"],
+        "uncertainty": "Kesimpulan berbasis aturan.",
+    }
+
+    result = LanguageGenerator().generate(
+        reasoning, semantic_result=semantic, register="formal", polite=True
+    )
+
+    assert result["register"] == "formal"
+    assert result["text"].startswith("Dengan senang hati,")

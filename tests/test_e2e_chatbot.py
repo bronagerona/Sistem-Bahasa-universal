@@ -114,3 +114,27 @@ def test_chatbot_acknowledges_standalone_polite_answer_command():
     assert result["semantic_result"]["status"] == "supported"
     assert result["semantic_result"]["semantics"]["Predicate"] == "jawab"
     assert "menjawab dengan sopan" in result["answer"].casefold()
+
+
+def test_chatbot_forwards_polite_instruction_to_formal_language_generation():
+    core, session_id, chatbot = _chatbot()
+    result = chatbot.respond(
+        "Apakah api bisa membakar kayu? Jawab dengan sopan.", session_id
+    )
+
+    assert result["semantic_result"]["status"] == "supported"
+    assert result["semantic_result"]["semantics"]["Patient/Object"] == "kayu"
+    assert result["metadata"]["register"] == "formal"
+    assert result["answer"].startswith("Dengan senang hati,")
+    assert "kayu" in result["answer"].casefold()
+    assert "jawab dengan sopan" not in result["answer"].casefold()
+
+
+def test_chatbot_maps_casual_instruction_to_informal_register():
+    core, session_id, chatbot = _chatbot()
+    result = chatbot.respond(
+        "Apakah api bisa membakar kayu? Jawab dengan santai.", session_id
+    )
+
+    assert result["metadata"]["register"] == "informal"
+    assert result["answer"].startswith("Iya, kayaknya")
