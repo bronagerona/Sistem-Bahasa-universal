@@ -40,8 +40,8 @@ def test_multi_turn_example_fire_wood_then_paper_uses_same_session(setup_chatbot
     core, manager, adapter, sid = setup_chatbot
     first = adapter.respond("Apakah api bisa membakar kayu?", sid)
     second = adapter.respond("Lalu apakah api juga bisa membakar kertas?", sid)
-    assert first["answer"].startswith("Ya,")
-    assert second["answer"].startswith("Ya,")
+    assert first["generation"]["text"].startswith("Ya,")
+    assert second["generation"]["text"].startswith("Ya,")
     assert second["reasoning_result"]["reasoning_type"] == "verified_inference"
     assert second["reasoning_result"]["evidence"]
     assert any("pertanyaan lanjutan" in reason for reason in second["reasoning_result"]["reasons"])
