@@ -43,7 +43,7 @@ def test_multi_turn_example_fire_wood_then_paper_uses_same_session(setup_chatbot
     assert first["generation"]["text"].startswith("Ya,")
     assert second["generation"]["text"].startswith("Ya,")
     assert second["reasoning_result"]["reasoning_type"] == "verified_inference"
-    assert second["reasoning_result"]["evidence"]
+    assert second["reasoning_result"]["evidence"] == ["fact_3"]
     assert any("pertanyaan lanjutan" in reason for reason in second["reasoning_result"]["reasons"])
     assert second["metadata"]["session_id"] == sid
     assert second["metadata"]["context_turns_used"] == 1
