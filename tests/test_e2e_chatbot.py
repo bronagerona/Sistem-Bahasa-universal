@@ -96,3 +96,85 @@ def test_chatbot_preserves_legacy_v1_assertion_adapter_behavior():
     assert result["reasoning_result"]["reasoning_type"] == "verified_inference"
     assert result["metadata"]["confidence_score"] == 0.72
     assert "kemungkinan" in result["answer"].casefold()
+
+
+
+def test_chatbot_separates_question_from_trailing_politeness_instruction():
+    core, session_id, chatbot = _chatbot()
+    result = chatbot.respond("Apakah api bisa membakar kayu? Jawab dengan sopan.", session_id)
+    assert result["semantic_result"]["status"] == "supported"
+    assert result["semantic_result"]["semantics"]["Patient/Object"] == "kayu"
+    assert "kayu" in result["answer"].casefold()
+    assert "jawab dengan sopan" not in result["answer"].casefold()
+
+
+def test_chatbot_acknowledges_standalone_polite_answer_command():
+    core, session_id, chatbot = _chatbot()
+    result = chatbot.respond("Tolong jawab dengan sopan.", session_id)
+    assert result["semantic_result"]["status"] == "supported"
+    assert result["semantic_result"]["semantics"]["Predicate"] == "jawab"
+    assert "menjawab dengan sopan" in result["answer"].casefold()
+
+
+def test_chatbot_forwards_polite_instruction_to_formal_language_generation():
+    core, session_id, chatbot = _chatbot()
+    result = chatbot.respond(
+        "Apakah api bisa membakar kayu? Jawab dengan sopan.", session_id
+    )
+
+    assert result["semantic_result"]["status"] == "supported"
+    assert result["semantic_result"]["semantics"]["Patient/Object"] == "kayu"
+    assert result["metadata"]["register"] == "formal"
+    assert result["answer"].startswith("Dengan senang hati,")
+    assert "kayu" in result["answer"].casefold()
+    assert "jawab dengan sopan" not in result["answer"].casefold()
+
+
+def test_chatbot_maps_casual_instruction_to_informal_register():
+    core, session_id, chatbot = _chatbot()
+    result = chatbot.respond(
+        "Apakah api bisa membakar kayu? Jawab dengan santai.", session_id
+    )
+
+    assert result["metadata"]["register"] == "informal"
+    assert result["answer"].startswith("Iya, kayaknya")
+
+
+
+def test_chatbot_dragon_bell_question_with_polite_instruction_uses_seeded_rule():
+    core, session_id, chatbot = _chatbot()
+    result = chatbot.respond(
+        "Apakah lonceng bisa menakuti naga? Jawab dengan sopan.", session_id
+    )
+
+    assert result["semantic_result"]["status"] == "supported"
+    assert result["semantic_result"]["semantics"]["Actor"] == "lonceng"
+    assert result["semantic_result"]["semantics"]["Predicate"] == "menakuti"
+    assert result["semantic_result"]["semantics"]["Patient/Object"] == "naga"
+    assert result["reasoning_result"]["reasoning_type"] == "verified_inference"
+    assert result["reasoning_result"]["confidence_score"] == pytest.approx(0.648)
+    assert len(result["reasoning_result"]["evidence"]) == 2
+    assert result["metadata"]["register"] == "formal"
+    assert result["answer"].startswith("Dengan senang hati,")
+    assert "menakuti naga" in result["answer"].casefold()
+    assert result["metadata"]["confidence_score"] == pytest.approx(0.648)
+
+
+
+def test_chatbot_handles_leading_politeness_instruction_for_dragon_bell_question():
+    core, session_id, chatbot = _chatbot()
+    result = chatbot.respond(
+        "Tolong jawab dengan sopan, apakah naga takut lonceng?", session_id
+    )
+
+    assert result["semantic_result"]["status"] == "supported"
+    assert result["semantic_result"]["semantics"]["Intent"] == "question"
+    assert result["semantic_result"]["semantics"]["Actor"] == "naga"
+    assert result["semantic_result"]["semantics"]["Predicate"] == "takut"
+    assert result["semantic_result"]["semantics"]["Patient/Object"] == "lonceng"
+    assert result["reasoning_result"]["reasoning_type"] == "verified_inference"
+    assert result["reasoning_result"]["confidence_score"] == pytest.approx(0.648)
+    assert len(result["reasoning_result"]["evidence"]) == 2
+    assert result["metadata"]["register"] == "formal"
+    assert result["answer"].startswith("Dengan senang hati,")
+    assert "jawab dengan sopan" not in result["answer"].casefold()

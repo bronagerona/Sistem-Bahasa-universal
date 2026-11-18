@@ -179,3 +179,36 @@ def test_output_validator_rejects_additional_semantic_field():
     })
     with pytest.raises(ContractValidationError, match="unexpected: Unexpected"):
         validate_output(payload)
+
+
+
+def test_pipeline_separates_trailing_politeness_instruction_from_question():
+    result = analyze_semantics("Apakah api bisa membakar kayu? Jawab dengan sopan.")
+    assert result["original_text"] == "Apakah api bisa membakar kayu? Jawab dengan sopan."
+    assert result["status"] == "supported"
+    assert result["semantics"]["Intent"] == "question"
+    assert result["semantics"]["Actor"] == "api"
+    assert result["semantics"]["Predicate"] == "membakar"
+    assert result["semantics"]["Patient/Object"] == "kayu"
+
+
+def test_pipeline_recognizes_standalone_polite_answer_command():
+    result = analyze_semantics("Tolong jawab dengan sopan.")
+    assert result["status"] == "supported"
+    assert result["semantics"]["Intent"] == "command"
+    assert result["semantics"]["Predicate"] == "jawab"
+
+
+
+def test_pipeline_separates_leading_politeness_instruction_from_question():
+    result = analyze_semantics(
+        "Tolong jawab dengan sopan, apakah naga takut lonceng?"
+    )
+    assert result["original_text"] == (
+        "Tolong jawab dengan sopan, apakah naga takut lonceng?"
+    )
+    assert result["status"] == "supported"
+    assert result["semantics"]["Intent"] == "question"
+    assert result["semantics"]["Actor"] == "naga"
+    assert result["semantics"]["Predicate"] == "takut"
+    assert result["semantics"]["Patient/Object"] == "lonceng"

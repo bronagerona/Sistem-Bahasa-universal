@@ -25,6 +25,7 @@ class KnowledgeEngine:
         storage_provider: Any | None = None,
     ) -> None:
         self.storage_provider = storage_provider
+        self.seed_core_knowledge = seed_core_knowledge
         self.concept_store = ConceptStore()
         self.relation_store = RelationStore()
         self.fact_store = FactStore()
