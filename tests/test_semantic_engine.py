@@ -122,3 +122,13 @@ def test_pipeline_adapter_invokes_semantic_engine_and_preserves_source():
     assert result["ilve"]["normalized_text"] == "saya lagi makan nasi."
     assert result["semantics"]["Actor"] == "saya"
     assert result["semantics"]["Register"] == "slang"
+
+
+def test_missing_actor_returns_low_confidence_with_all_fields(engine):
+    payload = make_input("Makan nasi.", "makan nasi.", ["makan", "nasi", "."])
+    result = engine.analyze(payload)
+
+    assert result["status"] == "low_confidence"
+    assert set(result["semantics"]) == set(SEMANTIC_FIELDS)
+    assert result["semantics"]["Actor"] is None
+    assert result["semantics"]["Predicate"] == "makan"
