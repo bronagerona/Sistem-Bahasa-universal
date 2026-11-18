@@ -3,6 +3,7 @@ import pytest
 from ilis.semantics.constants import SEMANTIC_FIELDS
 from ilis.semantics.contract_validator import ContractValidationError, validate_input, validate_output
 from ilis.semantics.semantic_engine import SemanticEngine
+from ilis.language.pipeline import analyze_semantics
 
 
 @pytest.fixture
@@ -111,3 +112,13 @@ def test_output_validator_rejects_missing_semantic_field():
     }
     with pytest.raises(ContractValidationError):
         validate_output(result)
+
+
+def test_pipeline_adapter_invokes_semantic_engine_and_preserves_source():
+    result = analyze_semantics("Gue lagi makan nasi.")
+
+    assert result["status"] == "supported"
+    assert result["original_text"] == "Gue lagi makan nasi."
+    assert result["ilve"]["normalized_text"] == "saya lagi makan nasi."
+    assert result["semantics"]["Actor"] == "saya"
+    assert result["semantics"]["Register"] == "slang"
