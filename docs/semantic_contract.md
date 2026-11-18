@@ -11,6 +11,14 @@ Kontrak input dan output tetap versi 1.0. Wrapper output tetap memuat `contract_
 
 V1 mendukung pernyataan sederhana. Perluasan V2 menambahkan pola terbatas untuk pertanyaan sederhana, perintah sederhana, variasi negasi, serta frasa waktu dan lokasi. Penambahan nilai Intent `question` dan `command` menggunakan field Intent yang sudah ada; tidak mengubah bentuk JSON atau versi kontrak.
 
+### Catatan kompatibilitas untuk developer/konsumen V1
+
+Field `Intent` tetap satu dari 12 field kontrak, tetapi himpunan nilainya kini mencakup
+`assertion`, `question`, dan `command`. Konsumen V1 yang sebelumnya mengasumsikan
+bahwa `Intent` hanya bernilai `assertion` harus memperbarui penanganan enum agar
+menerima dua nilai tambahan tersebut. Nama field, tipe, wrapper, dan jumlah field
+tidak berubah; ini adalah perluasan nilai enum, bukan perubahan struktur kontrak.
+
 Parser tetap deterministik, berbasis aturan, dan tidak menggunakan LLM. Kalimat kompleks atau pola yang belum dikenali harus tetap menghasilkan `low_confidence` atau `unsupported`, bukan interpretasi spekulatif.
 
 ## 2. Alur data
