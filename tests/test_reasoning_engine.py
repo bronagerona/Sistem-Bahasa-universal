@@ -35,8 +35,10 @@ def test_hypothesis_premise_produces_hypothetical_inference():
 
 
 def test_relevant_knowledge_conflict_blocks_inference():
-    knowledge = KnowledgeEngine()
-    knowledge.add_fact("api", "can_burn", "air", "hypothesis", "user_input")
+    knowledge = KnowledgeEngine(seed_core_knowledge=False)
+    knowledge.add_fact("api", "can_burn", "kayu", "verified", "core_knowledge")
+    knowledge.add_fact("rumah", "made_of", "kayu", "verified", "core_knowledge")
+    knowledge.add_fact("rumah", "made_of", "bata", "hypothesis", "user_input")
 
     result = ReasoningEngine(knowledge).infer_burn_risk("api", "rumah")
 
