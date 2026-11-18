@@ -10,6 +10,7 @@ from ilis.persona import (
     ApplicationProfile,
     CharacterProfile,
     PersonaConfig,
+    PersonaRenderer,
     PersonaMode,
     validate_persona_config,
 )
@@ -238,3 +239,75 @@ def test_profiles_are_immutable():
 
     with pytest.raises((AttributeError, TypeError)):
         profile.display_name = "Nama Baru"
+
+
+
+# Stage B: deterministic identity rendering (no adapter/Core integration).
+
+
+def test_renderer_mode_a_uses_canonical_ilis_identity_reply():
+    renderer = PersonaRenderer(PersonaConfig.chatbot_ilis())
+
+    assert renderer.render("Halo!") == f"{ILIS_IDENTITY_REPLY}\\n\\nHalo!"
+
+
+def test_renderer_mode_b_prefixes_application_identity_reply():
+    config = PersonaConfig(mode=MODE_B, application=app_profile())
+    renderer = PersonaRenderer(config)
+
+    assert renderer.render("Ada yang bisa saya bantu?") == (
+        "Saya asisten layanan Toko Arunika.\\n\\n"
+        "Ada yang bisa saya bantu?"
+    )
+
+
+def test_renderer_mode_c_prefixes_npc_identity_without_mentioning_ilis():
+    renderer = PersonaRenderer(PersonaConfig(mode=MODE_C, character=npc_profile()))
+
+    result = renderer.render("Gerbang kerajaan ada di sebelah utara.")
+
+    assert result == (
+        "Aku Raka, penjaga gerbang kerajaan.\\n\\n"
+        "Gerbang kerajaan ada di sebelah utara."
+    )
+    assert "ILIS" not in result
+
+
+def test_renderer_mode_c_rejects_ilis_mention_in_raw_answer_without_lore_flag():
+    renderer = PersonaRenderer(PersonaConfig(mode=MODE_C, character=npc_profile()))
+
+    with pytest.raises(ValueError, match="allow_ilis_reference=True"):
+        renderer.render("Aku pernah mendengar nama ILIS.")
+
+
+def test_renderer_mode_c_allows_ilis_mention_when_explicit_lore_flag_is_true():
+    config = PersonaConfig(
+        mode=MODE_C,
+        character=npc_profile(
+            identity_reply="Dalam legenda, ILIS adalah nama artefak kuno.",
+            allow_ilis_reference=True,
+        ),
+    )
+    renderer = PersonaRenderer(config)
+
+    result = renderer.render("Legenda itu menyebut ILIS sebagai artefak.")
+
+    assert "ILIS" in result
+
+
+def test_renderer_rejects_invalid_persona_config():
+    with pytest.raises(ValueError, match="PersonaConfig tidak valid"):
+        PersonaRenderer(PersonaConfig(mode=MODE_B))
+
+
+def test_renderer_rejects_non_string_core_answer():
+    renderer = PersonaRenderer(PersonaConfig.chatbot_ilis())
+
+    with pytest.raises(TypeError, match="raw_answer harus berupa string"):
+        renderer.render(None)
+
+
+def test_renderer_returns_identity_reply_when_core_answer_is_empty():
+    renderer = PersonaRenderer(PersonaConfig.chatbot_ilis())
+
+    assert renderer.render("") == ILIS_IDENTITY_REPLY
