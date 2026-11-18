@@ -11,6 +11,7 @@ from ilis.cognition.inference_rules import (
     matching_rule_premises,
 )
 from ilis.cognition.knowledge_engine import KnowledgeEngine
+from ilis.semantics.contract_validator import ContractValidationError, validate_output
 
 
 class ReasoningEngine:
@@ -220,20 +221,24 @@ class ReasoningEngine:
         Accepts the SemanticEngine.analyze() result without changing either
         engine's contract. The returned reasoning result keeps the six V1 keys.
         """
-        if not isinstance(semantic_result, dict) or semantic_result.get("status") != "supported":
+        try:
+            validated_result = validate_output(semantic_result)
+        except (ContractValidationError, TypeError, ValueError):
+            return self._result(
+                conclusion="Kontrak semantik tidak valid sehingga inferensi dihentikan.",
+                confidence_score=0.0, evidence=[], reasoning_type="unknown",
+                reasons=["Payload Semantic Engine gagal melewati contract_validator."],
+                uncertainty="Kirim hasil Semantic Engine dengan wrapper dan tepat dua belas field yang valid.",
+            )
+
+        if validated_result["status"] != "supported":
             return self._result(
                 conclusion="Input semantik belum didukung sehingga belum dapat dijawab.",
                 confidence_score=0.0, evidence=[], reasoning_type="unknown",
-                reasons=["Semantic Engine tidak memberikan hasil berstatus supported."],
+                reasons=[f"Semantic Engine memberikan status {validated_result['status']}."],
                 uncertainty="Perjelas atau sederhanakan kalimat.",
             )
-        semantics = semantic_result.get("semantics")
-        if not isinstance(semantics, dict):
-            return self._result(
-                conclusion="Struktur semantik tidak tersedia.", confidence_score=0.0,
-                evidence=[], reasoning_type="unknown", reasons=["Field semantics tidak ditemukan."],
-                uncertainty="Kirim hasil Semantic Engine yang valid.",
-            )
+        semantics = validated_result["semantics"]
         intent = semantics.get("Intent")
         if intent != "question":
             label = "perintah" if intent == "command" else "pernyataan"
