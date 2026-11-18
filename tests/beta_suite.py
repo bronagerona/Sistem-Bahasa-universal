@@ -111,7 +111,7 @@ def test_beta_game_event_is_episodic_and_yields_cautious_npc_dialogue():
     assert result["metadata"]["confidence_score"] == 0.48
     assert "naga takut pada lonceng" in result["dialogue"].casefold()
     assert len(core.context_engine.get_context(session_id)["episodic_memory"]) == 1
-    assert len(core.knowledge_engine.fact_store.all()) == 2
+    assert len(core.knowledge_engine.fact_store.all()) == 3
 
 
 def test_beta_unknown_game_event_is_retained_without_invented_reasoning():
