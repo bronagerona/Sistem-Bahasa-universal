@@ -84,6 +84,56 @@ def test_aku_belum_makan(engine):
     assert result["semantics"]["Register"] == "informal"
 
 
+@pytest.mark.parametrize(
+    ("sentence", "normalized", "tokens", "expected"),
+    [
+        (
+            "Saya sudah makan nasi.",
+            "saya sudah makan nasi.",
+            ["saya", "sudah", "makan", "nasi", "."],
+            {"Aspect": "completed", "Patient/Object": "nasi"},
+        ),
+        (
+            "Aku akan beli buku besok.",
+            "aku akan beli buku besok.",
+            ["aku", "akan", "beli", "buku", "besok", "."],
+            {"Aspect": "prospective", "Time": "besok", "Patient/Object": "buku"},
+        ),
+        (
+            "Dia selalu minum air pagi-pagian.",
+            "dia selalu minum air pagi pagian.",
+            ["dia", "selalu", "minum", "air", "pagi", "pagian", "."],
+            {"Aspect": "habitual", "Time": "pagi-pagian"},
+        ),
+        (
+            "Saya harus pulang ke rumah.",
+            "saya harus pulang ke rumah.",
+            ["saya", "harus", "pulang", "ke", "rumah", "."],
+            {"Modality": "obligation", "Location": "rumah"},
+        ),
+        (
+            "Kita bisa bermain sepak bola sore.",
+            "kita bisa bermain sepak bola sore.",
+            ["kita", "bisa", "bermain", "sepak", "bola", "sore", "."],
+            {"Modality": "ability", "Time": "sore", "Patient/Object": "sepak bola"},
+        ),
+        (
+            "Saya belum minum obat.",
+            "saya belum minum obat.",
+            ["saya", "belum", "minum", "obat", "."],
+            {"Negation": "not_yet", "Patient/Object": "obat"},
+        ),
+    ],
+)
+def test_additional_v1_simple_assertions(engine, sentence, normalized, tokens, expected):
+    result = engine.analyze(make_input(sentence, normalized, tokens))
+
+    assert result["status"] == "supported"
+    assert set(result["semantics"]) == set(SEMANTIC_FIELDS)
+    for field, value in expected.items():
+        assert result["semantics"][field] == value
+
+
 def test_complex_sentence_is_unsupported(engine):
     payload = make_input(
         "Saya makan nasi dan minum air.",
@@ -95,6 +145,14 @@ def test_complex_sentence_is_unsupported(engine):
     assert result["status"] == "unsupported"
     assert result["semantics"] is None
     assert result["original_text"] == payload["original_text"]
+
+
+def test_question_and_command_remain_unsupported(engine):
+    question = make_input("Apakah saya makan?", "apakah saya makan?", ["apakah", "saya", "makan", "?"])
+    command = make_input("Tolong makan nasi.", "tolong makan nasi.", ["tolong", "makan", "nasi", "."])
+
+    assert engine.analyze(question)["status"] == "unsupported"
+    assert engine.analyze(command)["status"] == "unsupported"
 
 
 def test_input_validator_rejects_wrong_contract_version():
