@@ -20,10 +20,10 @@ class SentenceBuilder:
         context: dict[str, Any] | None = None,
     ) -> str:
         """Build a sentence from a normalized meaning representation."""
-        if register not in self.REGISTERS:
-            raise ValueError(f"register must be one of {sorted(self.REGISTERS)}")
         if not isinstance(meaning, dict):
             raise TypeError("meaning must be a dictionary")
+        if register not in self.REGISTERS:
+            raise ValueError(f"register must be one of {sorted(self.REGISTERS)}")
 
         kind = meaning.get("kind", "statement")
         if kind == "burn_risk":
@@ -35,8 +35,7 @@ class SentenceBuilder:
         else:
             sentence = self._generic(meaning, register, uncertainty)
 
-        # Context may resolve a demonstrative only when the caller explicitly
-        # supplies a grounded referent. We never infer facts from chat history.
+        # Only an explicitly supplied grounded referent may personalize wording.
         referent = meaning.get("contextual_referent")
         if isinstance(referent, str) and referent.strip():
             sentence = sentence.replace("{referent}", referent.strip())
@@ -47,19 +46,22 @@ class SentenceBuilder:
         target = SentenceBuilder._phrase(meaning.get("target"), "objek tersebut")
         material = SentenceBuilder._phrase(meaning.get("material"), "")
         source = SentenceBuilder._phrase(meaning.get("source"), "sumber panas")
+
         if register == "formal":
             core = f"Ada kemungkinan {target} akan terbakar"
             if material:
                 core += f" karena terbuat dari {material} dan terpapar {source}"
             return core
+
         if register == "informal":
             core = f"Kayaknya {target} bisa kebakaran"
             if material:
                 core += f" karena berbahan {material} dan terkena {source}"
             return core + (" lho" if uncertainty else "")
+
         core = f"Kayaknya {target} bisa kebakaran"
         if material:
-            core += f gara-gara bahannya {material} kena {source}"
+            core += f" gara-gara bahannya {material} kena {source}"
         return core + (" deh" if uncertainty else "")
 
     @staticmethod
@@ -86,7 +88,7 @@ class SentenceBuilder:
             meaning.get("proposition") or meaning.get("conclusion"),
             "Informasi belum tersedia",
         )
-        proposition = re.sub(r"\\s+", " ", proposition).strip().rstrip(".!?")
+        proposition = re.sub(r"\s+", " ", proposition).strip().rstrip(".!?")
         if uncertainty and not any(
             marker in proposition.casefold()
             for marker in ("mungkin", "kemungkinan", "berpotensi", "belum cukup")
@@ -105,7 +107,7 @@ class SentenceBuilder:
 
     @staticmethod
     def _finish(sentence: str) -> str:
-        sentence = re.sub(r"\\s+", " ", sentence).strip()
+        sentence = re.sub(r"\s+", " ", sentence).strip()
         if not sentence:
             return sentence
         return sentence[0].upper() + sentence[1:].rstrip(".!?") + "."
