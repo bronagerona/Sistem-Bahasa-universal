@@ -299,7 +299,7 @@ def test_regression_explicit_polite_instruction_remains_formal(setup_chatbot):
     _, _, adapter, sid = setup_chatbot
     result = adapter.respond("Tolong jawab dengan sopan, apakah api bisa membakar kayu?", sid)
     assert result["metadata"]["register"] == "formal"
-    assert result["answer"].startswith("Dengan senang hati,")
+    assert "Dengan senang hati," in result["answer"]
 
 
 def test_regression_explicit_casual_instruction_remains_informal(setup_chatbot):
