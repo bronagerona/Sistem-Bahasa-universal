@@ -68,11 +68,23 @@ class KnowledgeEngine:
         fact = self.fact_store.add(
             subject_key, relation_key, object_key, status, source.strip()
         )
-        self.provenance.record(fact["id"], fact["source"], fact["status"])
-        self._persist_fact(fact)
-        self._persist_provenance(fact["id"])
+        provenance = self.provenance.record(fact["id"], fact["source"], fact["status"])
+        self._persist_fact_and_provenance(fact, provenance)
         self._mark_conflicts(subject_key, relation_key)
         return self.fact_store.get(fact["id"])  # type: ignore[return-value]
+
+    def _persist_fact_and_provenance(
+        self, fact: dict[str, Any], record: dict[str, Any]
+    ) -> None:
+        if self.storage_provider is not None:
+            atomic_save = getattr(self.storage_provider, "save_fact_with_provenance", None)
+            if atomic_save is not None:
+                atomic_save(fact, record)
+            else:
+                # Compatibility for third-party storage providers implementing
+                # the older two-method protocol.
+                self.storage_provider.save_fact(fact)
+                self.storage_provider.save_provenance(record)
 
     def _persist_fact(self, fact: dict[str, Any]) -> None:
         if self.storage_provider is not None:
@@ -134,5 +146,7 @@ class KnowledgeEngine:
         for fact in matching:
             self.fact_store.update_status(fact["id"], "conflicting")
             self.provenance.update_status(fact["id"], "conflicting")
-            self._persist_fact(self.fact_store.get(fact["id"]))
-            self._persist_provenance(fact["id"])
+            fact_record = self.fact_store.get(fact["id"])
+            provenance_record = self.provenance.get(fact["id"])
+            if fact_record is not None and provenance_record is not None:
+                self._persist_fact_and_provenance(fact_record, provenance_record)
