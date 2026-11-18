@@ -79,7 +79,7 @@ class SemanticEngine:
         # V1 is declarative-only: explicitly reject questions and common commands.
         if "?" in original or any(word in _INTERROGATIVE_MARKERS for word in words):
             return None, "unsupported"
-        if words[0] in _COMMAND_MARKERS or words[0] in _VERBS:
+        if words[0] in _COMMAND_MARKERS:
             return None, "unsupported"
         if any(word in _COMPLEX_MARKERS for word in words):
             return None, "unsupported"
