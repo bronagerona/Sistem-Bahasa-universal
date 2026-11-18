@@ -20,6 +20,11 @@ from ilis.persona import (
         "Apa yang bisa kamu lakukan?",
         "Apa kemampuanmu?",
         "Jelaskan kemampuanmu.",
+        "Lu siapa?",
+        "Kamu bisa ngapain?",
+        "Kemampuan lu apa aja?",
+        "Eh, km bs ngapain?",
+        "Jelasin dong siapa dirimu.",
     ],
 )
 def test_mode_a_routes_identity_keywords_to_static_persona_answer(message):
