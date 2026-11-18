@@ -23,7 +23,8 @@ class ChatbotAdapter:
         r"\b(?:siapa\s+kamu|apa\s+yang\s+bisa\s+kamu\s+lakukan|"
         r"kemampuanmu|jelaskan\s+kemampuanmu|"
         r"lu\s+siapa|kamu\s+bisa\s+ngapain|"
-        r"kemampuan\s+lu\s+apa\s+aja|km\s+bs\s+ngapain|"
+        r"kemampuan\s+lu\s+apa\s+aja|kemampuan\s+lo\s+apa\s+aja|"
+        r"km\s+bs\s+ngapain|eh\s+km\s+bisa\s+ngapain|"
         r"jelasin\s+dong\s+siapa\s+dirimu)\b",
         re.IGNORECASE,
     )

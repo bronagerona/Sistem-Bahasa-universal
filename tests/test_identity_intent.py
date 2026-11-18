@@ -24,6 +24,8 @@ from ilis.persona import (
         "Kamu bisa ngapain?",
         "Kemampuan lu apa aja?",
         "Eh, km bs ngapain?",
+        "Kemampuan lo apa aja?",
+        "Eh km bisa ngapain?",
         "Jelasin dong siapa dirimu.",
     ],
 )
