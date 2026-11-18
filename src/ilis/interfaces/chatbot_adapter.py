@@ -1,4 +1,4 @@
-"""Text-chat adapter over the existing ILIS pipeline."""
+"""Text-chat adapter over the stateless ILIS pipeline."""
 
 from __future__ import annotations
 
@@ -6,19 +6,19 @@ import re
 from typing import Any
 
 from ilis.interfaces.ilis_core import ILISCore
+from ilis.interfaces.session_manager import SessionManager
 from ilis.persona import PersonaConfig, PersonaRenderer
 from ilis.persona.profiles import MODE_A
 
 
 class ChatbotAdapter:
-    """Run semantic analysis, reasoning, generation, then chatbot identity."""
+    """Run ILIS for one turn while keeping transcript state in SessionManager."""
 
     _TOUCHES_WOODEN_HOUSE = re.compile(
         r"^\s*(?P<source>api)\s+menyentuh\s+"
         r"(?P<target>rumah)\s+(?P<material>kayu)\s*[.!?]?\s*$",
         re.IGNORECASE,
     )
-
     _IDENTITY_INTENT = re.compile(
         r"\b(?:siapa\s+kamu|apa\s+yang\s+bisa\s+kamu\s+lakukan|"
         r"kemampuanmu|jelaskan\s+kemampuanmu|"
@@ -26,6 +26,10 @@ class ChatbotAdapter:
         r"kemampuan\s+lu\s+apa\s+aja|kemampuan\s+lo\s+apa\s+aja|"
         r"km\s+bs\s+ngapain|eh\s+km\s+bisa\s+ngapain|"
         r"jelasin\s+dong\s+siapa\s+dirimu)\b",
+        re.IGNORECASE,
+    )
+    _RESET_COMMAND = re.compile(
+        r"^\s*(?:reset\s+percakapan|hapus\s+riwayat(?:\s+percakapan)?)\s*[.!?]*\s*$",
         re.IGNORECASE,
     )
     _IDENTITY_CAPABILITIES_REPLY = (
@@ -37,85 +41,95 @@ class ChatbotAdapter:
         "besar (LLM). Karena itu, jawaban bergantung pada aturan, pengetahuan, "
         "dan informasi yang tersedia di dalam sistem."
     )
-
     _STYLE_INSTRUCTION = re.compile(
         r"(?:jawab|jelaskan|uraikan|terangkan)\s+(?:dengan\s+)?(?P<style>sopan|santai)",
         re.IGNORECASE,
     )
 
+    def __init__(
+        self, core: ILISCore, *, persona_config: PersonaConfig | None = None,
+        session_manager: SessionManager | None = None,
+    ) -> None:
+        if not isinstance(core, ILISCore):
+            raise TypeError("core must be an ILISCore instance")
+        if session_manager is not None and not isinstance(session_manager, SessionManager):
+            raise TypeError("session_manager must be a SessionManager instance")
+        self.core = core
+        self.session_manager = session_manager or SessionManager()
+        self.persona_config = (
+            persona_config if persona_config is not None else PersonaConfig.chatbot_ilis()
+        )
+        self.persona_renderer = PersonaRenderer(self.persona_config)
+
+    def create_session(self, metadata: dict[str, Any] | None = None) -> str:
+        return self.session_manager.create_session(metadata=metadata)
+
     @classmethod
     def _instruction_register(cls, text: str) -> str | None:
-        """Map explicit response-style instructions to generator registers."""
         match = cls._STYLE_INSTRUCTION.search(text)
         if not match:
             return None
         return "formal" if match.group("style").casefold() == "sopan" else "informal"
 
-    def __init__(
-        self, core: ILISCore, *, persona_config: PersonaConfig | None = None
-    ) -> None:
-        if not isinstance(core, ILISCore):
-            raise TypeError("core must be an ILISCore instance")
-        self.core = core
-        self.persona_config = (
-            persona_config if persona_config is not None else PersonaConfig.chatbot_ilis()
-        )
-        # Chatbot integrations identify as ILIS unless the host supplies
-        # another explicitly validated chatbot/application profile.
-        self.persona_renderer = PersonaRenderer(self.persona_config)
-
     def respond(
-        self, text: str, session_id: str, *, speaker: str = "user",
-        register: str | None = None,
+        self, text: str, session_id: str | None = None, *,
+        speaker: str = "user", register: str | None = None,
+        context_snapshot: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         if not isinstance(text, str) or not text.strip():
             raise ValueError("text must be a non-empty string")
+        if session_id is None:
+            session_id = self.create_session()
+        self.session_manager.ensure_session(session_id)
 
-        # Identity questions belong to the chatbot integration, not ILIS Core.
-        # Only the canonical Mode A chatbot may answer as ILIS; host applications
-        # and game characters continue through the ordinary Core pipeline.
-        normalized_text = " ".join(text.casefold().split())
-        if (
-            self.persona_config.mode == MODE_A
-            and self._IDENTITY_INTENT.search(normalized_text)
-        ):
-            # Preserve the adapter's invalid-session behavior without running
-            # Semantic, Reasoning, Language Generator, or storage mutations.
-            self.core.context_engine.get_context(session_id)
-            static_answer = self._IDENTITY_CAPABILITIES_REPLY
-            final_answer = self.persona_renderer.render(static_answer)
+        if self._RESET_COMMAND.fullmatch(text):
+            reset = self.session_manager.reset_session(session_id)
+            answer = "Riwayat percakapan sesi ini sudah direset. Kita mulai dari awal, ya."
             return {
-                "answer": final_answer,
-                "text": final_answer,
+                "answer": answer, "text": answer,
                 "metadata": {
-                    "register": "formal",
-                    "confidence_score": 1.0,
-                    "reasoning_type": "identity_intent",
-                    "conflict_status": "clear",
-                    "evidence": [],
-                    "semantic_status": "identity_intent",
-                    "response_type": "identity_intent",
-                    "session_id": session_id,
+                    "session_id": session_id, "response_type": "session_reset",
+                    "register": "formal", "deleted_turns": reset["deleted_turns"],
                 },
-                "semantic_result": None,
-                "reasoning_result": None,
-                "generation": None,
+                "semantic_result": None, "reasoning_result": None, "generation": None,
             }
 
-        processed = self.core.context_engine.process_message(
-            session_id, speaker, text, ingest_semantics=False
-        )
-        semantic = processed["semantic_result"]
+        managed_snapshot = self.session_manager.get_context_snapshot(session_id)
+        if context_snapshot is not None:
+            if not isinstance(context_snapshot, dict):
+                raise TypeError("context_snapshot must be a dictionary or None")
+            if context_snapshot.get("session_id", session_id) != session_id:
+                raise ValueError("context_snapshot session_id does not match session_id")
+            # SessionManager remains authoritative; optional host context is
+            # carried separately and cannot replace or overwrite managed turns.
+            snapshot = dict(managed_snapshot)
+            snapshot["additional_context"] = dict(context_snapshot)
+        else:
+            snapshot = managed_snapshot
 
-        # Always enter the validated Semantic -> Reasoning path first. Unsupported
-        # and low-confidence payloads are converted by infer_semantic() to unknown.
+        normalized_text = " ".join(text.casefold().split())
+        if self.persona_config.mode == MODE_A and self._IDENTITY_INTENT.search(normalized_text):
+            static_answer = self.persona_renderer.render(self._IDENTITY_CAPABILITIES_REPLY)
+            self.session_manager.add_turn(session_id, text, static_answer, metadata={
+                "response_type": "identity_intent", "speaker": speaker,
+            })
+            return {
+                "answer": static_answer, "text": static_answer,
+                "metadata": {
+                    "register": "formal", "confidence_score": 1.0,
+                    "reasoning_type": "identity_intent", "conflict_status": "clear",
+                    "evidence": [], "semantic_status": "identity_intent",
+                    "response_type": "identity_intent", "session_id": session_id,
+                    "context_turns_used": len(snapshot.get("turns", [])),
+                },
+                "semantic_result": None, "reasoning_result": None, "generation": None,
+            }
+
+        semantic = self.core.analyze_text(text, context_snapshot=snapshot)
         reasoning = self.core.reasoning_engine.infer_semantic(semantic)
 
         legacy_match = self._TOUCHES_WOODEN_HOUSE.fullmatch(text)
         if legacy_match:
-            # Preserve the exact V1 adapter behavior for this legacy sentence.
-            # V1 did not expose a usable Semantic confidence for this pattern, so
-            # a neutral multiplier (1.0) keeps its historical 0.72 score intact.
             reasoning = self.core.reasoning_engine.infer_burn_risk(
                 legacy_match.group("source").casefold(),
                 legacy_match.group("target").casefold(),
@@ -124,26 +138,17 @@ class ChatbotAdapter:
         else:
             semantics = semantic.get("semantics")
             confidence = semantics.get("Confidence") if isinstance(semantics, dict) else None
-            if (
-                isinstance(confidence, (int, float))
-                and not isinstance(confidence, bool)
-                and 0.0 <= confidence <= 1.0
-            ):
-                semantic_confidence = float(confidence)
-            else:
-                semantic_confidence = 0.0
+            semantic_confidence = (
+                float(confidence) if isinstance(confidence, (int, float))
+                and not isinstance(confidence, bool) and 0.0 <= confidence <= 1.0
+                else 0.0
+            )
 
-        # Confidence propagation: final reasoning confidence is the rule-based
-        # reasoning score multiplied by Semantic Engine confidence. This adjusts
-        # the numeric score only; it never upgrades unknown/conflicting or changes
-        # verified/hypothetical reasoning_type.
         base_confidence = reasoning.get("confidence_score", 0.0)
         if not isinstance(base_confidence, (int, float)) or isinstance(base_confidence, bool):
             base_confidence = 0.0
         reasoning["confidence_score"] = round(
-            max(0.0, min(1.0, float(base_confidence)))
-            * semantic_confidence,
-            6,
+            max(0.0, min(1.0, float(base_confidence))) * semantic_confidence, 6
         )
         reasoning["reasons"] = list(reasoning.get("reasons") or [])
         reasoning["reasons"].append(
@@ -153,26 +158,26 @@ class ChatbotAdapter:
 
         instruction_register = self._instruction_register(text)
         effective_register = register or instruction_register
+        session = self.session_manager.require_session(session_id)
         if effective_register is None:
             semantic_register = (semantic.get("semantics") or {}).get("Register")
             if semantic_register not in {"formal", "informal", "slang"}:
-                session = self.core.context_engine.get_context(session_id)["session"]
-                metadata = session.get("metadata", {})
-                semantic_register = metadata.get("register") if isinstance(metadata, dict) else None
+                semantic_register = session.metadata.get("register")
             if semantic_register in {"formal", "informal", "slang"}:
                 effective_register = semantic_register
 
         generated = self.core.language_generator.generate(
             reasoning, register=effective_register, semantic_result=semantic,
-            session_id=session_id, polite=instruction_register == "formal",
+            context=snapshot, polite=instruction_register == "formal",
         )
-        # Persona decorates only the generated text. Semantic, Reasoning,
-        # generation metadata, and the raw Language Generator output stay intact.
         final_answer = self.persona_renderer.render(generated["text"])
+        self.session_manager.add_turn(session_id, text, final_answer, metadata={
+            "response_type": "normal", "speaker": speaker,
+            "register": generated["register"],
+        })
         conflicts = self.core.knowledge_engine.detect_conflicts()
         return {
-            "answer": final_answer,
-            "text": final_answer,
+            "answer": final_answer, "text": final_answer,
             "metadata": {
                 "register": generated["register"],
                 "confidence_score": generated["confidence_score"],
@@ -181,8 +186,8 @@ class ChatbotAdapter:
                 "evidence": generated["evidence"],
                 "semantic_status": semantic.get("status"),
                 "session_id": session_id,
+                "context_turns_used": len(snapshot.get("turns", [])),
             },
-            "semantic_result": semantic,
-            "reasoning_result": reasoning,
-            "generation": generated,
+            "semantic_result": semantic, "reasoning_result": reasoning,
+            "generation": generated, "context_snapshot": snapshot,
         }
