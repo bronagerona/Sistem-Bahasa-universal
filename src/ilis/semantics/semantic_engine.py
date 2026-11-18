@@ -36,6 +36,7 @@ _INTERROGATIVE_MARKERS = {
     "kapan", "dimana", "di mana", "mana",
 }
 _COMMAND_MARKERS = {"tolong", "silakan", "harap", "mohon"}
+_IMPERATIVE_VERBS = {"bunyikan", "menyalakan", "matikan", "tutup", "buka", "ambil", "berikan", "panggil", "dengarkan", "simpan", "hapus"}
 _TIME_WORDS = {
     "sekarang", "tadi", "kemarin", "besok", "lusa", "nanti",
     "pagi", "siang", "sore", "malam", "subuh", "dinihari",
@@ -110,7 +111,7 @@ class SemanticEngine:
             return None, "unsupported"
 
         # Imperative: predicate is commonly the first lexical token.
-        if not is_question and not is_command and verb_positions and verb_positions[0] == 0:
+        if not is_question and not is_command and words[0] in _IMPERATIVE_VERBS:
             is_command = True
         if is_command:
             predicate_index = next((i for i, w in enumerate(words) if w in _VERBS), None)
@@ -185,7 +186,8 @@ class SemanticEngine:
             if word in _LOCATION_PREPOSITIONS and i + 1 < len(after_predicate):
                 stop = next((j for j in range(i + 1, len(after_predicate))
                              if after_predicate[j] in _TIME_WORDS or
-                             after_predicate[j] in _LOCATION_PREPOSITIONS), len(after_predicate))
+                             after_predicate[j] in _LOCATION_PREPOSITIONS or
+                             after_predicate[j] in {"setiap", "tiap"}), len(after_predicate))
                 location = " ".join(after_predicate[i + 1:stop]) or None
                 break
         if location is None:
