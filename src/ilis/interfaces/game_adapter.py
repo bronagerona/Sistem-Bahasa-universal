@@ -40,16 +40,49 @@ class GameEngineAdapter:
             PersonaRenderer(persona_config) if persona_config is not None else None
         )
 
+    def create_session(self, metadata: dict[str, Any] | None = None) -> str:
+        """Create a conversation session and a separate episodic scope."""
+        episodic_session_id = self.core.create_session(metadata=metadata)
+        session_metadata = dict(metadata or {})
+        session_metadata["_episodic_session_id"] = episodic_session_id
+        return self.session_manager.create_session(metadata=session_metadata)
+
     def handle_event(
-        self, event: str, session_id: str, *, entities: list[str] | None = None,
+        self, event: str, session_id: str | None = None, *, entities: list[str] | None = None,
         attributes: dict[str, Any] | None = None, event_type: str = "game_event",
         npc: str = "npc", conversation_session_id: str | None = None,
         context_snapshot: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         if not isinstance(event, str) or not event.strip():
             raise ValueError("event must be a non-empty string")
-        conversation_id = conversation_session_id or session_id
-        self.session_manager.ensure_session(conversation_id)
+        if session_id is None:
+            conversation_id = conversation_session_id
+            if conversation_id is None:
+                conversation_id = self.create_session()
+            elif self.session_manager.get_session(conversation_id) is None:
+                episodic_id = self.core.create_session()
+                self.session_manager.ensure_session(
+                    conversation_id, metadata={"_episodic_session_id": episodic_id}
+                )
+            session = self.session_manager.require_session(conversation_id)
+            episodic_session_id = session.metadata.get("_episodic_session_id")
+        elif self.session_manager.get_session(session_id) is not None:
+            conversation_id = conversation_session_id or session_id
+            session = self.session_manager.require_session(conversation_id)
+            episodic_session_id = session.metadata.get("_episodic_session_id") or session_id
+        else:
+            # Backward-compatible path: the old positional session_id is an
+            # existing ContextEngine episodic scope, not a transcript store.
+            legacy_context = self.core.context_engine.get_context(session_id)
+            conversation_id = conversation_session_id or session_id
+            metadata = dict(legacy_context.get("session", {}).get("metadata", {}))
+            metadata["_episodic_session_id"] = session_id
+            self.session_manager.ensure_session(conversation_id, metadata=metadata)
+            session = self.session_manager.require_session(conversation_id)
+            episodic_session_id = session_id
+
+        if not isinstance(episodic_session_id, str) or not episodic_session_id:
+            raise ValueError("game conversation has no episodic memory scope")
 
         if self._RESET_COMMAND.fullmatch(event):
             reset = self.session_manager.reset_session(conversation_id)
@@ -77,11 +110,11 @@ class GameEngineAdapter:
             snapshot = managed_snapshot
 
         episode = self.core.context_engine.record_event(
-            session_id, event, event_type=event_type,
+            episodic_session_id, event, event_type=event_type,
             entities=entities or self._entities_for(event),
             attributes=attributes,
         )
-        core_context = self.core.context_engine.get_context(session_id)
+        core_context = self.core.context_engine.get_context(episodic_session_id)
         burn = self._BURN_EVENT.fullmatch(event)
         fear = self._FEAR_EVENT.fullmatch(event)
         if burn:
@@ -109,8 +142,8 @@ class GameEngineAdapter:
                 "reasons": ["Tidak ada aturan interpretasi adapter V1 yang cocok."],
                 "uncertainty": "Episode tersimpan, tetapi belum ada aturan untuk menafsirkannya.",
             }
-        session_metadata = core_context.get("session", {}).get("metadata", {})
-        default_register = session_metadata.get("register") if isinstance(session_metadata, dict) else None
+        core_session_metadata = core_context.get("session", {}).get("metadata", {})
+        default_register = core_session_metadata.get("register") if isinstance(core_session_metadata, dict) else None
         generated = self.core.language_generator.generate(
             reasoning, register=default_register, context=snapshot
         )
