@@ -11,6 +11,8 @@ from ilis.cognition.relation_store import RelationStore
 
 
 FACT_STATUSES = frozenset({"verified", "hypothesis", "conflicting"})
+# A source can burn multiple materials; these are cumulative, not exclusive facts.
+MULTI_VALUED_RELATIONS = frozenset({"can_burn"})
 
 
 class KnowledgeEngine:
@@ -119,6 +121,8 @@ class KnowledgeEngine:
     def detect_conflicts(self) -> list[list[dict[str, Any]]]:
         groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
         for fact in self.fact_store.all():
+            if fact["relation"] in MULTI_VALUED_RELATIONS:
+                continue
             groups.setdefault((fact["subject"], fact["relation"]), []).append(fact)
         return [
             facts for facts in groups.values()
@@ -153,6 +157,8 @@ class KnowledgeEngine:
         return self.provenance.get(fact_id)
 
     def _mark_conflicts(self, subject: str, relation: str) -> None:
+        if relation in MULTI_VALUED_RELATIONS:
+            return
         matching = [
             fact for fact in self.fact_store.all()
             if fact["subject"] == subject and fact["relation"] == relation
