@@ -153,12 +153,11 @@ class ReasoningEngine:
         self, source: str, target: str
     ) -> list[list[dict[str, Any]]]:
         """Find conflicts touching either queried concept or V1 rule relation."""
-        relevant_relations = {"can_burn", "made_of"}
         return [
             group for group in self.knowledge_engine.detect_conflicts()
             if any(
                 fact.get("subject") in {source, target}
-                or fact.get("relation") in relevant_relations
+                or fact.get("object") in {source, target}
                 for fact in group
             )
         ]
