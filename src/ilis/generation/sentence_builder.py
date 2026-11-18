@@ -44,7 +44,7 @@ class SentenceBuilder:
         else:
             sentence = self._generic(meaning, register, uncertainty)
 
-        if polite and register == "formal" and kind == "question":
+        if polite and register == "formal" and kind in {"question", "dragon_bell"}:
             sentence = "Dengan senang hati, " + sentence[:1].lower() + sentence[1:]
 
         # Only an explicitly supplied grounded referent may personalize wording.

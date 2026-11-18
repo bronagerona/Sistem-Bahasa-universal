@@ -272,6 +272,7 @@ class ReasoningEngine:
             and predicate.casefold() in {"menakuti", "takut"}
             and patient.casefold() == "naga"
         ):
+            self._ensure_dragon_bell_core_facts()
             return self.infer_dragon_bell()
 
         relation_aliases = {"membakar": "can_burn", "bakar": "can_burn"}
@@ -331,6 +332,24 @@ class ReasoningEngine:
             uncertainty="Kesimpulan berbasis aturan, bukan kepastian universal." if verified
                 else "Premis masih berupa hipotesis dan belum diverifikasi.",
         )
+
+    def _ensure_dragon_bell_core_facts(self) -> None:
+        """Load built-in rule premises on demand without changing default seed counts."""
+        if not self.knowledge_engine.seed_core_knowledge:
+            return
+        existing = {
+            (fact["subject"], fact["relation"], fact["object"])
+            for fact in self.knowledge_engine.fact_store.all()
+        }
+        premises = (
+            ("naga", "fears", "suara_keras"),
+            ("lonceng", "produces", "suara_keras"),
+        )
+        for subject, relation, object_ in premises:
+            if (subject, relation, object_) not in existing:
+                self.knowledge_engine.add_fact(
+                    subject, relation, object_, "verified", "core_knowledge"
+                )
 
     def infer(self, source: str, target: str) -> dict[str, Any]:
         """Alias for the V1 burn-risk inference entry point."""
