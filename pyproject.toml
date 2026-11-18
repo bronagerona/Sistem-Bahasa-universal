@@ -12,6 +12,9 @@ license = { text = "MIT" }
 authors = [{ name = "ILIS contributors" }]
 dependencies = []
 
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+
 [project.scripts]
 ilis = "ilis.cli:main"
 
