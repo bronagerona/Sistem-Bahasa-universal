@@ -44,7 +44,7 @@ Riwayat dibatasi lima pasangan turn lengkap secara default. Pesan terbaru belum 
 
 ## GameEngineAdapter
 
-`GameEngineAdapter.handle_event(event, session_id, ..., context_snapshot=None)` mempertahankan `session_id` lama sebagai scope ContextEngine untuk event/episode game. SessionManager mengelola transcript dialog secara terpisah dengan ID yang sama atau ID percakapan yang disediakan host melalui `conversation_session_id`. Jangan menganggap Episodic Memory sebagai transcript dialog.
+`GameEngineAdapter.create_session(metadata=None)` membuat ID percakapan adapter dan scope episodic internal yang terpisah. `handle_event(event, session_id=None, ..., conversation_session_id=None, context_snapshot=None)` menerima ID percakapan opsional. Untuk kompatibilitas, ID Core lama tetap diterima sebagai scope episodic; `conversation_session_id` dapat memisahkan transcript dari scope episode. Jangan menganggap Episodic Memory sebagai transcript dialog.
 
 ## Reset
 
