@@ -13,8 +13,8 @@ class LanguageGenerator:
     """Generate register-aware Indonesian from reasoning and semantic inputs."""
 
     _BURN_PATTERN = re.compile(
-        r"(?P<source>[\\w-]+)\\s+yang\\s+menyambar\\s+"
-        r"(?P<target>[\\w-]+)\\s+berbahan\\s+(?P<material>[\\w-]+)",
+        r"(?P<source>[\w-]+)\s+yang\s+menyambar\s+"
+        r"(?P<target>[\w-]+)\s+berbahan\s+(?P<material>[\w-]+)",
         re.IGNORECASE,
     )
 
@@ -39,11 +39,7 @@ class LanguageGenerator:
         context: dict[str, Any] | None = None,
         session_id: str | None = None,
     ) -> dict[str, Any]:
-        """Render a ReasoningEngine result using register and optional session context.
-
-        Explicit register takes precedence, followed by Semantic Engine metadata,
-        then session metadata, and finally formal as a safe default.
-        """
+        """Render reasoning using register metadata and optional session context."""
         if not isinstance(reasoning_result, dict):
             raise TypeError("reasoning_result must be a dictionary")
         if semantic_result is not None and not isinstance(semantic_result, dict):
@@ -136,5 +132,9 @@ class LanguageGenerator:
 
     @staticmethod
     def _find_target(conclusion: str) -> str:
-        match = re.search(r"(?:apakah|tentang|mengenai)\\s+([\\w-]+)", conclusion, re.IGNORECASE)
+        match = re.search(
+            r"(?:apakah|tentang|mengenai)\s+([\w-]+)",
+            conclusion,
+            re.IGNORECASE,
+        )
         return match.group(1) if match else "hal itu"
