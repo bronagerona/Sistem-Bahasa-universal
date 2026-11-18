@@ -134,11 +134,13 @@ def test_duplicate_concept_id_or_alias_is_rejected(store):
 
 
 def test_semantic_and_reasoning_contracts_remain_unchanged():
-    from ilis.interfaces import ILISCore
+    from ilis.interfaces import ChatbotAdapter, ILISCore
 
-    result = ILISCore().analyze_text("Apakah api bisa membakar kayu?")
-    assert len(result["semantics"]) == 12
-    assert set(result["reasoning"]) == {
+    result = ChatbotAdapter(ILISCore()).respond(
+        "Apakah api bisa membakar kayu?"
+    )
+    assert len(result["semantic_result"]["semantics"]) == 12
+    assert set(result["reasoning_result"]) == {
         "conclusion", "confidence_score", "evidence",
         "reasoning_type", "reasons", "uncertainty",
     }
