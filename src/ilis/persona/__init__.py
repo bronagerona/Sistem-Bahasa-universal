@@ -1,5 +1,6 @@
 """Public profile and validation API for ILIS Persona Layer."""
 
+from .renderer import PersonaRenderer
 from .profiles import (
     ILIS_IDENTITY_REPLY,
     MODE_A,
@@ -14,6 +15,7 @@ from .profiles import (
 )
 
 __all__ = [
+    "PersonaRenderer",
     "ApplicationProfile",
     "CharacterProfile",
     "PersonaConfig",
