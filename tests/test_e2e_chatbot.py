@@ -74,7 +74,7 @@ def test_chatbot_conflicting_knowledge_is_reported_not_resolved_arbitrarily():
 
 @pytest.mark.parametrize(
     ("text", "expected_status"),
-    [("membakar", "low_confidence"), ("qzxv", "unsupported")],
+    [("membakar", "low_confidence"), ("!!!", "unsupported")],
 )
 def test_chatbot_low_confidence_and_unsupported_inputs_fall_back_gracefully(
     text, expected_status
