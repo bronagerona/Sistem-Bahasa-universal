@@ -1,17 +1,16 @@
-"""Minimal inspection pipeline for the ILIS language foundation."""
+"""ILIS language pipeline: lexical inspection plus V1 semantic analysis."""
 
 from __future__ import annotations
 
+import re
+
 from ilis.language.tokenizer import tokenize
 from ilis.language.variation import variation_hint
+from ilis.semantics.semantic_engine import SemanticEngine
 
 
 def inspect_text(text: str) -> dict[str, object]:
-    """Return observable token and lexical-variation information.
-
-    The output is deliberately not called a semantic interpretation: this first
-    milestone detects token boundaries and a small set of lexical variants only.
-    """
+    """Return observable token and lexical-variation information."""
     tokens = tokenize(text)
     return {
         "input": text,
@@ -24,8 +23,50 @@ def inspect_text(text: str) -> dict[str, object]:
             for token in tokens
         ],
         "limitations": [
-            "Belum melakukan analisis sintaksis atau pemahaman semantik.",
+            "Analisis semantik tersedia terpisah melalui analyze_semantics().",
             "Pemetaan variasi masih kecil dan berbasis aturan eksplisit.",
             "Belum melakukan koreksi typo secara kontekstual.",
         ],
     }
+
+
+def analyze_semantics(text: str) -> dict[str, object]:
+    """Run ILVE-style preprocessing and pass its contract payload to SemanticEngine.
+
+    This adapter preserves the exact source text while converting the current
+    inspect_text() representation into the stable Semantic Engine input contract.
+    """
+    inspection = inspect_text(text)
+    token_items = inspection["tokens"]
+    normalized_tokens: list[str] = []
+    variation_hints: list[dict[str, str]] = []
+
+    for item in token_items:
+        surface = item["surface"]
+        normalized = item["variation_hint"] or surface
+        normalized_tokens.append(normalized)
+        if item["variation_hint"] is not None:
+            lowered = surface.casefold()
+            category = "slang" if lowered in {
+                "gue", "gw", "gua", "lu", "lo", "elu"
+            } else "nonstandard"
+            variation_hints.append(
+                {
+                    "surface": surface,
+                    "normalized": normalized,
+                    "category": category,
+                }
+            )
+
+    normalized_text = " ".join(normalized_tokens)
+    normalized_text = re.sub(r"\\s+([.,!?;:])", r"\\1", normalized_text)
+    payload = {
+        "contract_version": "1.0",
+        "original_text": text,
+        "ilve": {
+            "normalized_text": normalized_text,
+            "tokens": normalized_tokens,
+            "variation_hints": variation_hints,
+        },
+    }
+    return SemanticEngine().analyze(payload)
