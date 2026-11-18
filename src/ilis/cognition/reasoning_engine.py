@@ -11,7 +11,7 @@ from ilis.cognition.inference_rules import (
     matching_burn_risk_premises,
     matching_rule_premises,
 )
-from ilis.cognition.knowledge_engine import KnowledgeEngine
+from ilis.cognition.knowledge_engine import KnowledgeEngine, MULTI_VALUED_RELATIONS
 from ilis.language.pipeline import analyze_semantics
 from ilis.semantics.contract_validator import ContractValidationError, validate_output
 
@@ -333,7 +333,7 @@ class ReasoningEngine:
             fact for fact in self.knowledge_engine.fact_store.all()
             if fact.get("subject") == actor.casefold() and fact.get("relation") == relation
         ]
-        if len({fact.get("object") for fact in related}) > 1 or any(
+        if (relation not in MULTI_VALUED_RELATIONS and len({fact.get("object") for fact in related}) > 1) or any(
             fact.get("status") == "conflicting" for fact in matches
         ):
             evidence = sorted({fact["id"] for fact in related})
