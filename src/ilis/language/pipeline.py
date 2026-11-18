@@ -59,7 +59,7 @@ def analyze_semantics(text: str) -> dict[str, object]:
             )
 
     normalized_text = " ".join(normalized_tokens)
-    normalized_text = re.sub(r"\\s+([.,!?;:])", r"\\1", normalized_text)
+    normalized_text = re.sub(r"\s+([.,!?;:])", r"\1", normalized_text)
     payload = {
         "contract_version": "1.0",
         "original_text": text,
