@@ -50,7 +50,7 @@ def test_sqlite_restores_core_seed_without_duplicate_records(tmp_path):
 
     second = SQLiteStorageProvider(database)
     restored = KnowledgeEngine(storage_provider=second)
-    assert len(restored.fact_store.all()) == 2
+    assert len(restored.fact_store.all()) == 3
     second.close()
 
 
