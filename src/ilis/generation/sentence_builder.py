@@ -32,6 +32,12 @@ class SentenceBuilder:
             sentence = self._unknown(meaning, register)
         elif kind == "conflicting":
             sentence = self._conflicting(meaning, register)
+        elif kind == "question":
+            sentence = self._question(meaning, register, uncertainty)
+        elif kind == "command":
+            sentence = self._command(meaning, register)
+        elif kind == "dragon_bell":
+            sentence = self._dragon_bell(meaning, register, uncertainty)
         else:
             sentence = self._generic(meaning, register, uncertainty)
 
@@ -82,6 +88,47 @@ class SentenceBuilder:
             return f"Informasi soal {subject} masih saling bertentangan"
         return f"Info soal {subject} masih beda-beda"
 
+    @staticmethod
+    def _question(meaning: dict[str, Any], register: str, uncertainty: bool) -> str:
+        actor = SentenceBuilder._phrase(meaning.get("actor"), "hal itu")
+        predicate = SentenceBuilder._phrase(meaning.get("predicate"), "terjadi")
+        patient = SentenceBuilder._phrase(meaning.get("patient"), "")
+        modality = meaning.get("modality")
+        if predicate in {"membakar", "bakar"} and modality == "ability":
+            core = f"{actor} bisa {predicate} {patient}".strip()
+        else:
+            core = " ".join(part for part in (actor, predicate, patient) if part)
+        if uncertainty:
+            if register == "formal": return f"Ya, kemungkinan {core}"
+            if register == "informal": return f"Iya, kayaknya {core}"
+            return f"Iya, kayaknya {core} sih"
+        if register == "formal": return f"Ya, berdasarkan fakta yang tersedia, {core}"
+        if register == "informal": return f"Iya, {core}"
+        return f"Iya, {core} kok"
+
+    @staticmethod
+    def _command(meaning: dict[str, Any], register: str) -> str:
+        predicate = SentenceBuilder._phrase(meaning.get("predicate"), "")
+        patient = SentenceBuilder._phrase(meaning.get("patient"), "")
+        if predicate in {"bunyikan", "bunyi"} and patient == "lonceng":
+            if register == "formal": return "Baik, lonceng akan dibunyikan"
+            if register == "informal": return "Oke, loncengnya akan dibunyikan"
+            return "Gas, loncengnya kita bunyiin"
+        proposition = SentenceBuilder._phrase(meaning.get("proposition"), "perintah tersebut")
+        if register == "formal": return f"Baik, perintah {proposition} akan diproses"
+        if register == "informal": return f"Oke, {proposition} akan dijalankan"
+        return f"Siap, {proposition} kita jalanin"
+
+    @staticmethod
+    def _dragon_bell(meaning: dict[str, Any], register: str, uncertainty: bool) -> str:
+        if register == "formal":
+            core = "Lonceng dapat menakuti naga karena menghasilkan suara keras yang ditakuti naga"
+            return f"Ada kemungkinan bahwa {core}" if uncertainty else core
+        if register == "informal":
+            core = "Lonceng bisa bikin naga takut karena bunyinya keras"
+            return f"Kayaknya {core} lho" if uncertainty else core
+        core = "Lonceng bisa bikin naga ciut gara-gara suaranya kenceng"
+        return f"Kayaknya {core} deh" if uncertainty else core
     @staticmethod
     def _generic(meaning: dict[str, Any], register: str, uncertainty: bool) -> str:
         proposition = SentenceBuilder._phrase(

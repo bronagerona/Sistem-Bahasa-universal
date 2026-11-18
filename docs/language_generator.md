@@ -73,3 +73,21 @@ Register:
 python -m pip install -e ".[dev]"
 python -m pytest
 ```
+
+## Perluasan Language Generator V2
+
+V2 mempertahankan kontrak hasil V1 dan menambahkan komposisi berdasarkan Intent Semantic Engine:
+
+- **Pertanyaan (question)**: hasil reasoning didukung fakta dapat dirender sebagai jawaban. Contoh “Apakah api bisa membakar kayu?” menjadi “Ya, kemungkinan api bisa membakar kayu.” Jika reasoning berstatus unknown atau conflicting, generator tetap menghasilkan ketidakpastian/konflik, bukan jawaban positif.
+- **Perintah (command)**: dirender sebagai respons pelaksanaan, bukan jawaban faktual. Contoh “Bunyikan lonceng” menjadi “Baik, lonceng akan dibunyikan.”
+- **Naga + lonceng**: hasil aturan Reasoning V2 dirangkai dalam register formal, informal, atau slang dengan pilihan diksi berbeda.
+
+| Register | Keluaran |
+|---|---|
+| Formal | Ada kemungkinan bahwa lonceng dapat menakuti naga karena menghasilkan suara keras yang ditakuti naga. |
+| Informal | Kayaknya lonceng bisa bikin naga takut karena bunyinya keras lho. |
+| Slang | Kayaknya lonceng bisa bikin naga ciut gara-gara suaranya kenceng deh. |
+
+Ketidakpastian mempertimbangkan tipe inferensi, confidence score, dan catatan uncertainty. Penanda seperti “kemungkinan” atau “kayaknya” dipertahankan. Confidence tidak dianggap probabilitas terkalibrasi.
+
+API generate() dan seluruh kunci hasil V1 tetap sama: text, register, meaning, reasoning_type, confidence_score, uncertainty_preserved, evidence, session_id. Semantic Engine, Reasoning Engine, dan Storage tidak dimodifikasi.

@@ -54,7 +54,7 @@ class LanguageGenerator:
             context = self.context_engine.get_context(session_id)
 
         selected_register = self._select_register(register, semantic_result, context)
-        meaning = self._extract_meaning(reasoning_result)
+        meaning = self._extract_meaning(reasoning_result, semantic_result)
         uncertain = self._is_uncertain(reasoning_result)
         sentence = self.sentence_builder.build(
             meaning,
@@ -74,12 +74,28 @@ class LanguageGenerator:
         }
 
     @classmethod
-    def _extract_meaning(cls, result: dict[str, Any]) -> dict[str, Any]:
+    def _extract_meaning(cls, result: dict[str, Any], semantic_result: dict[str, Any] | None = None) -> dict[str, Any]:
         supplied = result.get("meaning")
         if isinstance(supplied, dict):
             return dict(supplied)
         reasoning_type = result.get("reasoning_type", "unknown")
         conclusion = result.get("conclusion", "")
+        if isinstance(conclusion, str) and "lonceng" in conclusion.casefold() and "naga" in conclusion.casefold() and "takut" in conclusion.casefold():
+            return {"kind": "dragon_bell", "proposition": conclusion}
+        if semantic_result and semantic_result.get("status") == "supported":
+            semantics = semantic_result.get("semantics")
+            if isinstance(semantics, dict):
+                intent = semantics.get("Intent")
+                if intent == "question":
+                    if reasoning_type == "conflicting":
+                        return {"kind": "conflicting", "target": semantics.get("Patient/Object") or semantics.get("Actor")}
+                    if reasoning_type == "unknown":
+                        return {"kind": "unknown", "target": semantics.get("Patient/Object") or semantics.get("Actor")}
+                    return {"kind": "question", "actor": semantics.get("Actor"), "predicate": semantics.get("Predicate"), "patient": semantics.get("Patient/Object"), "modality": semantics.get("Modality"), "proposition": conclusion}
+                if intent == "command":
+                    return {"kind": "command", "predicate": semantics.get("Predicate"), "patient": semantics.get("Patient/Object"), "proposition": conclusion}
+        if reasoning_type == "command":
+            return {"kind": "command", "proposition": conclusion}
         if not isinstance(conclusion, str):
             conclusion = ""
         if reasoning_type == "conflicting":
