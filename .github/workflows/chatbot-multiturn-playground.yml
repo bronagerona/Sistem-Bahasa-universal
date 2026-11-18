@@ -25,7 +25,7 @@ jobs:
       - name: Ambil kode implementasi multi-turn
         uses: actions/checkout@v4
         with:
-          ref: ilis-v2-2-multi-turn-implementation
+          ref: ilis-v2-development
 
       - name: Siapkan Python
         uses: actions/setup-python@v5
@@ -90,6 +90,14 @@ jobs:
                   raise AssertionError("Pesan kedua seharusnya menerima 1 turn sebelumnya.")
               if len(snapshot.get("turns", [])) != 2:
                   raise AssertionError("Sesi seharusnya menyimpan tepat 2 turn.")
+              if not str(result_1.get("generation", {}).get("text", "")).startswith("Ya,"):
+                  raise AssertionError("Jawaban pertama tidak mengonfirmasi fakta api membakar kayu.")
+              if not str(result_2.get("generation", {}).get("text", "")).startswith("Ya,"):
+                  raise AssertionError("Jawaban kedua tidak mengonfirmasi fakta api membakar kertas.")
+              if result_2.get("reasoning_result", {}).get("reasoning_type") != "verified_inference":
+                  raise AssertionError("Pesan kedua tidak memakai fakta terverifikasi.")
+              if not result_2.get("reasoning_result", {}).get("evidence"):
+                  raise AssertionError("Pesan kedua tidak menyertakan bukti KnowledgeEngine.")
 
               summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
               if summary_path:
