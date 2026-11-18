@@ -131,7 +131,9 @@ def test_persona_choice_does_not_change_semantic_reasoning_or_generation():
 
     assert result_ilis["semantic_result"] == result_app["semantic_result"]
     assert result_ilis["reasoning_result"] == result_app["reasoning_result"]
-    assert result_ilis["generation"] == result_app["generation"]
+    generation_ilis = {key: value for key, value in result_ilis["generation"].items() if key != "session_id"}
+    generation_app = {key: value for key, value in result_app["generation"].items() if key != "session_id"}
+    assert generation_ilis == generation_app
     assert result_ilis["answer"] != result_app["answer"]
 
 
