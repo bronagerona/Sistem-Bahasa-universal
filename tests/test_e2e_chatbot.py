@@ -138,3 +138,23 @@ def test_chatbot_maps_casual_instruction_to_informal_register():
 
     assert result["metadata"]["register"] == "informal"
     assert result["answer"].startswith("Iya, kayaknya")
+
+
+
+def test_chatbot_dragon_bell_question_with_polite_instruction_uses_seeded_rule():
+    core, session_id, chatbot = _chatbot()
+    result = chatbot.respond(
+        "Apakah lonceng bisa menakuti naga? Jawab dengan sopan.", session_id
+    )
+
+    assert result["semantic_result"]["status"] == "supported"
+    assert result["semantic_result"]["semantics"]["Actor"] == "lonceng"
+    assert result["semantic_result"]["semantics"]["Predicate"] == "menakuti"
+    assert result["semantic_result"]["semantics"]["Patient/Object"] == "naga"
+    assert result["reasoning_result"]["reasoning_type"] == "verified_inference"
+    assert result["reasoning_result"]["confidence_score"] == pytest.approx(0.648)
+    assert len(result["reasoning_result"]["evidence"]) == 2
+    assert result["metadata"]["register"] == "formal"
+    assert result["answer"].startswith("Dengan senang hati,")
+    assert "menakuti naga" in result["answer"].casefold()
+    assert result["metadata"]["confidence_score"] == pytest.approx(0.648)

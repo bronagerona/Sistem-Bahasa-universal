@@ -43,6 +43,23 @@ class KnowledgeEngine:
             self.add_fact("api", "can_burn", "kayu", "verified", "core_knowledge")
             self.add_fact("rumah", "made_of", "kayu", "verified", "core_knowledge")
 
+        if seed_core_knowledge:
+            # Keep the explicit premises for the built-in V2 dragon/bell rule
+            # available in fresh and already-populated persistent knowledge stores.
+            seeded_facts = {
+                (fact["subject"], fact["relation"], fact["object"])
+                for fact in self.fact_store.all()
+            }
+            dragon_bell_facts = (
+                ("naga", "fears", "suara_keras"),
+                ("lonceng", "produces", "suara_keras"),
+            )
+            for subject, relation, object_ in dragon_bell_facts:
+                if (subject, relation, object_) not in seeded_facts:
+                    self.add_fact(
+                        subject, relation, object_, "verified", "core_knowledge"
+                    )
+
     def add_concept(self, concept: str) -> str:
         return self.concept_store.add(concept)
 
