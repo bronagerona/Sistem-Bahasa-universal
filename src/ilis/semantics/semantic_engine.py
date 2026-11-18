@@ -11,7 +11,6 @@ from typing import Any
 
 from ilis.semantics.constants import CONTRACT_VERSION
 from ilis.semantics.contract_validator import (
-    ContractValidationError,
     validate_input,
     validate_output,
 )
@@ -26,11 +25,14 @@ _PRONOUNS = {
     "kamu": ("kamu", "informal"),
     "lu": ("kamu", "slang"),
     "lo": ("kamu", "slang"),
+    "dia": ("dia", "unknown"),
+    "kita": ("kita", "unknown"),
 }
 _VERBS = {
     "makan", "minum", "pergi", "berangkat", "datang", "tidur", "baca",
     "membaca", "menulis", "belajar", "bekerja", "main", "bermain",
     "melihat", "membeli", "membawa", "memberi", "memasak", "lari",
+    "beli", "pulang",
 }
 _COMPLEX_MARKERS = {
     "dan", "tetapi", "namun", "karena", "sehingga", "ketika", "meskipun",
@@ -40,9 +42,15 @@ _INTERROGATIVE_MARKERS = {"apakah", "siapa", "apa", "mengapa", "kenapa", "bagaim
 _COMMAND_MARKERS = {"tolong", "silakan", "harap"}
 _TIME_WORDS = {
     "sekarang", "tadi", "kemarin", "besok", "nanti", "pagi", "siang",
-    "sore", "malam", "hari",
+    "sore", "malam", "hari", "pagian",
 }
 _LOCATION_PREPOSITIONS = {"di", "ke", "dari", "menuju"}
+_ASPECT_MARKERS = {
+    "progressive": {"lagi", "sedang"},
+    "prospective": {"akan", "bakal"},
+    "completed": {"sudah", "telah"},
+    "habitual": {"biasanya", "sering", "selalu"},
+}
 
 
 class SemanticEngine:
@@ -93,8 +101,6 @@ class SemanticEngine:
 
         actor_index = next((i for i, word in enumerate(words) if word in _PRONOUNS), None)
         if actor_index is None:
-            # Do not invent an omitted subject. Return a complete, explicitly partial
-            # structure so downstream consumers can distinguish uncertainty.
             predicate = words[verb_positions[0]] if verb_positions else None
             return self._partial_semantics(predicate=predicate), "low_confidence"
 
@@ -115,14 +121,10 @@ class SemanticEngine:
         negation = "none"
         modality = "none"
 
-        if any(word in {"lagi", "sedang"} for word in before_predicate):
-            aspect = "progressive"
-        elif any(word in {"akan", "bakal"} for word in before_predicate):
-            aspect = "prospective"
-        elif any(word in {"sudah", "telah"} for word in before_predicate):
-            aspect = "completed"
-        elif any(word in {"biasanya", "sering", "selalu"} for word in before_predicate):
-            aspect = "habitual"
+        for aspect_name, markers in _ASPECT_MARKERS.items():
+            if any(word in markers for word in before_predicate):
+                aspect = aspect_name
+                break
 
         if "belum" in before_predicate:
             negation = "not_yet"
@@ -142,8 +144,13 @@ class SemanticEngine:
         elif "boleh" in before_predicate:
             modality = "permission"
 
+        # Preserve common hyphenated time expression as one semantic value.
+        if re.search(r"\bpagi[-\s]+pagian\b", original.casefold()):
+            time = "pagi-pagian"
+        else:
+            time = next((word for word in words if word in _TIME_WORDS), None)
+
         location = None
-        time = next((word for word in words if word in _TIME_WORDS), None)
         patient = None
         if after_predicate:
             for i, word in enumerate(after_predicate):
@@ -151,11 +158,20 @@ class SemanticEngine:
                     location = after_predicate[i + 1]
                     break
             if location is None:
-                candidate = next(
-                    (word for word in after_predicate if word not in _TIME_WORDS),
+                patient_start = next(
+                    (
+                        i for i, word in enumerate(after_predicate)
+                        if word not in _TIME_WORDS and word not in _LOCATION_PREPOSITIONS
+                    ),
                     None,
                 )
-                patient = candidate
+                if patient_start is not None:
+                    patient_words = []
+                    for word in after_predicate[patient_start:]:
+                        if word in _TIME_WORDS or word in _LOCATION_PREPOSITIONS:
+                            break
+                        patient_words.append(word)
+                    patient = " ".join(patient_words) or None
 
         # ILVE hints preserve surface/register evidence even when normalized_text
         # contains only canonical lexical forms.
@@ -169,7 +185,6 @@ class SemanticEngine:
         else:
             register = inferred_register
 
-        # A simple assertion with a recognized actor and predicate is high confidence.
         confidence = 0.98 if predicate in {"makan", "pergi"} else 0.93
         semantics = {
             "Actor": actor,
