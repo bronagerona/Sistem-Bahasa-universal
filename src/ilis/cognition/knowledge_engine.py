@@ -40,9 +40,24 @@ class KnowledgeEngine:
             for record in self.storage_provider.load_provenance():
                 self.provenance.load(record)
 
-        if seed_core_knowledge and not self.fact_store.all():
-            self.add_fact("api", "can_burn", "kayu", "verified", "core_knowledge")
-            self.add_fact("rumah", "made_of", "kayu", "verified", "core_knowledge")
+        if seed_core_knowledge:
+            # Seed each canonical fact independently so existing SQLite stores
+            # receive newly added knowledge without duplicating prior records.
+            core_facts = (
+                ("api", "can_burn", "kayu"),
+                ("rumah", "made_of", "kayu"),
+                ("api", "can_burn", "kertas"),
+            )
+            existing = {
+                (fact["subject"], fact["relation"], fact["object"])
+                for fact in self.fact_store.all()
+            }
+            for subject, relation, object_ in core_facts:
+                if (subject, relation, object_) not in existing:
+                    self.add_fact(
+                        subject, relation, object_,
+                        status="verified", source="core_knowledge",
+                    )
 
     def add_concept(self, concept: str) -> str:
         return self.concept_store.add(concept)
