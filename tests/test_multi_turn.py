@@ -40,8 +40,11 @@ def test_multi_turn_example_fire_wood_then_paper_uses_same_session(setup_chatbot
     core, manager, adapter, sid = setup_chatbot
     first = adapter.respond("Apakah api bisa membakar kayu?", sid)
     second = adapter.respond("Lalu apakah api juga bisa membakar kertas?", sid)
-    assert first["answer"]
-    assert second["answer"]
+    assert first["answer"].startswith("Ya,")
+    assert second["answer"].startswith("Ya,")
+    assert second["reasoning_result"]["reasoning_type"] == "verified_inference"
+    assert second["reasoning_result"]["evidence"]
+    assert any("pertanyaan lanjutan" in reason for reason in second["reasoning_result"]["reasons"])
     assert second["metadata"]["session_id"] == sid
     assert second["metadata"]["context_turns_used"] == 1
     assert second["context_snapshot"]["turns"][0]["user_message"] == "Apakah api bisa membakar kayu?"
@@ -56,6 +59,7 @@ def test_multi_turn_new_session_has_no_previous_context():
     second_sid = adapter.create_session()
     result = adapter.respond("Lalu apakah api juga bisa membakar kertas?", second_sid)
     assert result["metadata"]["context_turns_used"] == 0
+    assert not any("pertanyaan lanjutan" in reason for reason in result["reasoning_result"]["reasons"])
 
 
 def test_multi_turn_context_snapshot_is_passed_to_core_without_semantic_mutation(setup_chatbot):
@@ -192,6 +196,8 @@ def test_reset_preserves_session_id_and_allows_new_turn(setup_chatbot):
     assert result["metadata"]["session_id"] == sid
     assert result["metadata"]["context_turns_used"] == 0
     assert len(manager.get_recent_turns(sid)) == 1
+    assert result["reasoning_result"]["reasoning_type"] == "verified_inference"
+    assert result["reasoning_result"]["evidence"]
 
 
 def test_reset_does_not_delete_core_episodic_memory():
