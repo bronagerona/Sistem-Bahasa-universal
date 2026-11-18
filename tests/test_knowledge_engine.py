@@ -63,9 +63,9 @@ def test_search_facts_by_subject_or_object():
 
 def test_conflicting_objects_mark_all_related_facts_conflicting():
     engine = KnowledgeEngine(seed_core_knowledge=False)
-    first = engine.add_fact("api", "can_burn", "kayu", "verified", "core_knowledge")
+    first = engine.add_fact("pohon", "made_of", "kayu", "verified", "core_knowledge")
 
-    second = engine.add_fact("api", "can_burn", "air", "hypothesis", "user_input")
+    second = engine.add_fact("pohon", "made_of", "air", "hypothesis", "user_input")
 
     assert second["status"] == "conflicting"
     facts = engine.search_facts("api")
@@ -73,6 +73,14 @@ def test_conflicting_objects_mark_all_related_facts_conflicting():
     assert engine.get_provenance(first["id"])["status"] == "conflicting"
     assert engine.get_provenance(second["id"])["status"] == "conflicting"
     assert len(engine.detect_conflicts()) == 1
+
+
+def test_can_burn_relation_accepts_multiple_verified_materials_without_conflict():
+    engine = KnowledgeEngine()
+    burn_facts = [fact for fact in engine.search_facts("api")]
+    assert {fact["object"] for fact in burn_facts} == {"kayu", "kertas"}
+    assert {fact["status"] for fact in burn_facts} == {"verified"}
+    assert engine.detect_conflicts() == []
 
 
 def test_semantic_engine_result_is_stored_as_hypothesis():
