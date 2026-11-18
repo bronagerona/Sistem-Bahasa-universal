@@ -172,7 +172,7 @@ class InferenceEngine:
                 property_conditions_complete = True
                 break
             property_condition_uncertainties.extend(missing)
-        if matching_properties and not property_condition_complete:
+        if matching_properties and not property_conditions_complete:
             uncertainty.extend(property_condition_uncertainties)
 
         subject_verified = (
@@ -190,7 +190,7 @@ class InferenceEngine:
             and property_is_known
             and relation_is_known
             and condition_complete
-            and property_condition_complete
+            and property_conditions_complete
             and matching_properties
             and matching_relations
         ):
