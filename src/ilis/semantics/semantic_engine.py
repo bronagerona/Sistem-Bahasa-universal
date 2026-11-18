@@ -86,8 +86,10 @@ class SemanticEngine:
 
         actor_index = next((i for i, word in enumerate(words) if word in _PRONOUNS), None)
         if actor_index is None:
-            # V1 requires an explicit pronoun/actor rather than guessing an omitted subject.
-            return None, "low_confidence"
+            # Do not invent an omitted subject. Return a complete, explicitly partial
+            # structure so downstream consumers can distinguish uncertainty.
+            predicate = words[verb_positions[0]] if verb_positions else None
+            return self._partial_semantics(predicate=predicate), "low_confidence"
 
         actor_word = words[actor_index]
         actor, inferred_register = _PRONOUNS[actor_word]
@@ -96,7 +98,8 @@ class SemanticEngine:
             None,
         )
         if predicate_index is None:
-            return None, "low_confidence"
+            partial = self._partial_semantics(actor=actor, register=inferred_register)
+            return partial, "low_confidence"
         predicate = words[predicate_index]
 
         before_predicate = words[actor_index + 1:predicate_index]
@@ -176,3 +179,25 @@ class SemanticEngine:
             "Confidence": confidence,
         }
         return semantics, "supported"
+
+    @staticmethod
+    def _partial_semantics(
+        actor: str | None = None,
+        predicate: str | None = None,
+        register: str = "unknown",
+    ) -> dict[str, Any]:
+        """Build a contract-complete partial result without guessing missing roles."""
+        return {
+            "Actor": actor,
+            "Predicate": predicate,
+            "Patient/Object": None,
+            "Recipient": None,
+            "Location": None,
+            "Time": None,
+            "Aspect": "unspecified",
+            "Negation": "none",
+            "Modality": "none",
+            "Intent": "assertion",
+            "Register": register,
+            "Confidence": 0.25,
+        }
