@@ -8,6 +8,14 @@ on:
         required: true
         type: string
         default: "Apakah api bisa membakar kayu?"
+      ref:
+        description: "Pilih branch kode ILIS yang akan diuji"
+        required: true
+        type: choice
+        default: ilis-v2-development
+        options:
+          - ilis-v2-development
+          - ilis-instruction-parsing
 
 permissions:
   contents: read
@@ -20,7 +28,7 @@ jobs:
       - name: Ambil kode ILIS V2
         uses: actions/checkout@v4
         with:
-          ref: ilis-v2-development
+          ref: ${{ inputs.ref }}
 
       - name: Siapkan Python
         uses: actions/setup-python@v5
