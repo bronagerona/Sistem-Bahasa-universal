@@ -146,6 +146,19 @@ tercakup, negasi yang belum memiliki aturan khusus, fakta hilang, dan
 provenance yang tidak lengkap menghasilkan status `unknown`; konflik tetap
 menghasilkan `conflicting`.
 
+Nilai `reasoning_type` tambahan yang dapat dikembalikan oleh
+`infer_semantic()` untuk input non-pertanyaan adalah:
+
+- `command`: Semantic Engine memvalidasi Intent sebagai `command`; input dikenali
+  sebagai perintah dan tidak dijalankan sebagai pertanyaan.
+- `assertion`: Semantic Engine memvalidasi Intent sebagai `assertion`; input
+  dikenali sebagai pernyataan dan tidak dijawab sebagai pertanyaan.
+
+Kedua nilai ini hanya memperluas enum `reasoning_type` pada jalur
+`infer_semantic()`. Bentuk hasil Reasoning tetap enam key yang sama. Konsumen
+yang memakai enum tertutup harus menerima `command` dan `assertion` selain
+status inferensi yang sudah didokumentasikan di atas.
+
 ### Kompatibilitas
 
 Bentuk hasil tidak berubah: `conclusion`, `confidence_score`, `evidence`,
