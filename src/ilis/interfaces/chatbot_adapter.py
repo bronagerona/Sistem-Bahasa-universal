@@ -54,13 +54,11 @@ class ChatbotAdapter:
             raise TypeError("core must be an ILISCore instance")
         self.core = core
         self.persona_config = (
-            self.persona_config
+            persona_config if persona_config is not None else PersonaConfig.chatbot_ilis()
         )
         # Chatbot integrations identify as ILIS unless the host supplies
         # another explicitly validated chatbot/application profile.
-        self.persona_renderer = PersonaRenderer(
-            persona_config if persona_config is not None else PersonaConfig.chatbot_ilis()
-        )
+        self.persona_renderer = PersonaRenderer(self.persona_config)
 
     def respond(
         self, text: str, session_id: str, *, speaker: str = "user",
