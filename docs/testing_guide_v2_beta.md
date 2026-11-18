@@ -36,6 +36,18 @@ ILIS dirancang sebagai sistem pemrosesan bahasa yang **deterministik dan bukan L
 9. Register yang tidak dikenali atau tidak tersedia dapat dinormalisasi ke formal. Catat bila hasilnya terasa tidak sesuai dengan permintaan.
 10. Pengujian ini bukan sertifikasi keamanan, privasi, atau kesiapan produksi.
 
+### Catatan penting: identitas bergantung pada mode yang diuji
+
+ILIS dirancang sebagai **Core/mesin otak** yang dapat digunakan oleh aplikasi berbeda. Identitas yang tampil kepada pengguna bukan selalu identitas ILIS.
+
+- **Mode Chatbot ILIS:** untuk pertanyaan “Siapa kamu?”, ekspektasinya adalah sistem memperkenalkan diri sebagai ILIS dengan jelas.
+- **Mode NPC Game:** identitas mengikuti karakter dan dunia game yang sedang aktif (misalnya penjaga kerajaan fantasi, penghuni rumah horor, atau kasir dalam game simulasi). NPC tidak seharusnya memperkenalkan diri sebagai ILIS.
+- **Mode aplikasi lain:** identitas mengikuti Application Identity yang ditetapkan aplikasi.
+
+**Batasan Beta:** Identity & Persona Layer belum terpasang penuh pada v2.0-beta. Karena itu, pemilihan identitas aplikasi/karakter dan jawaban “Siapa kamu?” mungkin belum sempurna atau belum mengikuti mode yang diharapkan. Catat mode yang diuji, identitas/persona yang seharusnya aktif, input persis, dan output persis. Perlakukan keterbatasan ini sebagai temuan/saran V2.1, kecuali perilaku tersebut telah dijanjikan oleh kontrak fitur beta yang lain. Jangan menyimpulkan semua mode identitas sudah didukung hanya karena contoh skenario tercantum dalam dokumen desain.
+
+Prinsip arsitektur dan kebutuhan pengembangan lebih lengkap dijelaskan dalam [docs/persona_identity_layer.md](persona_identity_layer.md).
+
 ### Prinsip pengujian
 
 - Uji dengan kalimat alami. Jangan memperbaiki typo atau slang sebelum mengirimkannya.
@@ -59,6 +71,7 @@ Untuk setiap skenario, isi template pada bagian 3. Tester boleh menambahkan vari
 | CB-03 | Tanyakan hal di luar cakupan yang diketahui. | Apakah sistem menghindari kesimpulan yang dibuat-buat dan menunjukkan keterbatasan/ketidakpastian. |
 | CB-04 | Kirim kalimat ambigu dengan dua kemungkinan makna. | Apakah respons terlalu cepat memilih satu makna; apakah ketidakpastian tercermin. |
 | CB-05 | Kirim perintah: “Bunyikan lonceng.” | Apakah respons berupa acknowledgement yang wajar; jangan menilai aksi eksternal sebagai berhasil kecuali integrasi game memang membuktikannya. |
+| CB-06 | Tanyakan: “Siapa kamu?” | Dalam mode Chatbot ILIS, apakah identitas ILIS dijelaskan secara jelas. Catat jika jawaban belum sesuai; Persona Layer belum penuh di Beta. |
 
 ### B. NPC Game — respons karakter dan aksi
 
@@ -71,6 +84,7 @@ Gunakan ILIS melalui integrasi NPC/game yang tersedia pada lingkungan pengujian.
 | NPC-03 | Pemain bertanya tentang objek/karakter yang dikenal dalam skenario. | Apakah NPC menjawab berdasarkan konteks/pengetahuan yang tersedia. |
 | NPC-04 | Pemain memberi perintah yang tidak didukung integrasi. | Apakah sistem memberi acknowledgement/penolakan yang jelas tanpa mengklaim aksi telah dilakukan. |
 | NPC-05 | Ulangi dialog dengan register berbeda (formal, santai, gaul). | Konsistensi karakter, kesesuaian register, dan keterbacaan dialog. |
+| NPC-06 | Pemain bertanya: “Siapa kamu?” | Dalam mode NPC, apakah jawaban mengikuti identitas dan lore karakter aktif, bukan memperkenalkan diri sebagai ILIS. Catat jika persona belum tersedia pada lingkungan Beta. |
 
 ### C. Variasi Bahasa Indonesia
 
