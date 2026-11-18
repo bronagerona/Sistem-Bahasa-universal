@@ -55,7 +55,7 @@ class ChatbotAdapter:
         if session_manager is not None and not isinstance(session_manager, SessionManager):
             raise TypeError("session_manager must be a SessionManager instance")
         self.core = core
-        self.session_manager = session_manager or SessionManager()
+        self.session_manager = session_manager if session_manager is not None else SessionManager()
         self.persona_config = (
             persona_config if persona_config is not None else PersonaConfig.chatbot_ilis()
         )
@@ -80,7 +80,15 @@ class ChatbotAdapter:
             raise ValueError("text must be a non-empty string")
         if session_id is None:
             session_id = self.create_session()
-        self.session_manager.ensure_session(session_id)
+        if self.session_manager.get_session(session_id) is None:
+            # Backward compatibility: an existing Core session ID may be
+            # adopted, but its transcript is never read or written here.
+            legacy_session = self.core.context_engine.get_context(session_id)["session"]
+            self.session_manager.ensure_session(
+                session_id, metadata=legacy_session.get("metadata", {})
+            )
+        else:
+            self.session_manager.require_session(session_id)
 
         if self._RESET_COMMAND.fullmatch(text):
             reset = self.session_manager.reset_session(session_id)
