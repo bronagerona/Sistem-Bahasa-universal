@@ -35,7 +35,7 @@ class GameEngineAdapter:
         if session_manager is not None and not isinstance(session_manager, SessionManager):
             raise TypeError("session_manager must be a SessionManager instance")
         self.core = core
-        self.session_manager = session_manager or SessionManager()
+        self.session_manager = session_manager if session_manager is not None else SessionManager()
         self.persona_renderer = (
             PersonaRenderer(persona_config) if persona_config is not None else None
         )
@@ -109,7 +109,11 @@ class GameEngineAdapter:
                 "reasons": ["Tidak ada aturan interpretasi adapter V1 yang cocok."],
                 "uncertainty": "Episode tersimpan, tetapi belum ada aturan untuk menafsirkannya.",
             }
-        generated = self.core.language_generator.generate(reasoning, context=snapshot)
+        session_metadata = core_context.get("session", {}).get("metadata", {})
+        default_register = session_metadata.get("register") if isinstance(session_metadata, dict) else None
+        generated = self.core.language_generator.generate(
+            reasoning, register=default_register, context=snapshot
+        )
         raw_dialogue = generated["text"]
         dialogue = self.persona_renderer.render(raw_dialogue) if self.persona_renderer else raw_dialogue
         self.session_manager.add_turn(conversation_id, event, dialogue, metadata={
