@@ -248,7 +248,7 @@ def test_profiles_are_immutable():
 def test_renderer_mode_a_uses_canonical_ilis_identity_reply():
     renderer = PersonaRenderer(PersonaConfig.chatbot_ilis())
 
-    assert renderer.render("Halo!") == f"{ILIS_IDENTITY_REPLY}\\n\\nHalo!"
+    assert renderer.render("Halo!") == f"{ILIS_IDENTITY_REPLY}\n\nHalo!"
 
 
 def test_renderer_mode_b_prefixes_application_identity_reply():
@@ -256,7 +256,7 @@ def test_renderer_mode_b_prefixes_application_identity_reply():
     renderer = PersonaRenderer(config)
 
     assert renderer.render("Ada yang bisa saya bantu?") == (
-        "Saya asisten layanan Toko Arunika.\\n\\n"
+        "Saya asisten layanan Toko Arunika.\n\n"
         "Ada yang bisa saya bantu?"
     )
 
@@ -267,7 +267,7 @@ def test_renderer_mode_c_prefixes_npc_identity_without_mentioning_ilis():
     result = renderer.render("Gerbang kerajaan ada di sebelah utara.")
 
     assert result == (
-        "Aku Raka, penjaga gerbang kerajaan.\\n\\n"
+        "Aku Raka, penjaga gerbang kerajaan.\n\n"
         "Gerbang kerajaan ada di sebelah utara."
     )
     assert "ILIS" not in result
