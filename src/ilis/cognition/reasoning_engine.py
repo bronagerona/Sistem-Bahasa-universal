@@ -244,7 +244,9 @@ class ReasoningEngine:
                 reasons=[f"Semantic Engine memberikan status {validated_result['status']}."],
                 uncertainty="Perjelas atau sederhanakan kalimat.",
             )
-        semantics = validated_result["semantics"]
+        # Work on a private interpretation copy. The Semantic 12-field result
+        # returned to callers remains untouched by contextual resolution.
+        semantics = dict(validated_result["semantics"])
         context_note = None
         if context_snapshot is not None:
             if not isinstance(context_snapshot, dict):
@@ -269,7 +271,18 @@ class ReasoningEngine:
                     # Resolve only omitted actor/predicate. The current turn
                     # must still provide its own patient/object.
                     for field in ("Actor", "Predicate"):
-                        if not (isinstance(semantics.get(field), str) and semantics[field].strip()):
+                        current_value = semantics.get(field)
+                        needs_context = not (
+                            isinstance(current_value, str) and current_value.strip()
+                        )
+                        # The bounded Semantic parser can mistake a discourse
+                        # particle in a follow-up ("Lalu ... juga ...") for the
+                        # nominal actor. Treat these particles as omitted actors.
+                        if field == "Actor" and isinstance(current_value, str):
+                            needs_context = needs_context or current_value.casefold() in {
+                                "lalu", "kemudian", "terus", "juga", "begitu",
+                            }
+                        if needs_context:
                             prior_value = previous_fields.get(field)
                             if isinstance(prior_value, str) and prior_value.strip():
                                 semantics[field] = prior_value
