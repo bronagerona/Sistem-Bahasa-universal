@@ -74,11 +74,17 @@ class InferenceEngine:
 
         if subject_concept is not None:
             evidence.append(f"concept:{subject_concept.concept_id}")
+            evidence.extend(
+                f"provenance:{ref.source_id}" for ref in subject_concept.provenance
+            )
         else:
             uncertainty.append(f"Konsep subjek '{subject}' tidak ditemukan.")
 
         if object_concept is not None:
             evidence.append(f"concept:{object_concept.concept_id}")
+            evidence.extend(
+                f"provenance:{ref.source_id}" for ref in object_concept.provenance
+            )
         else:
             uncertainty.append(f"Konsep objek '{object}' tidak ditemukan.")
 
@@ -90,18 +96,29 @@ class InferenceEngine:
                 or self._same(prop.property_id, required_property)
             ]
             evidence.extend(f"property:{prop.property_id}" for prop in matching_properties)
+            evidence.extend(
+                f"provenance:{ref.source_id}"
+                for prop in matching_properties
+                for ref in prop.provenance
+            )
 
         matching_relations: list[Relation] = []
         if subject_concept is not None:
             matching_relations = [
                 relation
                 for relation in subject_concept.relations
-                if self._same(relation.relation_type, relation_type)
+                if self._same(relation.subject_concept_id, subject_concept.concept_id)
+                and self._same(relation.relation_type, relation_type)
                 and self._relation_targets_property(
                     relation, matching_properties, required_property
                 )
             ]
             evidence.extend(f"relation:{rel.relation_id}" for rel in matching_relations)
+            evidence.extend(
+                f"provenance:{ref.source_id}"
+                for rel in matching_relations
+                for ref in rel.provenance
+            )
 
         if not matching_properties and not matching_relations:
             return InferenceResult(
