@@ -50,7 +50,7 @@ Membutuhkan Python 3.10+.
 
 ```bash
 python -m pip install -e .
-ilis inspect "Gue nggak mau cabut, bro!"
+ilis "Gue nggak mau cabut, bro!"
 ```
 
 Atau tanpa instalasi:
@@ -60,5 +60,12 @@ PYTHONPATH=src python -m ilis "Gue nggak mau cabut, bro!"
 ```
 
 ## Pengembangan
+
+Install dependensi pengembangan dan jalankan tes:
+
+```bash
+python -m pip install -e ".[dev]"
+python -m pytest
+```
 
 Lihat [docs/architecture.md](docs/architecture.md) dan [CONTRIBUTING.md](CONTRIBUTING.md).
