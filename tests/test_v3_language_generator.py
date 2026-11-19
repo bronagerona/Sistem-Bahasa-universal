@@ -84,7 +84,7 @@ def test_concept_reasoning_metadata_stays_synchronized_with_answer():
     generator = LanguageGenerator()
     semantic = _semantic_question()
     cases = [
-        ("concept_inference_known", 0.72, "Ya, berdasarkan fakta yang tersedia, api dapat membakar besi."),
+        ("concept_inference_known", 0.72, "Ya, berdasarkan fakta yang tersedia, api bisa membakar besi."),
         ("concept_inference_partial", 0.48, "Informasi belum lengkap, ini hanya dugaan."),
         ("concept_inference_unknown", 0.0, "Belum cukup informasi untuk memastikan jawaban atas pertanyaanmu."),
     ]
