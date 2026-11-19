@@ -197,3 +197,7 @@ Perubahan dataset tidak diizinkan dan tidak dilakukan. Lima temuan yang perlu di
 - `SCHEMA_TEMPORARY.md`, `docs/ilis_project_state.md`, kode ILIS, tes, workflow CI, SQLite, dan `tests/beta_suite.py` tidak disentuh.
 - Tidak ada integrasi dataset ke ILIS.
 - Lima item PERLU REVISI menunggu instruksi/persetujuan tersendiri sebelum perubahan dataset dilakukan.
+
+## FASE 2B — Revisi dataset
+
+FASE 2B Revisi selesai, 5 item sudah diperbaiki, menunggu review final Dola
