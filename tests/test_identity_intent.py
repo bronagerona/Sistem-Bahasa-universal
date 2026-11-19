@@ -63,6 +63,19 @@ def test_run_15_combined_greeting_identity_and_capability_question():
     assert "menarik kesimpulan berdasarkan aturan" in result["answer"]
     assert result["metadata"]["response_type"] == "identity_intent"
 
+    # The Mode A prefix is reserved for Identity Intent, not normal replies.
+    for ordinary_message in (
+        "Halo apa kabar?",
+        "Apakah api bisa membakar kayu?",
+        "Api menyentuh rumah kayu",
+    ):
+        ordinary_result = adapter.respond(ordinary_message, session_id)
+        assert ordinary_result["metadata"]["response_type"] == "normal"
+        assert not ordinary_result["answer"].startswith(
+            "Saya ILIS, sistem kecerdasan bahasa."
+        )
+        assert ordinary_result["answer"] == ordinary_result["generation"]["text"]
+
 
 @pytest.mark.parametrize(
     ("config", "expected_identity"),
