@@ -55,15 +55,33 @@ class LanguageGenerator:
             context = self.context_engine.get_context(session_id)
 
         selected_register = self._select_register(register, semantic_result, context)
+        reasoning_type = reasoning_result.get("reasoning_type", "unknown")
+        concept_status = reasoning_type if reasoning_type in {
+            "concept_inference_known",
+            "concept_inference_partial",
+            "concept_inference_unknown",
+        } else None
         meaning = self._extract_meaning(reasoning_result, semantic_result)
         uncertain = self._is_uncertain(reasoning_result)
-        sentence = self.sentence_builder.build(
-            meaning,
-            register=selected_register,
-            uncertainty=uncertain,
-            context=context,
-            polite=polite,
-        )
+        if concept_status == "concept_inference_unknown":
+            meaning = {"kind": "unknown", "target": "pertanyaanmu"}
+            uncertain = True
+            sentence = "Belum cukup informasi untuk memastikan jawaban atas pertanyaanmu."
+        else:
+            if concept_status == "concept_inference_partial":
+                uncertain = True
+            sentence = self.sentence_builder.build(
+                meaning,
+                register=selected_register,
+                uncertainty=uncertain,
+                context=context,
+                polite=polite,
+            )
+            if concept_status == "concept_inference_partial":
+                sentence = (
+                    sentence.rstrip(".!?")
+                    + ". Informasi belum lengkap, ini hanya dugaan."
+                )
         return {
             "text": sentence,
             "register": selected_register,
