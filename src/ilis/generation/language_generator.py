@@ -59,7 +59,7 @@ class LanguageGenerator:
         semantics = (semantic_result or {}).get("semantics") or {}
         is_greeting = (
             isinstance(semantics, dict)
-            and semantic_result.get("status") == "supported"
+            and (semantic_result or {}).get("status") == "supported"
             and semantics.get("Predicate") == "menyapa"
         )
         concept_status = reasoning_type if reasoning_type in {
