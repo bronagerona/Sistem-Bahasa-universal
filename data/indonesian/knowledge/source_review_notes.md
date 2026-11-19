@@ -47,3 +47,32 @@ Cakupan checklist khusus fact-0048:
 7. Pertahankan `verification_status: draft` sampai seluruh pemeriksaan manual selesai dan disetujui.
 
 Checklist ini **belum merupakan verifikasi** dan tidak memberi izin mengubah status record sekarang. Tugas ini terpisah dari backlog Batch 007 di atas; backlog Batch 007 (fact-0033 sampai fact-0037) tetap **BELUM DIKERJAKAN** dan tidak digantikan atau ditutup oleh checklist Batch 010.
+
+
+## ✅ FASE 1 LAPORAN KURASI LENGKAP BATCH 001-018 + DAFTAR BACKLOG VERIFIKASI
+### 🟢 Ringkasan
+- Batch 001-018 Kurasi SELESAI, SEMUA record tetap DRAFT
+- Tahap selanjutnya: Tahap 2 Verifikasi Besar-besaran
+
+### ⏳ Daftar Backlog (Status: BELUM DIKERJAKAN)
+#### 🔤 Bahasa & Morfologi (Tugas Kurator)
+- Batch 007 fact-0033-0037
+- Batch 010 fact-0048 AU IAU
+- Batch 013: morfologi mengapa
+- Batch 014: apakah / adakah
+- Batch 015: di vs pada / dalam
+- Batch 016: sudah vs telah / akan / pernah
+- Batch 017: seluruh vs semua / setiap
+- Batch 018: meN- nasal, di- awalan vs preposisi, ter- polisemi, -kan benefaktif/kausatif
+
+#### 📚 Verifikasi Sumber Pilar D per Batch (Tugas Verifikator)
+- Batch 014: USGS
+- Batch 015: USGS
+- Batch 016: NOAA
+- Batch 017: EPA / USFW / CBD / USDA
+- Batch 018: USGS Geologi
+
+### 📌 Catatan Penting
+- Jangan ubah isi file JSONL dataset sebelum ada perintah resmi Dola
+- Semua eval-xxxx final_test tetap konseptual, tidak dipakai tuning
+- Belum ada izin integrasi ke ILIS
