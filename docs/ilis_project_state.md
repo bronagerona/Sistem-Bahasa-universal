@@ -62,10 +62,13 @@
 ✅ Dilarang menambahkan fitur besar baru selama masa Beta
 ✅ Dokumen ini adalah satu-satunya sumber kebenaran utama proyek
 
-## 📋 BACKLOG / PEKERJAAN YANG DITUNDA (Dikerjakan SETELAH masa Beta selesai)
-1. Perbaikan tes XFAIL `beta_suite.py`
-2. Persistent Session Multi-Turn (riwayat percakapan permanen)
-3. Perluasan seed Concept Engine untuk mode produksi
+## 📋 BACKLOG / PEKERJAAN YANG DITUNDA DAN PERSIAPAN
+1. Perbaikan tes XFAIL `beta_suite.py` — ditunda sampai tahap yang disetujui setelah Beta.
+2. Persistent Session Multi-Turn (riwayat percakapan permanen) — ditunda; memerlukan proposal dan persetujuan tersendiri.
+3. Perluasan seed Concept Engine untuk mode produksi — ditunda; memerlukan proposal dan persetujuan tersendiri.
+4. **Proyek Pengayaan Bahasa Indonesia ILIS** — desain v0.1 telah direvisi sesuai review Dola dan disetujui secara prinsip. Tahap yang dapat dipersiapkan: kamus terstruktur, pola kalimat, dataset dialog multi-turn, dataset pengetahuan faktual, dan evaluasi otomatis. Mulai dengan sampel dataset kecil untuk menguji skema, lalu perluas bertahap. Selama Beta, pekerjaan dibatasi pada desain dan persiapan kurasi; tidak boleh mengubah kode, tes, workflow, skema SQLite, atau baseline V3.1-Beta. Proposal integrasi wajib diajukan dan ditinjau terpisah oleh Dola serta disetujui Pemilik Proyek.
+
+📄 Dokumen desain: `docs/ilis_indonesian_enrichment_design.md` (v0.1; empat revisi review Dola diterapkan).
 
 ## ⚠️ DAFTAR BATASAN SISTEM V3.1-BETA
 - Multi-turn hanya in-memory (hilang setelah restart)
@@ -81,5 +84,6 @@
 5. Setiap perubahan dicatat di riwayat bawah halaman
 
 ## 📜 RIWAYAT DOKUMEN
+- 19-11-2026: Backlog Proyek Pengayaan Bahasa Indonesia ILIS ditambahkan; desain v0.1 mencatat empat revisi hasil review Dola. Cakupan tetap desain dan persiapan kurasi saja.
 - v1.0 (19-11-2026): Dokumen induk pertama kali dibuat
 - v1.0 (19-11-2026): Draf final disetujui Pemilik Proyek, Ihsan Halomoan; dokumen resmi menjadi Sumber Kebenaran Utama proyek ILIS.
