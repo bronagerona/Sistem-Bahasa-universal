@@ -14,6 +14,20 @@ Sebelum record terkait dipertimbangkan untuk dinaikkan dari `draft` menjadi `ver
 
 Catatan ini tidak menyatakan bahwa seluruh tautan Batch 007 mati, tidak menetapkan URL pengganti, dan tidak mengubah status verifikasi fakta. Pemeriksaan serta penggantian URL merupakan prasyarat sebelum verifikasi manual.
 
+## Status pekerjaan verifikasi — tertunda untuk tahap verifikasi
+
+**Status: BELUM DIKERJAKAN. Dijadwalkan sebagai tugas tahap verifikasi sumber dataset, setelah fase kurasi batch.**
+
+Cakupan tugas tertunda:
+- Meninjau semua URL sumber pada lima fakta Batch 007 (fact-0033 sampai fact-0037).
+- Mengidentifikasi URL yang mati, dialihkan secara tidak tepat, atau tidak mendukung klaim spesifik.
+- Mencari dan mencatat URL cadangan resmi yang relevan untuk setiap sumber bermasalah.
+- Memeriksa kecocokan klaim, angka, satuan, dan qualifiers terhadap halaman cadangan.
+- Memperbarui referensi sumber dan tanggal pemeriksaan setelah bukti tersedia.
+- Mempertahankan `verification_status: draft` sampai pemeriksaan manual selesai dan disetujui.
+
+Tugas ini **tidak termasuk pekerjaan Batch 009** dan tidak boleh dianggap selesai hanya karena catatan ini sudah tercatat. Tidak ada fakta Batch 007 yang diubah pada tahap ini.
+
 ## Batasan
 
 Dokumen ini hanya catatan kurasi dataset. Tidak memberi izin integrasi ke ILIS, perubahan kode, skema SQLite, test suite, atau workflow CI.
