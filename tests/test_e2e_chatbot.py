@@ -95,7 +95,7 @@ def test_chatbot_acknowledges_supported_assertion_without_fire_inference():
     assert result["semantic_result"]["status"] == "supported"
     assert result["semantic_result"]["semantics"]["Intent"] == "assertion"
     assert result["reasoning_result"]["reasoning_type"] == "assertion"
-    assert result["generation"]["text"] == "Baik, saya sudah memahami pernyataanmu."
+    assert result["generation"]["text"] == "Baik, saya sudah memahami pernyataanmu"
     assert "terbakar" not in result["answer"].casefold()
     assert "kebakaran" not in result["answer"].casefold()
     assert "kemungkinan" not in result["answer"].casefold()
