@@ -1,6 +1,6 @@
 # Laporan Audit Final ILIS V3.1-Beta
 
-**Status dokumen:** Disahkan  
+**Status dokumen:** Disahkan; diperbarui dengan hasil Extended Playground Run #4  
 **Status rilis:** Pre-release Beta (dipertahankan; belum menjadi rilis stabil)  
 **Repository:** `bronagerona/Sistem-Bahasa-universal`  
 **Branch basis audit:** `ilis-v2-development`  
@@ -73,6 +73,39 @@ Regression smoke tests PR #18 mencakup:
 - Register formal: respons diawali gaya formal, termasuk `Dengan senang hati,`.
 - Register informal: respons menggunakan gaya informal, termasuk `Iya, kayaknya`.
 
+
+### 2.6 Extended Test Playground — Run #4 (A–E)
+
+[Run #4 — Extended Test Playground](https://github.com/bronagerona/Sistem-Bahasa-universal/actions/runs/44459632677)
+
+- Workflow result: **success**.
+- Workflow configuration commit on main: 039167496b9afa06b808ee59a396e1d8aeda4a77.
+- Checkout target: ilis-v2-development, SHA 45512944c5926357678adffa908b19c24c7f7c6c.
+- The checkout SHA is one documentation-only commit ahead of production audit commit 32903039f448a2427ee64cfa3a99c6dc9a2854ef; comparison confirms the only intervening file is this audit report. Production code is unchanged.
+- Regression suite: **314 collected, 313 passed, 1 xfailed**. The documented legacy beta test was correctly reported as XFAIL (non-strict), not as a failure or skip.
+- Extended scenarios: **all passed**.
+
+| Scenario | Fokus | Bukti hasil | Status |
+|---|---|---|---|
+| A | Batas riwayat maksimal 5 turn | context_turns_used = [0, 1, 2, 3, 4, 5]; setelah enam pesan tersimpan 5 turn; turn tertua yang tersisa adalah pesan kedua (Lalu kertas?) | Lulus |
+| B | Rujukan implisit yang tadi itu | Reasoning menyimpulkan api dapat membakar kertas; evidence fact_3; context_turns_used=1. Reasoning mencatat riwayat dipakai untuk memahami kalimat, bukan sebagai bukti faktual | Lulus |
+| C | Isolasi dua sesi | Sesi A dan B menyimpan transcript terpisah; tidak ada pesan silang; sesi A menggunakan satu turn konteks | Lulus |
+| D | Reset percakapan | response_type=session_reset; konteks setelah reset 0; pertanyaan berikutnya memulai riwayat baru | Lulus |
+| E | Regresi identity/persona/register dalam multi-turn | Mode A Identity Intent, Mode B identitas aplikasi, Mode C identitas NPC, dan instruksi register formal dalam sesi multi-turn seluruhnya lulus | Lulus |
+
+Rincian penting skenario B: kesimpulan Reasoning adalah “Ya, berdasarkan fakta yang tersimpan, api dapat membakar kertas.” dengan confidence 0.648 dan evidence fact_3. Jawaban yang dihasilkan: “Ya, kemungkinan juga bisa membakar kertas.”
+
+Rincian skenario E: Mode B menghasilkan prefix “Saya Arunika, asisten aplikasi ini.”; Mode C menghasilkan “Aku Raka, penjaga gerbang kerajaan.” tanpa menyebut ILIS; uji register formal menghasilkan “Dengan senang hati, ya, kemungkinan api bisa membakar kertas.”
+
+### 2.7 Smoke verification tiga perilaku utama
+
+Manual Playground Run #34–#36 telah menguji tiga input yang diminta pada kode produksi commit 32903039f448a2427ee64cfa3a99c6dc9a2854ef:
+- Greeting: [Run #34](https://github.com/bronagerona/Sistem-Bahasa-universal/actions/runs/44455060424) — jawaban alami, reasoning_type=greeting, tanpa prefix identitas.
+- Identity: [Run #35](https://github.com/bronagerona/Sistem-Bahasa-universal/actions/runs/44455187890) — prefix identitas ILIS muncul, reasoning_type=identity_intent.
+- Assertion: [Run #36](https://github.com/bronagerona/Sistem-Bahasa-universal/actions/runs/44455295787) — Api menyentuh rumah kayu tetap diperlakukan sebagai assertion, tanpa inferensi kebakaran.
+
+Ketiga smoke run mendahului perubahan workflow XFAIL, tetapi menguji commit produksi yang sama. Run #4 kemudian menguji branch development pada commit yang hanya menambahkan dokumen audit di atas commit produksi tersebut; tidak ada perubahan kode produksi di antaranya.
+
 ## 3. Audit kontrak teknis
 
 | Kontrak / perilaku | Hasil |
@@ -123,12 +156,12 @@ Regression smoke tests PR #18 mencakup:
 - [x] Integrasi Concept Engine diuji.
 - [x] Persona dan Identity Intent diuji.
 - [x] Regression suite PR #18: 313 passed + 1 xfailed.
-- [ ] Extended Test Playground skenario A–E belum memperoleh hasil karena workflow berhenti sebelum skenario dijalankan.
+- [x] Extended Test Playground Run #4: regression suite 313 passed + 1 xfailed; skenario A–E seluruhnya lulus.
 
 ## 5. Keterbatasan dan catatan transparansi
 
 1. **Satu XFAIL lama:** `tests/beta_suite.py::test_beta_chatbot_full_pipeline_and_register`. Tes lama mengharapkan jawaban inferensi kebakaran untuk `Api menyentuh rumah kayu`, sedangkan perilaku assertion yang disepakati adalah pengakuan pernyataan tanpa inferensi kebakaran. Tes tetap dijalankan dan ditandai XFAIL pada CI yang dikonfigurasi.
-2. **Extended Test Playground A–E:** Run #3 [gagal pada tahap regression suite](https://github.com/bronagerona/Sistem-Bahasa-universal/actions/runs/44456971992). Workflow menjalankan pytest tanpa konfigurasi XFAIL yang dipakai CI utama. Hasilnya 313 passed dan satu tes lama gagal; skenario A–E kemudian dilewati (skipped). Ini merupakan keterbatasan konfigurasi workflow dan berarti skenario A–E belum memiliki hasil dari run tersebut. Tidak boleh diklaim A–E lulus.
+2. **Extended Test Playground A–E:** Run #3 [gagal sebelum skenario A–E](https://github.com/bronagerona/Sistem-Bahasa-universal/actions/runs/44456971992) karena workflow belum menerapkan XFAIL non-strict yang sama dengan CI utama. Konfigurasi workflow saja kemudian diperbaiki pada commit 039167496b9afa06b808ee59a396e1d8aeda4a77; tidak ada perubahan kode produksi atau tests/beta_suite.py. Run #4 [berhasil](https://github.com/bronagerona/Sistem-Bahasa-universal/actions/runs/44459632677): 313 passed + 1 xfailed dan seluruh skenario A–E lulus. Run #3 lama tidak diulang.
 3. **Reset sesi:** Sudah tercakup dalam regression smoke test, tetapi belum diverifikasi lewat manual Playground terbaru.
 4. **Concept PARTIAL/UNKNOWN:** Diuji dengan `seed_core_knowledge=False`, yaitu kondisi pengujian khusus. Hasil tersebut tidak membuktikan perilaku yang sama pada setiap konfigurasi seed default.
 5. **Multi-turn bersifat in-memory:** Riwayat sesi tidak persisten setelah proses aplikasi dimulai ulang.
@@ -140,7 +173,7 @@ Regression smoke tests PR #18 mencakup:
 - Simpan dan pertahankan laporan audit ini sebagai arsip proyek.
 - Pantau masukan dari penguji Beta.
 - Jadwalkan penyesuaian tes lama/XFAIL untuk versi berikutnya; **jangan ubah sekarang sebagai bagian dari audit ini**.
-- Jadwalkan penyelesaian dan verifikasi Extended Playground A–E pada pekerjaan audit berikutnya.
+- Arsipkan hasil Extended Playground Run #4; A–E sudah diverifikasi.
 
 ### Jangka panjang — menuju rilis stabil
 - Implementasi persistent session untuk multi-turn.
