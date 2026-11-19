@@ -1,0 +1,27 @@
+name: V3 KNOWN Isolated End-to-End Test
+
+on:
+  push:
+    branches:
+      - ilis-v3-known-e2e-isolated
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  known-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout isolated test branch
+        uses: actions/checkout@v4
+        with:
+          ref: ilis-v3-known-e2e-isolated
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install ILIS and test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Run isolated KNOWN end-to-end test
+        run: python -m pytest -q tests/test_v3_known_e2e_isolated.py
