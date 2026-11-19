@@ -1,3 +1,5 @@
+⚠️ **Dilarang memakai skema ini untuk integrasi ke ILIS sebelum proposal integrasi terpisah disetujui.**
+
 # SCHEMA TEMPORARY — Pilar E (Evaluasi Dataset)
 
 > Status: **SCHEMA TEMPORARY**
