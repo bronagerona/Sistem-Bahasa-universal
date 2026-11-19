@@ -18,9 +18,9 @@ def test_core_initializes_all_engines_and_adapters():
 @pytest.mark.parametrize(
     ("register", "expected"),
     [
-        ("formal", "Baik, saya sudah memahami pernyataanmu."),
-        ("informal", "Oke, aku paham pernyataanmu."),
-        ("slang", "Oke, nangkep pernyataanmu."),
+        ("formal", "Baik, saya sudah memahami pernyataanmu"),
+        ("informal", "Oke, aku paham pernyataanmu"),
+        ("slang", "Oke, nangkep pernyataanmu"),
     ],
 )
 def test_chatbot_api_touching_wooden_house_acknowledges_assertion(register, expected):
