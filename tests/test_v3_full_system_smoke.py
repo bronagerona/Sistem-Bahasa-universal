@@ -4,8 +4,6 @@ These tests exercise existing production wiring only. KNOWN fixture data remains
 isolated in the test process; no production seed or persistence is modified.
 """
 
-from ilis.cognition import KnowledgeEngine
-from ilis.cognition.reasoning_engine import ReasoningEngine
 from ilis.interfaces import ChatbotAdapter, GameEngineAdapter, ILISCore
 from ilis.persona import (
     ApplicationProfile,
@@ -16,9 +14,8 @@ from ilis.persona import (
 )
 
 SEMANTIC_FIELDS = {
-    "Actor", "Predicate", "Patient/Object", "Intent", "Tense",
-    "Negation", "Modality", "Register", "Emotion", "Confidence",
-    "Entities", "Relations",
+    "Actor", "Predicate", "Patient/Object", "Intent", "Time", "Aspect",
+    "Location", "Recipient", "Negation", "Modality", "Register", "Confidence",
 }
 REASONING_KEYS = {
     "conclusion", "confidence_score", "evidence",
