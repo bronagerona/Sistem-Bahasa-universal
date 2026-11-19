@@ -18,14 +18,16 @@ Visi ILIS adalah menyediakan fondasi bahasa dan makna yang dapat digunakan untuk
 - V2.2 menambahkan percakapan multi-turn dengan SessionManager in-memory, konteks percakapan terbatas, dan reset sesi.
 - Riwayat percakapan belum persisten dan hilang ketika proses/aplikasi dimulai ulang.
 
-**🧪 ILIS V3-Beta — Beta Candidate untuk pengujian**
+**🧪 ILIS V3.1 — Beta Candidate / Pre-release (belum diterbitkan)**
 
-- Catatan rilis: [ILIS V3-Beta — Catatan Rilis](docs/v3_beta_release_notes.md).
+- Catatan rilis: [ILIS V3.1 — Catatan Rilis](docs/v3.1_release_notes.md).
 - Dokumentasi arsitektur: [V3 Concept Engine Architecture](docs/v3_concept_engine_architecture.md).
 - Panduan developer: [V3 Concept Engine Developer Guide](docs/v3_concept_engine_developer_guide.md).
 - V3 menambahkan Concept Engine sebagai fallback setelah lookup fakta persis pada KnowledgeEngine lama.
-- Full-System Smoke Test Run #2 lulus **312/312 tes**: [Lihat hasil GitHub Actions](https://github.com/bronagerona/Sistem-Bahasa-universal/actions/runs/44431373405).
-- **V3 masih berstatus Beta Candidate; bukan rilis produksi.** Tag dan GitHub Pre-release V3 belum diterbitkan.
+- V3.1 memperbaiki penanganan assertion agar pernyataan literal tidak berubah menjadi inferensi faktual yang tidak didukung, serta membatasi awalan identitas Mode A hanya untuk Identity Intent.
+- Validasi pasca-merge: regresi lengkap **313 passed + 1 xfailed**; enam skenario smoke test eksplisit **6/6 passed**. [Lihat hasil GitHub Actions](https://github.com/bronagerona/Sistem-Bahasa-universal/actions/runs/44447366943).
+- Satu XFAIL adalah tes beta lama `tests/beta_suite.py::test_beta_chatbot_full_pipeline_and_register`, yang masih mengharapkan inferensi kebakaran dari pernyataan “Api menyentuh rumah kayu”. Tes tetap dijalankan; perilaku baru yang disengaja adalah mengakui pernyataan tanpa menyimpulkan kebakaran.
+- **V3.1 masih berstatus Beta Candidate / pre-release; belum diterbitkan sebagai tag atau GitHub Release.** Hasil tes yang lulus tidak menjamin bebas bug atau kesiapan produksi.
 - Sebagian besar seed ConceptStore produksi masih berstatus PARTIAL. Data KNOWN terverifikasi penuh saat ini hanya tersedia pada fixture pengujian terisolasi, bukan seed produksi.
 - Multi-turn tetap menggunakan penyimpanan in-memory; riwayat percakapan hilang saat aplikasi atau proses dimulai ulang.
 
