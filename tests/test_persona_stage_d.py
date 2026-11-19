@@ -39,7 +39,7 @@ def _character_config():
     )
 
 
-def test_chatbot_mode_a_keeps_ilis_identity_across_multiple_turns():
+def test_chatbot_mode_a_omits_ilis_identity_across_normal_multiple_turns():
     core = ILISCore()
     session_id = core.create_session()
     adapter = ChatbotAdapter(core)
@@ -47,9 +47,10 @@ def test_chatbot_mode_a_keeps_ilis_identity_across_multiple_turns():
     first = adapter.respond("Apakah api bisa membakar kayu?", session_id)
     second = adapter.respond("Apakah naga takut lonceng?", session_id)
 
-    expected = "Saya ILIS, sistem kecerdasan bahasa.\n\n"
-    assert first["answer"].startswith(expected)
-    assert second["answer"].startswith(expected)
+    assert first["answer"] == first["generation"]["text"]
+    assert second["answer"] == second["generation"]["text"]
+    assert not first["answer"].startswith("Saya ILIS, sistem kecerdasan bahasa.")
+    assert not second["answer"].startswith("Saya ILIS, sistem kecerdasan bahasa.")
 
 
 def test_chatbot_can_use_host_application_identity():
@@ -97,7 +98,8 @@ def test_polite_instruction_survives_ilis_persona_rendering():
 
     assert result["metadata"]["register"] == "formal"
     assert result["generation"]["text"].startswith("Dengan senang hati,")
-    assert result["answer"].startswith("Saya ILIS, sistem kecerdasan bahasa.\n\n")
+    assert result["answer"] == result["generation"]["text"]
+    assert not result["answer"].startswith("Saya ILIS, sistem kecerdasan bahasa.")
     assert "Dengan senang hati," in result["answer"]
 
 

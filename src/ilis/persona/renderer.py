@@ -22,7 +22,7 @@ _ILIS_MENTION_PATTERN = re.compile(r"\bILIS\b", re.IGNORECASE)
 
 
 class PersonaRenderer:
-    """Add the configured identity reply before an unchanged Core answer."""
+    """Add the configured identity reply when the caller requests it."""
 
     def __init__(self, config: PersonaConfig) -> None:
         errors = validate_persona_config(config)
@@ -30,20 +30,28 @@ class PersonaRenderer:
             raise ValueError("PersonaConfig tidak valid: " + " ".join(errors))
         self._config = config
 
-    def render(self, raw_answer: str) -> str:
-        """Return identity reply + raw answer without rewriting Core text.
+    def render(self, raw_answer: str, *, include_identity: bool = True) -> str:
+        """Return the configured identity + unchanged Core answer.
+
+        Mode A can suppress its ILIS prefix for non-identity responses by
+        passing ``include_identity=False``. Modes B and C retain their
+        configured application/character identity behavior regardless of
+        this Mode-A-specific option.
 
         For NPC mode, ILIS references in either the identity reply or raw
         answer are rejected unless the character explicitly allows them.
         """
         if not isinstance(raw_answer, str):
             raise TypeError("raw_answer harus berupa string.")
+        if not isinstance(include_identity, bool):
+            raise TypeError("include_identity harus berupa boolean.")
 
         mode = PersonaMode(self._config.mode)
         if mode == MODE_A:
+            if not include_identity:
+                return raw_answer
             identity_reply = ILIS_IDENTITY_REPLY
         elif mode == MODE_B:
-            # Validation in __init__ guarantees this profile is present.
             identity_reply = self._config.application.identity_reply
         elif mode == MODE_C:
             character = self._config.character
@@ -59,7 +67,7 @@ class PersonaRenderer:
                     "Mode character tidak boleh menghasilkan teks yang "
                     "menyebut ILIS kecuali allow_ilis_reference=True."
                 )
-        else:  # Defensive guard if PersonaMode grows in a future version.
+        else:
             raise ValueError("mode persona tidak didukung oleh renderer.")
 
         if not raw_answer:

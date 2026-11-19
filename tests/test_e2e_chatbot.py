@@ -36,6 +36,7 @@ def test_chatbot_command_is_acknowledged_without_claiming_execution():
     assert "lonceng" in result["answer"].casefold()
     assert result["metadata"]["confidence_score"] == 0.0
     assert "dibunyikan" in result["answer"].casefold()
+    assert result["answer"] == result["generation"]["text"]
 
 
 def test_chatbot_dragon_bell_question_uses_v2_rule_and_three_registers():
@@ -137,7 +138,7 @@ def test_chatbot_forwards_polite_instruction_to_formal_language_generation():
     assert result["semantic_result"]["semantics"]["Patient/Object"] == "kayu"
     assert result["metadata"]["register"] == "formal"
     assert result["generation"]["text"].startswith("Dengan senang hati,")
-    assert result["answer"].startswith("Saya ILIS, sistem kecerdasan bahasa.")
+    assert result["answer"] == result["generation"]["text"]
     assert "kayu" in result["answer"].casefold()
     assert "jawab dengan sopan" not in result["answer"].casefold()
 
@@ -150,7 +151,7 @@ def test_chatbot_maps_casual_instruction_to_informal_register():
 
     assert result["metadata"]["register"] == "informal"
     assert result["generation"]["text"].startswith("Iya, kayaknya")
-    assert result["answer"].startswith("Saya ILIS, sistem kecerdasan bahasa.")
+    assert result["answer"] == result["generation"]["text"]
 
 
 
@@ -169,7 +170,7 @@ def test_chatbot_dragon_bell_question_with_polite_instruction_uses_seeded_rule()
     assert len(result["reasoning_result"]["evidence"]) == 2
     assert result["metadata"]["register"] == "formal"
     assert result["generation"]["text"].startswith("Dengan senang hati,")
-    assert result["answer"].startswith("Saya ILIS, sistem kecerdasan bahasa.")
+    assert result["answer"] == result["generation"]["text"]
     assert "menakuti naga" in result["answer"].casefold()
     assert result["metadata"]["confidence_score"] == pytest.approx(0.648)
 
@@ -191,5 +192,5 @@ def test_chatbot_handles_leading_politeness_instruction_for_dragon_bell_question
     assert len(result["reasoning_result"]["evidence"]) == 2
     assert result["metadata"]["register"] == "formal"
     assert result["generation"]["text"].startswith("Dengan senang hati,")
-    assert result["answer"].startswith("Saya ILIS, sistem kecerdasan bahasa.")
+    assert result["answer"] == result["generation"]["text"]
     assert "jawab dengan sopan" not in result["answer"].casefold()
