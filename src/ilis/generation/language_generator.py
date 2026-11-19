@@ -56,6 +56,12 @@ class LanguageGenerator:
 
         selected_register = self._select_register(register, semantic_result, context)
         reasoning_type = reasoning_result.get("reasoning_type", "unknown")
+        semantics = (semantic_result or {}).get("semantics") or {}
+        is_greeting = (
+            isinstance(semantics, dict)
+            and semantic_result.get("status") == "supported"
+            and semantics.get("Predicate") == "menyapa"
+        )
         concept_status = reasoning_type if reasoning_type in {
             "concept_inference_known",
             "concept_inference_partial",
@@ -63,7 +69,16 @@ class LanguageGenerator:
         } else None
         meaning = self._extract_meaning(reasoning_result, semantic_result)
         uncertain = self._is_uncertain(reasoning_result)
-        if concept_status == "concept_inference_unknown":
+        if is_greeting:
+            meaning = {"kind": "greeting"}
+            uncertain = False
+            if selected_register == "formal":
+                sentence = "Halo! Saya siap membantu. Bagaimana kabar Anda?"
+            elif selected_register == "informal":
+                sentence = "Halo! Aku siap bantu. Apa kabar kamu?"
+            else:
+                sentence = "Hai! Siap bantu, nih. Apa kabar?"
+        elif concept_status == "concept_inference_unknown":
             meaning = {"kind": "unknown", "target": "pertanyaanmu"}
             uncertain = True
             sentence = "Belum cukup informasi untuk memastikan jawaban atas pertanyaanmu."
@@ -100,7 +115,7 @@ class LanguageGenerator:
             "text": sentence,
             "register": selected_register,
             "meaning": meaning,
-            "reasoning_type": reasoning_result.get("reasoning_type", "unknown"),
+            "reasoning_type": "greeting" if is_greeting else reasoning_result.get("reasoning_type", "unknown"),
             "confidence_score": reasoning_result.get("confidence_score"),
             "uncertainty_preserved": uncertain,
             "evidence": list(reasoning_result.get("evidence") or []),
