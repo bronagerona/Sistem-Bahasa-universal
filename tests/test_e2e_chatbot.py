@@ -92,10 +92,23 @@ def test_chatbot_preserves_legacy_v1_assertion_adapter_behavior():
     core, session_id, chatbot = _chatbot()
     result = chatbot.respond("Api menyentuh rumah kayu", session_id)
 
+    # Perubahan perilaku yang disengaja: jalur pintas legacy dihapus pada V3.1 Tugas 1.
     assert result["semantic_result"]["status"] in {"unsupported", "low_confidence"}
-    assert result["reasoning_result"]["reasoning_type"] == "verified_inference"
-    assert result["metadata"]["confidence_score"] == 0.72
-    assert "kemungkinan" in result["answer"].casefold()
+    semantic_fields = result["semantic_result"].get("semantics")
+    semantic_confidence = (
+        semantic_fields.get("Confidence", 0.0)
+        if isinstance(semantic_fields, dict) else 0.0
+    )
+    reasoning_base = core.reasoning_engine.infer_semantic(
+        result["semantic_result"]
+    )["confidence_score"]
+    assert result["metadata"]["confidence_score"] == round(
+        reasoning_base * semantic_confidence, 6
+    )
+    if result["semantic_result"]["status"] == "low_confidence":
+        assert result["reasoning_result"]["reasoning_type"] != "verified_inference"
+    assert "pasti" not in result["answer"].casefold()
+    assert "dipastikan" not in result["answer"].casefold()
 
 
 

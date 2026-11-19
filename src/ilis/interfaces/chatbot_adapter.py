@@ -14,11 +14,6 @@ from ilis.persona.profiles import MODE_A
 class ChatbotAdapter:
     """Run ILIS for one turn while keeping transcript state in SessionManager."""
 
-    _TOUCHES_WOODEN_HOUSE = re.compile(
-        r"^\s*(?P<source>api)\s+menyentuh\s+"
-        r"(?P<target>rumah)\s+(?P<material>kayu)\s*[.!?]?\s*$",
-        re.IGNORECASE,
-    )
     _IDENTITY_INTENT = re.compile(
         r"\b(?:siapa\s+kamu|apa\s+yang\s+bisa\s+kamu\s+lakukan|"
         r"kemampuanmu|jelaskan\s+kemampuanmu|"
@@ -138,21 +133,13 @@ class ChatbotAdapter:
             semantic, context_snapshot=snapshot,
         )
 
-        legacy_match = self._TOUCHES_WOODEN_HOUSE.fullmatch(text)
-        if legacy_match:
-            reasoning = self.core.reasoning_engine.infer_burn_risk(
-                legacy_match.group("source").casefold(),
-                legacy_match.group("target").casefold(),
-            )
-            semantic_confidence = 1.0
-        else:
-            semantics = semantic.get("semantics")
-            confidence = semantics.get("Confidence") if isinstance(semantics, dict) else None
-            semantic_confidence = (
-                float(confidence) if isinstance(confidence, (int, float))
-                and not isinstance(confidence, bool) and 0.0 <= confidence <= 1.0
-                else 0.0
-            )
+        semantics = semantic.get("semantics")
+        confidence = semantics.get("Confidence") if isinstance(semantics, dict) else None
+        semantic_confidence = (
+            float(confidence) if isinstance(confidence, (int, float))
+            and not isinstance(confidence, bool) and 0.0 <= confidence <= 1.0
+            else 0.0
+        )
 
         base_confidence = reasoning.get("confidence_score", 0.0)
         if not isinstance(base_confidence, (int, float)) or isinstance(base_confidence, bool):

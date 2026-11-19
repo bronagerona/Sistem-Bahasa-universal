@@ -24,9 +24,22 @@ def test_chatbot_api_touching_wooden_house_uses_register(register, expected):
     session_id = core.create_session(metadata={"register": register})
     result = core.chatbot().respond("Api menyentuh rumah kayu", session_id)
 
-    assert expected in result["answer"]
     assert result["metadata"]["register"] == register
-    assert result["metadata"]["confidence_score"] == 0.72
+    assert expected in result["answer"]
+    # Perubahan perilaku yang disengaja: jalur pintas legacy dihapus pada V3.1 Tugas 1.
+    semantic_fields = result["semantic_result"].get("semantics")
+    semantic_confidence = (
+        semantic_fields.get("Confidence", 0.0)
+        if isinstance(semantic_fields, dict) else 0.0
+    )
+    reasoning_base = core.reasoning_engine.infer_semantic(
+        result["semantic_result"]
+    )["confidence_score"]
+    assert result["metadata"]["confidence_score"] == round(
+        reasoning_base * semantic_confidence, 6
+    )
+    if result["semantic_result"]["status"] == "low_confidence":
+        assert result["reasoning_result"]["reasoning_type"] != "verified_inference"
     assert result["metadata"]["conflict_status"] == "clear"
     assert result["metadata"]["semantic_status"] in {"unsupported", "low_confidence"}
 
