@@ -239,3 +239,10 @@ FASE 2B Revisi selesai, 5 item sudah diperbaiki, menunggu review final Dola
 - Seluruh record tetap `draft`; tidak ada integrasi maupun perubahan status verifikasi.
 
 **Kesimpulan:** Dataset Batch 001–018 lolos pemeriksaan parsing, ID, status, dan struktur Semantic. Ini adalah gerbang persiapan staging, bukan hasil uji runtime. Diperlukan runner staging terisolasi yang disetujui sebelum pengujian integrasi runtime dan sebelum keputusan integrasi berikutnya oleh Dola serta Pemilik Proyek.
+
+## 🟠 CATATAN KHUSUS PROYEK SOLO INDIE (TIDAK ADA TIM TEKNIS / RUNNER STAGING)
+- ✅ Validasi statis dataset Batch 001–018: LULUS
+- ⚠️ Uji runtime ILIS (Reasoning 6 Keys) BELUM dijalankan, tidak ada lingkungan staging otomatis di repo
+- ⏳ Uji runtime akan dijalankan secara manual oleh Owner di ILIS lokal miliknya
+- ✅ Seluruh dataset tetap DRAFT, belum integrasi ke produksi
+- 📝 Keputusan lanjut muat ke ILIS lokal / produksi sepenuhnya ada di tangan Owner
