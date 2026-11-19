@@ -17,31 +17,35 @@ def test_core_initializes_all_engines_and_adapters():
 
 @pytest.mark.parametrize(
     ("register", "expected"),
-    [("formal", "Ada kemungkinan"), ("informal", "Kayaknya"), ("slang", "Kayaknya")],
+    [
+        ("formal", "Baik, saya sudah memahami pernyataanmu."),
+        ("informal", "Oke, aku paham pernyataanmu."),
+        ("slang", "Oke, nangkep pernyataanmu."),
+    ],
 )
-def test_chatbot_api_touching_wooden_house_uses_register(register, expected):
+def test_chatbot_api_touching_wooden_house_acknowledges_assertion(register, expected):
     core = ILISCore()
     session_id = core.create_session(metadata={"register": register})
     result = core.chatbot().respond("Api menyentuh rumah kayu", session_id)
 
     assert result["metadata"]["register"] == register
+    assert result["generation"]["text"] == expected
     assert expected in result["answer"]
-    # Perubahan perilaku yang disengaja: jalur pintas legacy dihapus pada V3.1 Tugas 1.
-    semantic_fields = result["semantic_result"].get("semantics")
-    semantic_confidence = (
-        semantic_fields.get("Confidence", 0.0)
-        if isinstance(semantic_fields, dict) else 0.0
-    )
+    assert result["semantic_result"]["status"] == "supported"
+    assert result["semantic_result"]["semantics"]["Intent"] == "assertion"
+    assert result["reasoning_result"]["reasoning_type"] == "assertion"
+    assert "terbakar" not in result["answer"].casefold()
+    assert "kebakaran" not in result["answer"].casefold()
+    assert "kemungkinan" not in result["answer"].casefold()
+    semantic_confidence = result["semantic_result"]["semantics"]["Confidence"]
     reasoning_base = core.reasoning_engine.infer_semantic(
         result["semantic_result"]
     )["confidence_score"]
     assert result["metadata"]["confidence_score"] == round(
         reasoning_base * semantic_confidence, 6
     )
-    if result["semantic_result"]["status"] == "low_confidence":
-        assert result["reasoning_result"]["reasoning_type"] != "verified_inference"
     assert result["metadata"]["conflict_status"] == "clear"
-    assert result["metadata"]["semantic_status"] in {"unsupported", "low_confidence"}
+    assert result["metadata"]["semantic_status"] == "supported"
 
 
 def test_chatbot_explicit_register_overrides_session_register():
