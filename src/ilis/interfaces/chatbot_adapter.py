@@ -112,7 +112,9 @@ class ChatbotAdapter:
 
         normalized_text = " ".join(text.casefold().split())
         if self.persona_config.mode == MODE_A and self._IDENTITY_INTENT.search(normalized_text):
-            static_answer = self.persona_renderer.render(self._IDENTITY_CAPABILITIES_REPLY)
+            static_answer = self.persona_renderer.render(
+                self._IDENTITY_CAPABILITIES_REPLY, include_identity=True
+            )
             self.session_manager.add_turn(session_id, text, static_answer, metadata={
                 "response_type": "identity_intent", "speaker": speaker,
             })
@@ -167,7 +169,11 @@ class ChatbotAdapter:
             reasoning, register=effective_register, semantic_result=semantic,
             context=snapshot, polite=instruction_register == "formal",
         )
-        final_answer = self.persona_renderer.render(generated["text"])
+        # Mode A identity is added only by the explicit Identity Intent route.
+        # Mode B/C retain their configured application/character identity.
+        final_answer = self.persona_renderer.render(
+            generated["text"], include_identity=False
+        )
         self.session_manager.add_turn(session_id, text, final_answer, metadata={
             "response_type": "normal", "speaker": speaker,
             "register": generated["register"],
