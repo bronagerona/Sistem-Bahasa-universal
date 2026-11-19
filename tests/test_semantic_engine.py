@@ -111,6 +111,20 @@ def test_question_and_command_remain_unsupported_in_v1_example_but_supported_v2(
     ("Api tak membakar kayu.", "negative", "unspecified"),
     ("Api belum membakar kayu.", "not_yet", "unspecified"),
 ])
+def test_api_menyentuh_rumah_kayu_is_parsed_as_literal_semantics(engine):
+    sentence = "Api menyentuh rumah kayu."
+    words = sentence.casefold().replace(".", "").split()
+    result = engine.analyze(make_input(sentence, " ".join(words), words))
+
+    assert result["status"] == "supported"
+    assert set(result["semantics"]) == set(SEMANTIC_FIELDS)
+    assert result["semantics"]["Actor"] == "api"
+    assert result["semantics"]["Predicate"] == "menyentuh"
+    assert result["semantics"]["Patient/Object"] == "rumah kayu"
+    assert result["semantics"]["Intent"] == "assertion"
+    assert result["semantics"]["Confidence"] == 0.90
+
+
 def test_v2_negation_variants(engine, sentence, expected_negation, expected_aspect):
     words = sentence.casefold().replace(".", "").split()
     result = engine.analyze(make_input(sentence, " ".join(words), words))
