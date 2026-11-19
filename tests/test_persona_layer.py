@@ -249,6 +249,7 @@ def test_renderer_mode_a_uses_canonical_ilis_identity_reply():
     renderer = PersonaRenderer(PersonaConfig.chatbot_ilis())
 
     assert renderer.render("Halo!") == f"{ILIS_IDENTITY_REPLY}\n\nHalo!"
+    assert renderer.render("Halo!", include_identity=False) == "Halo!"
 
 
 def test_renderer_mode_b_prefixes_application_identity_reply():
