@@ -65,6 +65,12 @@ _MODALITY_MARKERS = {
     "desire": {"ingin", "mau", "pengen"},
     "permission": {"boleh"},
 }
+_GREETING_PATTERNS = {
+    ("halo",), ("hai",), ("hi",), ("hello",),
+    ("apa", "kabar"), ("halo", "apa", "kabar"),
+    ("hai", "apa", "kabar"), ("hi", "apa", "kabar"),
+    ("hello", "apa", "kabar"),
+}
 
 
 class SemanticEngine:
@@ -96,6 +102,17 @@ class SemanticEngine:
             return None, "unsupported"
         if any(word in _COMPLEX_MARKERS for word in words):
             return None, "unsupported"
+
+        # Greetings are a supported conversational act, not an unknown factual
+        # question. Keep the fixed twelve-field contract and represent the
+        # greeting with an explicit lexical predicate for LanguageGenerator.
+        if tuple(words) in _GREETING_PATTERNS:
+            return {
+                "Actor": None, "Predicate": "menyapa", "Patient/Object": None,
+                "Recipient": None, "Location": None, "Time": None,
+                "Aspect": "unspecified", "Negation": "none", "Modality": "none",
+                "Intent": "assertion", "Register": "formal", "Confidence": 0.90,
+            }, "supported"
 
         is_question = "?" in original or words[0] in _INTERROGATIVE_MARKERS
         is_command = words[0] in _COMMAND_MARKERS
