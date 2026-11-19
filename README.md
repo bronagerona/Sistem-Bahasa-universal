@@ -10,16 +10,24 @@ Visi ILIS adalah menyediakan fondasi bahasa dan makna yang dapat digunakan untuk
 
 - Rilis V1: [ILIS V1.0 Prototype](https://github.com/bronagerona/Sistem-Bahasa-universal/releases/tag/v1.0-prototype)
 - Baseline rilis V1 berada di branch `main`.
-- Branch `ilis-v2-development` memuat pengembangan V2 Alpha.
 
-**🧪 ILIS V2.0-alpha — tahap benchmark dan evaluasi**
+**🧪 ILIS V2.2-beta — Beta Candidate**
 
-V2 memperluas pemrosesan pertanyaan dan perintah sederhana, penalaran berbasis bukti untuk skenario api–kayu–rumah dan naga–lonceng, variasi keluaran generator, serta persistensi SQLite opsional. Mode in-memory tetap menjadi default.
+- Rilis beta: [ILIS V2.2-beta](https://github.com/bronagerona/Sistem-Bahasa-universal/releases/tag/v2.2-beta)
+- Branch pengembangan: `ilis-v2-development`.
+- V2.2 menambahkan percakapan multi-turn dengan SessionManager in-memory, konteks percakapan terbatas, dan reset sesi.
+- Riwayat percakapan belum persisten dan hilang ketika proses/aplikasi dimulai ulang.
 
-V2 masih alpha: cakupan bahasa dan aturan terbatas, confidence score belum terkalibrasi sebagai probabilitas, dan sistem belum setara LLM atau mengklaim pemahaman bahasa universal. Status rilis final alpha mengikuti hasil GitHub Actions pada branch pengembangan.
+**🧪 ILIS V3-Beta — Beta Candidate untuk pengujian**
 
-Dokumen evaluasi: [Laporan Evaluasi V2 Alpha](docs/v2_alpha_evaluation_report.md).  
-Rencana berikutnya: [Roadmap V3](docs/v3_roadmap.md).
+- Catatan rilis: [ILIS V3-Beta — Catatan Rilis](docs/v3_beta_release_notes.md).
+- Dokumentasi arsitektur: [V3 Concept Engine Architecture](docs/v3_concept_engine_architecture.md).
+- Panduan developer: [V3 Concept Engine Developer Guide](docs/v3_concept_engine_developer_guide.md).
+- V3 menambahkan Concept Engine sebagai fallback setelah lookup fakta persis pada KnowledgeEngine lama.
+- Full-System Smoke Test Run #2 lulus **312/312 tes**: [Lihat hasil GitHub Actions](https://github.com/bronagerona/Sistem-Bahasa-universal/actions/runs/44431373405).
+- **V3 masih berstatus Beta Candidate; bukan rilis produksi.** Tag dan GitHub Pre-release V3 belum diterbitkan.
+- Sebagian besar seed ConceptStore produksi masih berstatus PARTIAL. Data KNOWN terverifikasi penuh saat ini hanya tersedia pada fixture pengujian terisolasi, bukan seed produksi.
+- Multi-turn tetap menggunakan penyimpanan in-memory; riwayat percakapan hilang saat aplikasi atau proses dimulai ulang.
 
 ## Cakupan bahasa
 
@@ -48,7 +56,7 @@ ILIS menargetkan variasi bahasa Indonesia formal, santai, gaul/slang, singkatan,
 
 ## Batasan
 
-ILIS masih prototype/alpha. Semantik, penalaran, generator, dan adapter dibatasi implementasi pola, kosakata, fakta, dan aturan yang tersedia. Sistem tidak menjamin kebenaran fakta dunia, tidak melakukan pembelajaran bebas seperti manusia, dan belum menyediakan pemahaman bahasa umum setara LLM.
+ILIS masih dalam tahap pengembangan beta. Semantik, penalaran, generator, dan adapter dibatasi implementasi pola, kosakata, fakta, dan aturan yang tersedia. Sistem tidak menjamin kebenaran fakta dunia, tidak melakukan pembelajaran bebas seperti manusia, dan belum menyediakan pemahaman bahasa umum setara LLM. Hasil pengujian otomatis menunjukkan skenario yang diuji lulus, bukan jaminan bebas bug atau kesiapan produksi.
 
 ## Pengujian dan pengembangan
 
