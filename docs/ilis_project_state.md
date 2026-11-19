@@ -87,3 +87,14 @@
 - 19-11-2026: Backlog Proyek Pengayaan Bahasa Indonesia ILIS ditambahkan; desain v0.1 mencatat empat revisi hasil review Dola. Cakupan tetap desain dan persiapan kurasi saja.
 - v1.0 (19-11-2026): Dokumen induk pertama kali dibuat
 - v1.0 (19-11-2026): Draf final disetujui Pemilik Proyek, Ihsan Halomoan; dokumen resmi menjadi Sumber Kebenaran Utama proyek ILIS.
+
+
+### UPDATE STATUS PROYEK
+✅ FASE 1 – KURASI DATASET (Batch 001 s/d Batch 018): SELESAI
+🟡 FASE 2 – VERIFIKASI BESAR-BESARAN: BELUM DIMULAI (Menunggu persetujuan pemilik proyek)
+🔴 FASE 3 – INTEGRASI KE ILIS: BELUM DISETUJUI / BELUM DILAKUKAN
+
+> Catatan singkat:
+> - Total 18 Batch kurasi selesai, seluruh record masih status DRAFT
+> - Daftar detail backlog verifikasi lengkap tersimpan di `data/indonesian/knowledge/source_review_notes.md`
+> - Belum ada perubahan terhadap skema maupun kode sistem ILIS
