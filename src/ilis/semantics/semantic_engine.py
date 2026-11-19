@@ -25,7 +25,7 @@ _VERBS = {
     "melihat", "menakuti", "takut", "membeli", "membawa", "memberi", "memasak", "lari",
     "beli", "pulang", "membakar", "bakar", "bunyi", "bunyikan",
     "menyalakan", "matikan", "tutup", "buka", "ambil", "berikan",
-    "panggil", "dengarkan", "lihat", "buat", "simpan", "hapus", "jawab",
+    "panggil", "dengarkan", "lihat", "buat", "simpan", "hapus", "jawab", "menyentuh",
 }
 _COMPLEX_MARKERS = {
     "dan", "tetapi", "namun", "karena", "sehingga", "ketika", "meskipun",
