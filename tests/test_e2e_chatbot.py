@@ -88,14 +88,25 @@ def test_chatbot_low_confidence_and_unsupported_inputs_fall_back_gracefully(
     assert "belum cukup" in result["answer"].casefold() or "belum ada cukup" in result["answer"].casefold()
 
 
-def test_chatbot_preserves_legacy_v1_assertion_adapter_behavior():
+def test_chatbot_acknowledges_supported_assertion_without_fire_inference():
     core, session_id, chatbot = _chatbot()
     result = chatbot.respond("Api menyentuh rumah kayu", session_id)
 
-    assert result["semantic_result"]["status"] in {"unsupported", "low_confidence"}
-    assert result["reasoning_result"]["reasoning_type"] == "verified_inference"
-    assert result["metadata"]["confidence_score"] == 0.72
-    assert "kemungkinan" in result["answer"].casefold()
+    assert result["semantic_result"]["status"] == "supported"
+    assert result["semantic_result"]["semantics"]["Intent"] == "assertion"
+    assert result["reasoning_result"]["reasoning_type"] == "assertion"
+    assert result["generation"]["text"] == "Baik, saya sudah memahami pernyataanmu"
+    assert "terbakar" not in result["answer"].casefold()
+    assert "kebakaran" not in result["answer"].casefold()
+    assert "kemungkinan" not in result["answer"].casefold()
+    semantic_fields = result["semantic_result"]["semantics"]
+    semantic_confidence = semantic_fields["Confidence"]
+    reasoning_base = core.reasoning_engine.infer_semantic(
+        result["semantic_result"]
+    )["confidence_score"]
+    assert result["metadata"]["confidence_score"] == round(
+        reasoning_base * semantic_confidence, 6
+    )
 
 
 

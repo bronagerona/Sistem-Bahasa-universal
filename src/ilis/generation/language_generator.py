@@ -70,13 +70,27 @@ class LanguageGenerator:
         else:
             if concept_status == "concept_inference_partial":
                 uncertain = True
-            sentence = self.sentence_builder.build(
-                meaning,
-                register=selected_register,
-                uncertainty=uncertain,
-                context=context,
-                polite=polite,
-            )
+            if reasoning_type == "assertion":
+                meaning = {"kind": "assertion_acknowledgement"}
+                uncertain = False
+                if selected_register == "formal":
+                    sentence = (
+                        "Baik, saya telah memahami pernyataan yang Anda sampaikan"
+                        if polite
+                        else "Baik, saya sudah memahami pernyataanmu"
+                    )
+                elif selected_register == "informal":
+                    sentence = "Oke, aku paham pernyataanmu"
+                else:
+                    sentence = "Oke, nangkep pernyataanmu"
+            else:
+                sentence = self.sentence_builder.build(
+                    meaning,
+                    register=selected_register,
+                    uncertainty=uncertain,
+                    context=context,
+                    polite=polite,
+                )
             if concept_status == "concept_inference_partial":
                 sentence = (
                     sentence.rstrip(".!?")
