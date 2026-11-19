@@ -71,7 +71,9 @@ def test_run_15_combined_greeting_identity_and_capability_question():
     ):
         ordinary_session_id = adapter.create_session()
         ordinary_result = adapter.respond(ordinary_message, ordinary_session_id)
-        assert ordinary_result["metadata"]["response_type"] == "normal"
+        assert ordinary_result["semantic_result"] is not None
+        assert ordinary_result["reasoning_result"] is not None
+        assert ordinary_result["reasoning_result"]["reasoning_type"] != "identity_intent"
         assert not ordinary_result["answer"].startswith(
             "Saya ILIS, sistem kecerdasan bahasa."
         )
