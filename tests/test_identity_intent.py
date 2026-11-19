@@ -69,7 +69,8 @@ def test_run_15_combined_greeting_identity_and_capability_question():
         "Apakah api bisa membakar kayu?",
         "Api menyentuh rumah kayu",
     ):
-        ordinary_result = adapter.respond(ordinary_message, session_id)
+        ordinary_session_id = adapter.create_session()
+        ordinary_result = adapter.respond(ordinary_message, ordinary_session_id)
         assert ordinary_result["metadata"]["response_type"] == "normal"
         assert not ordinary_result["answer"].startswith(
             "Saya ILIS, sistem kecerdasan bahasa."
