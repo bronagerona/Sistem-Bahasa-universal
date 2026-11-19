@@ -1,9 +1,16 @@
+🟡 STATUS: DRAFT v1.0 (Menunggu persetujuan akhir Pemilik Proyek)
+
 # ILIS PROJECT STATE — DOKUMEN INDUK SUMBER KEBENARAN PROYEK
 > Versi: v1.0
 > Tanggal: 19 Nov 2026
 > Branch Acuan Utama: ilis-v2-development
 > Commit SHA Acuan: 32903039f448a2427ee64cfa3a99c6dc9a2854ef
 > Status Rilis: v3.1-beta (PRE-RELEASE / BELUM STABIL)
+> Commit dokumen awal ilis_project_state.md: 063005306b4c9aebb4d8360d752ecdf64caff3f3
+
+⚠️ Catatan: SHA acuan kode produksi ≠ SHA commit file dokumen ini. Setiap kali branch ilis-v2-development diupdate, SHA acuan kode HARUS diperbarui di dokumen ini lewat prosedur persetujuan resmi.
+
+📄 Laporan audit lengkap: docs/audit_report_v3.1_beta.md
 
 ## 🧑‍🤝‍🧑 STRUKTUR & PERAN TIM
 ### 👑 Pemilik Proyek (Kamu)
