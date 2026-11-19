@@ -12,17 +12,17 @@ from ilis.persona import (
 )
 
 
-def test_chatbot_adapter_defaults_to_mode_a_ilis_identity():
+def test_chatbot_adapter_mode_a_omits_identity_for_ordinary_question():
     core = ILISCore()
     session_id = core.create_session()
     adapter = ChatbotAdapter(core)
 
     result = adapter.respond("Apakah api bisa membakar kayu?", session_id)
 
-    assert result["answer"].startswith("Saya ILIS, sistem kecerdasan bahasa.\n\n")
+    assert not result["answer"].startswith("Saya ILIS, sistem kecerdasan bahasa.")
     assert result["text"] == result["answer"]
     assert "kemungkinan" in result["generation"]["text"].casefold()
-    assert result["generation"]["text"] != result["answer"]
+    assert result["generation"]["text"] == result["answer"]
     assert result["reasoning_result"]["reasoning_type"] == "verified_inference"
 
 
