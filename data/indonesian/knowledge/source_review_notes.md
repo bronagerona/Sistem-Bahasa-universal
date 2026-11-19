@@ -201,3 +201,41 @@ Perubahan dataset tidak diizinkan dan tidak dilakukan. Lima temuan yang perlu di
 ## FASE 2B — Revisi dataset
 
 FASE 2B Revisi selesai, 5 item sudah diperbaiki, menunggu review final Dola
+
+ 
+## HASIL PERSIAPAN STAGING — VALIDASI DATASET BATCH 001–018
+
+**Basis pemeriksaan:** `ilis-v2-development` pada HEAD `57f039c78b73cc6092375c032a3c63df5a48b5c3`.  
+**Jenis pemeriksaan:** validasi statis/dry-run struktur dataset; bukan deployment atau integrasi produksi.
+
+### 1. Cakupan dan parsing
+- Diperiksa 90 file JSONL: 18 batch × 5 pilar (lexicon, sentence_patterns, dialogues, knowledge, evaluation).
+- Seluruh baris JSONL yang berisi data berhasil diparse.
+- Tidak ditemukan kesalahan parsing.
+- Total record: **448** (Lexicon 90; Sentence Patterns 90; Dialogues 88; Knowledge 90; Evaluation 90).
+- Perbedaan jumlah Dialogues: Batch 001 berisi 3 record; Batch 002–018 masing-masing 5 record.
+
+### 2. ID dan status
+- Tidak ditemukan ID duplikat dalam masing-masing pilar; ruang ID antar-pilar juga menggunakan prefiks berbeda.
+- Seluruh 448 record tetap berstatus draft: 90 lexicon, 90 sentence_patterns, 88 dialogues, 90 knowledge, dan 90 evaluation.
+- Tidak ada perubahan pada JSONL selama pemeriksaan ini.
+
+### 3. Semantic 12 Field
+- Diperiksa 205 giliran pada 88 record dialog.
+- Seluruh 205 `semantic_annotation` memiliki tepat 12 field kontrak: Actor, Predicate, Patient/Object, Intent, Time, Aspect, Location, Recipient, Negation, Modality, Register, Confidence.
+- Tidak ditemukan field Semantic yang hilang atau tambahan.
+- Catatan: struktur dialog menggunakan nama `semantic_annotation`, bukan objek `Semantic` tersendiri.
+
+### 4. Reasoning 6 Keys dan baseline
+- Kontrak Reasoning baseline yang diperiksa pada tes integrasi V3 adalah tepat: `conclusion`, `confidence_score`, `evidence`, `reasoning_type`, `reasons`, `uncertainty`.
+- Enam keys tersebut merupakan kontrak keluaran runtime Reasoning ILIS, bukan anotasi pada record JSONL. Dataset dialog tidak memiliki `reasoning_annotation`; karena itu validasi struktur JSONL tidak dapat membuktikan keluaran runtime Reasoning.
+- Pemeriksaan kali ini hanya mencocokkan kontrak baseline pada kode/tes yang sudah ada secara statis. Tidak ada klaim bahwa tes runtime telah dijalankan.
+
+### 5. Kesiapan staging dan batasan
+- **LULUS validasi statis dataset / SIAP untuk tahap uji staging terisolasi.**
+- **Uji integrasi runtime BELUM DIJALANKAN.** Pada branch ini ditemukan workflow tes umum `.github/workflows/tests.yml`, tetapi tidak ditemukan workflow/runner khusus untuk memuat dan menguji dataset pengayaan ini dalam staging terisolasi. Workflow tes umum tidak dianggap sebagai bukti integrasi dataset.
+- Tidak ada dataset yang dikirim ke ILIS produksi.
+- Tidak ada perubahan pada kode ILIS, tes, workflow CI, SQLite, `SCHEMA_TEMPORARY.md`, atau `docs/ilis_project_state.md`.
+- Seluruh record tetap `draft`; tidak ada integrasi maupun perubahan status verifikasi.
+
+**Kesimpulan:** Dataset Batch 001–018 lolos pemeriksaan parsing, ID, status, dan struktur Semantic. Ini adalah gerbang persiapan staging, bukan hasil uji runtime. Diperlukan runner staging terisolasi yang disetujui sebelum pengujian integrasi runtime dan sebelum keputusan integrasi berikutnya oleh Dola serta Pemilik Proyek.
