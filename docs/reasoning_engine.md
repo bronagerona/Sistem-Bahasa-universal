@@ -165,3 +165,35 @@ Bentuk hasil tidak berubah: `conclusion`, `confidence_score`, `evidence`,
 `reasoning_type`, `reasons`, dan `uncertainty`. Aturan risiko kebakaran
 V1 dan API `infer_burn_risk()`/`infer()` tetap dipertahankan. Semantic Engine
 dan Storage tidak dimodifikasi.
+
+
+## Integrasi Concept Engine V3-C
+
+Mulai V3-C, `ReasoningEngine.infer_semantic()` menggunakan Concept Engine sebagai
+fallback terbatas setelah lookup fakta persis KnowledgeEngine lama tidak
+menemukan kecocokan. Fakta persis dan konflik relevan dari KnowledgeEngine
+tetap diproses dengan perilaku lama dan tidak boleh ditimpa oleh inferensi
+konsep. Aturan khusus naga–lonceng juga tetap menggunakan jalur lama.
+
+Urutan fallback:
+
+1. Cari fakta persis berdasarkan subject, relation, dan object pada FactStore.
+2. Jika ditemukan, validasi fakta/provenance dan kembalikan hasil lama.
+3. Jika konflik relevan ditemukan, hentikan inferensi seperti sebelumnya.
+4. Jika tidak ada fakta persis dan tidak ada konflik penghalang, jalankan
+   InferenceEngine V3-B dengan ConceptStore statis V3-A.
+5. Petakan status ke enam key Reasoning yang sudah ada.
+
+Pemetaan status fallback:
+- `KNOWN` → `concept_inference_known`, label Tahu Pasti, skor heuristik 0.72.
+- `PARTIAL` → `concept_inference_partial`, label Tahu Sebagian, skor heuristik 0.48.
+- `UNKNOWN` → `concept_inference_unknown`, label Tidak Tahu, skor 0.0.
+
+Tidak ada key baru. Kontrak Semantic tetap 12 field dan kontrak Reasoning
+tetap `conclusion`, `confidence_score`, `evidence`, `reasoning_type`,
+`reasons`, dan `uncertainty`. Skor di atas merupakan pemetaan kompatibilitas,
+bukan probabilitas terkalibrasi.
+
+Implementasi dan contoh pengujian lebih lengkap tersedia di
+`docs/v3_concept_engine_developer_guide.md`. Integrasi tidak mengubah
+KnowledgeEngine, SQLite, SessionManager, Persona, atau Identity Intent.
