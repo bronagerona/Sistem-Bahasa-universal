@@ -31,3 +31,19 @@ Tugas ini **tidak termasuk pekerjaan Batch 009** dan tidak boleh dianggap selesa
 ## Batasan
 
 Dokumen ini hanya catatan kurasi dataset. Tidak memberi izin integrasi ke ILIS, perubahan kode, skema SQLite, test suite, atau workflow CI.
+
+
+## Batch 010 — Checklist verifikasi sumber untuk fact-0048 (AU)
+
+**Status: BELUM DIKERJAKAN. Dijadwalkan untuk tahap verifikasi sumber setelah fase kurasi batch.** Batch 010 LULUS review kurator, tetapi kelulusan kurasi tidak berarti sumber atau fakta AU telah diverifikasi secara independen.
+
+Cakupan checklist khusus fact-0048:
+1. Buka dan periksa sumber primer IAU, terutama dokumen Resolusi B2 (2012), serta sumber NASA yang dicantumkan pada record.
+2. Pastikan definisi satuan astronomi (au/AU) tepat sebesar 149.597.870.700 meter dan kutip konteks definisi resminya.
+3. Pastikan satuan, notasi angka, dan konversi meter konsisten; catat jika sumber menggunakan notasi atau pembulatan berbeda.
+4. Bedakan nilai definisi AU yang tetap dari jarak Bumi–Matahari aktual/rata-rata yang bersifat konteks astronomi; jangan menyamakan keduanya.
+5. Pastikan URL aktif, spesifik, dan benar-benar mendukung klaim. Jika URL NASA tidak relevan atau tidak mendukung definisi numerik, gunakan sumber primer IAU sebagai rujukan utama dan catat URL resmi pengganti.
+6. Catat URL yang diperiksa, tanggal pemeriksaan, bagian/dokumen pendukung, serta hasil kecocokan klaim pada fact-0048 atau log sumber.
+7. Pertahankan `verification_status: draft` sampai seluruh pemeriksaan manual selesai dan disetujui.
+
+Checklist ini **belum merupakan verifikasi** dan tidak memberi izin mengubah status record sekarang. Tugas ini terpisah dari backlog Batch 007 di atas; backlog Batch 007 (fact-0033 sampai fact-0037) tetap **BELUM DIKERJAKAN** dan tidak digantikan atau ditutup oleh checklist Batch 010.
