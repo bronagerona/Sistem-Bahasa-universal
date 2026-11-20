@@ -24,11 +24,11 @@ _TOPIC_STOPWORDS = {
     "tolong", "dong", "ya", "nih", "kan", "kok", "deh", "pun",
 }
 _TOPIC_RETURN = re.compile(
-    r"^\\s*(?:kembali|balik)\\s+(?:lagi\\s+)?(?:ke|ke\\s+topik|ke\\s+pembahasan)\\s+(?P<reference>[^,;.!?]+)",
+    r"^\s*(?:kembali|balik)\s+(?:lagi\s+)?(?:ke\s+topik|ke\s+pembahasan|ke)\s+(?P<reference>[^,;.!?]+)",
     re.IGNORECASE,
 )
 _TOPIC_SHIFT = re.compile(
-    r"\\b(?:ngomong[- ]ngomong|omong[- ]omong|beralih\\s+ke|ganti\\s+topik|topik\\s+lain)\\b",
+    r"\b(?:ngomong[- ]ngomong|omong[- ]omong|beralih\s+ke|ganti\s+topik|topik\s+lain)\b",
     re.IGNORECASE,
 )
 
