@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from ilis.experimental.negation_mapping import map_negation
 from ilis.interfaces.ilis_core import ILISCore
 from ilis.interfaces.session_manager import SessionManager
 from ilis.persona import PersonaConfig, PersonaRenderer
@@ -85,6 +86,20 @@ class ChatbotAdapter:
         else:
             self.session_manager.require_session(session_id)
 
+        prior_turns = self.session_manager.get_recent_turns(session_id)
+        negation_result = map_negation(
+            text, None, context=[turn.user_message for turn in prior_turns],
+        )
+        negation_metadata = {
+            "negation_type": negation_result["mapping_label"],
+            "confidence": negation_result["confidence"],
+            "evidence": {
+                "detected_cues": negation_result["detected_cues"],
+                "scope": negation_result["scope"],
+                "reason": negation_result["mapping_reason"],
+            },
+        }
+
         if self._RESET_COMMAND.fullmatch(text):
             reset = self.session_manager.reset_session(session_id)
             answer = "Riwayat percakapan sesi ini sudah direset. Kita mulai dari awal, ya."
@@ -93,6 +108,7 @@ class ChatbotAdapter:
                 "metadata": {
                     "session_id": session_id, "response_type": "session_reset",
                     "register": "formal", "deleted_turns": reset["deleted_turns"],
+                    "negation": negation_metadata,
                 },
                 "semantic_result": None, "reasoning_result": None, "generation": None,
             }
@@ -126,6 +142,7 @@ class ChatbotAdapter:
                     "evidence": [], "semantic_status": "identity_intent",
                     "response_type": "identity_intent", "session_id": session_id,
                     "context_turns_used": len(snapshot.get("turns", [])),
+                    "negation": negation_metadata,
                 },
                 "semantic_result": None, "reasoning_result": None, "generation": None,
             }
@@ -190,6 +207,7 @@ class ChatbotAdapter:
                 "semantic_status": semantic.get("status"),
                 "session_id": session_id,
                 "context_turns_used": len(snapshot.get("turns", [])),
+                "negation": negation_metadata,
             },
             "semantic_result": semantic, "reasoning_result": reasoning,
             "generation": generated, "context_snapshot": snapshot,
