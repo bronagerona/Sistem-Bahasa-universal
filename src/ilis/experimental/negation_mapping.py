@@ -10,7 +10,7 @@ from typing import Any
 LABELS = frozenset({"none", "negative", "not_yet", "identity_negative", "prohibitive", "ambiguous"})
 _WORD_RE = re.compile(r"[a-zA-ZÀ-ÿ]+", re.UNICODE)
 _QUOTED_RE = re.compile(r"“[^”]*”|‘[^’]*’|\"[^\"]*\"|'[^']*'")
-_CUE_RE = re.compile(r"\b(?:tidak|tak|enggak|nggak|gak|ga|ndak|bukan|belum|janganlah?|dilarang|tanpa)\b", re.IGNORECASE)
+_CUE_RE = re.compile(r"\b(?:tidak|tak|enggak|nggak|gak|ga|ndak|bukan|belum|jangan(?:lah)?|dilarang|tanpa)\b", re.IGNORECASE)
 _NEGATIVE_WORDS = {"tidak", "tak", "enggak", "nggak", "gak", "ga", "ndak"}
 _IDENTITY_NOUNS = {"orang","anak","kakak","adik","ayah","ibu","suami","istri","teman","guru","dokter","ketua","anggota","bagian","alasan","rumah","kendaraan","mobil","motor","laptop","komputer","aplikasi","dokumen","berkas","penelepon","pelaku","pemilik"}
 _EPISTEMIC_BELUM = {"tentu", "pasti", "jelas"}
@@ -88,7 +88,7 @@ def map_negation(utterance: str, source_boolean: bool | None, context: list[str]
                 label, confidence, reason = "negative", 0.88, "Penanda menyangkal proposisi atau keadaan biasa."
         else:
             label, confidence, reason = "ambiguous", 0.35, "Cue terdeteksi tetapi fungsi/konstruksinya belum tercakup."
-    discrepancy = source_boolean is None or (source_boolean is False and label != "none") or (source_boolean is True and label == "none")
+    discrepancy = source_boolean is None or (source_boolean is False and label != "none") or (source_boolean is True and not cues)
     if label == "ambiguous":
         confidence = min(confidence, 0.49)
     return {"source_boolean": source_boolean, "detected_cues": cues if cues else quoted_cues, "scope": scope, "mapping_label": label, "mapping_reason": reason, "confidence": round(confidence,3), "annotation_discrepancy": discrepancy}
