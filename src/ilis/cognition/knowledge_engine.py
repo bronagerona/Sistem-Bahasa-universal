@@ -228,6 +228,10 @@ class KnowledgeEngine:
         return [
             facts for (subject, relation), facts in groups.items()
             if len({fact["object"] for fact in facts}) > 1
+            and not all(
+                "dataset_record" in fact and fact.get("status") == "hypothesis"
+                for fact in facts
+            )
             and not (
                 relation in MULTI_VALUED_RELATIONS
                 and all(
