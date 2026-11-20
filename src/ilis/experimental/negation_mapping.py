@@ -10,7 +10,7 @@ from typing import Any
 LABELS = frozenset({"none", "negative", "not_yet", "identity_negative", "prohibitive", "ambiguous"})
 _WORD_RE = re.compile(r"[a-zA-ZÀ-ÿ]+", re.UNICODE)
 _QUOTED_RE = re.compile(r"“[^”]*”|‘[^’]*’|\"[^\"]*\"|'[^']*'")
-_CUE_RE = re.compile(r"\b(?:tidak|tak|enggak|nggak|gak|ga|ndak|bukan|belum|janganlah?|dilarang|tanpa|boleh)\b", re.IGNORECASE)
+_CUE_RE = re.compile(r"\b(?:tidak|tak|enggak|nggak|gak|ga|ndak|bukan|belum|janganlah?|dilarang|tanpa)\b", re.IGNORECASE)
 _NEGATIVE_WORDS = {"tidak", "tak", "enggak", "nggak", "gak", "ga", "ndak"}
 _IDENTITY_NOUNS = {"orang","anak","kakak","adik","ayah","ibu","suami","istri","teman","guru","dokter","ketua","anggota","bagian","alasan","rumah","kendaraan","mobil","motor","laptop","komputer","aplikasi","dokumen","berkas","penelepon","pelaku","pemilik"}
 _EPISTEMIC_BELUM = {"tentu", "pasti", "jelas"}
