@@ -621,8 +621,8 @@ class ReasoningEngine:
             )
             return self._result(
                 conclusion=(
-                    "Tidak. Periode rotasi sideris Merkurius sekitar "
-                    f"{rotation_value}; {solar_qualifier}"
+                    "Periode rotasi sideris Merkurius sekitar "
+                    f"{rotation_value}, sedangkan {solar_qualifier[0].lower() + solar_qualifier[1:]}"
                 ),
                 confidence_score=0.48,
                 evidence=[rotation_fact["id"], solar_day_fact["id"]],
