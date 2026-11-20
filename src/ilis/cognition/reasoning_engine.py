@@ -628,7 +628,7 @@ class ReasoningEngine:
         verified = fact.get("status") == "verified"
         sentence = f"{subject} {predicate} {object_text}."
         if not verified:
-            sentence = "Ada kemungkinan bahwa " + sentence[0].lower() + sentence[1:]
+            sentence = "Ada kemungkinan bahwa " + sentence
         qualifiers = record.get("qualifiers", [])
         if isinstance(qualifiers, list):
             sentence += " " + " ".join(
