@@ -231,3 +231,57 @@ def test_chatbot_does_not_invent_confidence_when_reasoning_has_no_assessment():
     assert result["reasoning_result"]["confidence_score"] == 0.0
     assert result["generation"]["confidence_score"] == 0.0
     assert result["metadata"]["confidence_score"] == 0.0
+
+
+def test_chatbot_recovers_previous_topic_after_explicit_topic_switch():
+    core = ILISCore()
+    chatbot = core.chatbot()
+    session_id = chatbot.create_session()
+
+    first = chatbot.respond("Aku sedang mencari buku sejarah.", session_id)
+    first_topic = first["context_snapshot"]["topic_context"]["active_topic"]
+    assert first_topic["label"] == "buku sejarah"
+    assert first["context_snapshot"]["topic_context"]["resolution"]["status"] == "initial_topic"
+
+    second = chatbot.respond(
+        "Ngomong-ngomong, apa fungsi akar tumbuhan?", session_id
+    )
+    second_context = second["context_snapshot"]["topic_context"]
+    assert second_context["resolution"]["status"] == "new_topic"
+    assert second_context["active_topic"]["label"] == "akar tumbuhan"
+    assert len(second_context["topic_history"]) == 2
+
+    third = chatbot.respond(
+        "Kembali ke buku tadi, aku butuh untuk tugas sekolah.", session_id
+    )
+    topic_context = third["context_snapshot"]["topic_context"]
+    assert topic_context["resolution"]["status"] == "returned_to_previous"
+    assert topic_context["active_topic"]["topic_id"] == first_topic["topic_id"]
+    assert len(topic_context["topic_history"]) == 2
+    assert third["metadata"]["reasoning_type"] == "topic_recovery"
+    assert third["metadata"]["confidence_score"] == 0.0
+    assert third["semantic_result"]["status"] == "low_confidence"
+    assert "buku sejarah" in third["answer"].casefold()
+    assert "tugas sekolah" in third["answer"].casefold()
+    assert len(third["semantic_result"]["semantics"]) == 12
+    assert len(third["reasoning_result"]) == 6
+    assert third["reasoning_result"]["evidence"] == []
+
+
+def test_chatbot_does_not_switch_topic_on_ambiguous_return_reference():
+    from ilis.interfaces.session_manager import SessionManager
+
+    manager = SessionManager()
+    session_id = manager.create_session()
+    manager.update_topic_context(session_id, "Aku sedang mencari buku sejarah.")
+    manager.add_turn(session_id, "Aku sedang mencari buku sejarah.", "Baik.")
+    manager.update_topic_context(session_id, "Ngomong-ngomong, apa fungsi akar tumbuhan?")
+    manager.add_turn(session_id, "Ngomong-ngomong, apa fungsi akar tumbuhan?", "Baik.")
+
+    before = manager.get_topic_context(session_id)["active_topic"]["topic_id"]
+    result = manager.update_topic_context(session_id, "Kembali ke hal tadi, ya.")
+    after = manager.get_topic_context(session_id)["active_topic"]["topic_id"]
+
+    assert result["resolution"]["status"] == "ambiguous_reference"
+    assert after == before
+    assert len(result["topic_history"]) == 2
