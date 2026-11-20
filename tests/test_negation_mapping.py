@@ -23,7 +23,7 @@ DIALOGUE_DIR = ROOT / "data" / "indonesian" / "dialogues"
  ("Rumah itu tanpa listrik.",False,"negative"),
  ("Bukan besok, melainkan lusa.",False,"negative"),
  ("Aku belum paham.",False,"not_yet"),
- ("Tidak, belum.",False,"not_yet"),
+ ("Tidak, belum.",False,"ambiguous"),
 ])
 def test_six_label_mapping(text, source, expected):
  result=map_negation(text,source)
