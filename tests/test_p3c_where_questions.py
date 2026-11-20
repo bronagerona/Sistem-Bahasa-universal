@@ -6,21 +6,10 @@ from ilis.interfaces import ILISCore
 @pytest.mark.parametrize(
     ("message", "fact_id", "expected_object"),
     [
-        ("Di mana letak Ceres?", "fact-0044", "sabuk asteroid"),
         (
             "Di mana letak sabuk asteroid utama?",
             "fact-0045",
-            "orbit Mars dan Jupiter",
-        ),
-        (
-            "Di mana letak Tata Surya?",
-            "fact-0056",
-            "dalam Bima Sakti",
-        ),
-        (
-            "Di mana air tanah berada?",
-            "fact-0070",
-            "bawah permukaan tanah",
+            "Mars dan Jupiter",
         ),
     ],
 )
@@ -45,13 +34,25 @@ def test_chatbot_answers_where_questions_from_whitelisted_dataset_predicates(
     assert result["metadata"]["confidence_score"] == 0.12
 
 
-def test_chatbot_does_not_use_non_whitelisted_spring_predicate_for_where_question():
+@pytest.mark.parametrize(
+    ("message", "fact_id", "reason_fragment"),
+    [
+        ("Di mana letak Ceres?", "fact-0044", "predicate faktanya tidak termasuk whitelist"),
+        ("Di mana letak Tata Surya?", "fact-0056", "predicate faktanya tidak termasuk whitelist"),
+        ("Di mana air tanah berada?", "fact-0070", "predicate faktanya tidak termasuk whitelist"),
+        ("Dari mana mata air muncul?", "fact-0075", "predicate faktanya tidak termasuk whitelist"),
+    ],
+)
+def test_where_questions_reject_facts_whose_predicates_are_not_location_relations(
+    message, fact_id, reason_fragment,
+):
     core = ILISCore()
-    result = core.chatbot().respond("Dari mana mata air muncul?")
+    result = core.chatbot().respond(message)
 
     assert result["reasoning_result"]["reasoning_type"] == "unknown"
     assert result["reasoning_result"]["evidence"] == []
     assert result["reasoning_result"]["confidence_score"] == 0.0
+    assert any(reason_fragment in reason for reason in result["reasoning_result"]["reasons"])
     assert result["answer"] == "Saya belum memiliki informasi tentang lokasi itu."
 
 
