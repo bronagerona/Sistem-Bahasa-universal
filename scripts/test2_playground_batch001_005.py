@@ -131,6 +131,50 @@ def build_cases(records):
     return list(cases.values())
 
 
+def build_dialogue_sessions(records):
+    """Preserve dialogue turn order and execute each dialogue in one chatbot session."""
+    sessions, eval_refs = [], []
+    for row in records["dialogues"]:
+        turns = [{"turn_id": t.get("turn_id"), "input": (t.get("utterance") or "").strip(),
+                  "reference_to_previous_turn": t.get("reference_to_previous_turn", []),
+                  "expected_response": t.get("expected_response")}
+                 for t in sorted(row.get("turns", []), key=lambda x: x.get("turn_id", 0))
+                 if t.get("speaker") == "user" and (t.get("utterance") or "").strip()]
+        if turns:
+            sessions.append({"dialogue_id": row["dialogue_id"], "batch": row["_source_batch"],
+                             "scenario": row.get("scenario"), "turns": turns})
+    by_id = {x["dialogue_id"]: x for x in sessions}
+    for row in records["evaluation"]:
+        if row.get("group") == "multi_turn" or row.get("test_group") == "multi_turn":
+            target = by_id.get(row.get("target_ref"))
+            if target:
+                eval_refs.append({"evaluation_id": row.get("evaluation_id"),
+                                  "target_dialogue_id": row.get("target_ref"),
+                                  "session_turn_count": len(target["turns"]),
+                                  "expected_behavior": row.get("expected_behavior")})
+    return sessions, eval_refs
+
+
+def run_dialogue_sessions(core, sessions):
+    results = []
+    for session in sessions:
+        bot = core.chatbot()
+        turn_results = []
+        for turn in session["turns"]:
+            response = bot.respond(turn["input"])
+            turn_results.append({"turn_id": turn["turn_id"], "input": turn["input"],
+                                 "answer": response.get("answer"), "metadata": response.get("metadata"),
+                                 "semantic_result": response.get("semantic_result"),
+                                 "reasoning_result": response.get("reasoning_result"),
+                                 "reference_to_previous_turn": turn["reference_to_previous_turn"],
+                                 "expected_response": turn["expected_response"]})
+        results.append({"dialogue_id": session["dialogue_id"], "batch": session["batch"],
+                        "scenario": session["scenario"], "turn_count": len(turn_results),
+                        "turns": turn_results})
+    core.close()
+    return results
+
+
 def semantic_for_case(case):
     if case.get("draft_semantic"):
         return case["draft_semantic"]
@@ -266,7 +310,7 @@ def main():
     if regression_errors:
         raise AssertionError(f"Stage-A regression failed: {regression_errors}")
 
-    # General loader A/B: Test 1 baseline vs Test 2 generic adapter with batches 001-005.
+    # Single-input A/B is retained. Dialogues are additionally executed as ordered sessions.
     baseline = run_core(ILISCore(), cases)
     adapter = GenericBatchAdapter(cases)
     adapter.knowledge = records["knowledge"]
@@ -276,6 +320,20 @@ def main():
     reasoning_errors = check_reasoning(active)
     if reasoning_errors:
         raise AssertionError(f"Batch A/B Reasoning contract failed: {reasoning_errors}")
+
+    dialogue_sessions, multi_turn_eval = build_dialogue_sessions(records)
+    baseline_sessions = run_dialogue_sessions(ILISCore(), dialogue_sessions)
+    session_adapter = GenericBatchAdapter(cases)
+    session_adapter.knowledge = records["knowledge"]
+    session_core = ILISCore()
+    session_adapter.install(session_core)
+    active_sessions = run_dialogue_sessions(session_core, dialogue_sessions)
+    session_reasoning_errors = []
+    for session in active_sessions:
+        for turn in session["turns"]:
+            session_reasoning_errors.extend(check_reasoning([turn]))
+    if session_reasoning_errors:
+        raise AssertionError(f"Multi-turn session Reasoning contract failed: {session_reasoning_errors}")
 
     batch_summary = {}
     for batch in range(1, 6):
@@ -325,11 +383,20 @@ def main():
         "test1": {"mode": "ILIS murni; tanpa dataset adapter", "results": baseline},
         "test2": {"mode": "ILIS + loader umum Batch 001-005", "results": active},
         "semantic_reasoning_comparison": comparison,
+        "multi_turn_execution": {
+            "mode": "ONE CHATBOT INSTANCE PER DIALOGUE; USER TURNS SUBMITTED IN ORDER",
+            "dialogue_sessions": len(dialogue_sessions),
+            "user_turns_submitted": sum(x["turn_count"] for x in active_sessions),
+            "evaluation_transcripts_matched": multi_turn_eval,
+            "test1_baseline_sessions": baseline_sessions,
+            "test2_dataset_sessions": active_sessions,
+            "reasoning_contract_failures": session_reasoning_errors,
+        },
         "errors_and_threats": [
             "Dataset seluruhnya DRAFT; output adapter adalah interpretasi eksperimen, bukan gold label.",
             "Negation boolean dialog dinormalisasi ke label runtime; pemetaan true=negative tidak membedakan jenis negasi.",
-            "Kasus multi-turn evaluation yang berbentuk transcript tidak dieksekusi sebagai sesi percakapan; dihitung sebagai coverage limitation.",
-            "Batch-level status hanya menilai loader dan kontrak output, bukan validitas linguistik/faktual.",
+            "Giliran USER dikirim berurutan pada instance chatbot yang sama per dialog; teks assistant pada JSONL menjadi acuan evaluasi, bukan disuntikkan sebagai jawaban model.",
+            "Batch-level status hanya menilai loader, pemetaan dan kontrak output; bukan validitas linguistik/faktual atau keberhasilan resolusi konteks secara semantik.",
         ],
         "production_modified": False, "main_modified": False,
         "ilis_v2_development_modified": False, "jsonl_modified": False,
@@ -347,6 +414,10 @@ def main():
         "TEST1=ILIS_BASELINE_NO_DATASET", "TEST2=GENERIC_BATCH_001_005_ADAPTER",
         *[f"BATCH_{b}_STATUS={v['status']} CASES={v['cases']}" for b, v in batch_summary.items()],
         f"REASONING_CONTRACT_FAILURES={len(reasoning_errors)}",
+        f"MULTI_TURN_SESSIONS={len(dialogue_sessions)}",
+        f"MULTI_TURN_USER_TURNS={sum(x['turn_count'] for x in active_sessions)}",
+        f"MULTI_TURN_REASONING_FAILURES={len(session_reasoning_errors)}",
+        "MULTI_TURN_MODE=SEQUENTIAL_USER_TURNS_SAME_CHATBOT_INSTANCE_PER_DIALOGUE",
         "DRAFT_KNOWLEDGE_POLICY=ALL_KNOWLEDGE_HYPOTHESIS_ONLY",
         "JSONL_MODIFIED=NO", "PRODUCTION_MODIFIED=NO", "MAIN_MODIFIED=NO",
         "ILIS_V2_DEVELOPMENT_MODIFIED=NO",
@@ -361,7 +432,8 @@ def main():
             f.write("# Tahap B — Batch 001-005\n\n")
             f.write(f"- Loaded records: {report['total_records']} / {len(files)} files\n")
             f.write(f"- Test cases: {len(cases)}; Stage-A regression: PASS 5/5\n")
-            f.write(f"- Dialogue boolean Negation normalized: {len(bool_negation)}\n\n")
+            f.write(f"- Dialogue boolean Negation normalized: {len(bool_negation)}\n")
+            f.write(f"- Multi-turn sessions: {len(dialogue_sessions)}; user turns: {sum(x['turn_count'] for x in active_sessions)}; Reasoning failures: {len(session_reasoning_errors)}\n\n")
             for batch, value in batch_summary.items():
                 f.write(f"- Batch {batch}: **{value['status']}** ({value['cases']} cases)\n")
     return 0
