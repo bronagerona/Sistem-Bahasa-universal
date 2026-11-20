@@ -112,7 +112,7 @@ class SemanticEngine:
                 "Actor": None, "Predicate": "menyapa", "Patient/Object": None,
                 "Recipient": None, "Location": None, "Time": None,
                 "Aspect": "unspecified", "Negation": "none", "Modality": "none",
-                "Intent": "assertion", "Register": "formal", "Confidence": 0.90,
+                "Intent": "greeting", "Register": "formal", "Confidence": 0.90,
             }, "supported"
 
         is_question = "?" in original or words[0] in _INTERROGATIVE_MARKERS
