@@ -122,7 +122,7 @@ class Sample5InjectionAdapter:
             pattern = _record(self.records, "sentence_patterns", "pat-0091")
             if lex["lemma"] != "terjatuh" or "ter-" not in pattern["name"]:
                 raise ValueError("DRAFT lexicon/pattern mismatch for T2-04")
-            actor = re.match(r"^([\\w]+)", text).group(1).casefold()
+            actor = re.match(r"^(\w+)", text).group(1).casefold()
             return _set_semantics(base, {
                 "Actor": actor, "Predicate": lex["lemma"],
                 "Patient/Object": None, "Negation": "none",
