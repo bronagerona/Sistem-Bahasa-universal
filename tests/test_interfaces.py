@@ -132,3 +132,19 @@ def test_chatbot_runtime_maps_bl_ilis_002_into_semantic_negation(
     assert result["metadata"]["negation"]["applied_to_semantic"] is True
     assert result["semantic_result"]["semantics"]["Negation"] == expected_semantic
     assert len(result["semantic_result"]["semantics"]) == 12
+
+
+def test_chatbot_answers_supported_question_from_loaded_knowledge_dataset():
+    core = ILISCore()
+    result = core.chatbot().respond(
+        "Apakah Merkurius memiliki periode rotasi sideris?"
+    )
+
+    assert result["metadata"]["semantic_status"] == "supported"
+    assert result["reasoning_result"]["reasoning_type"] == "hypothetical_inference"
+    assert result["reasoning_result"]["evidence"] == ["fact-0033"]
+    assert "1.407,6 jam" in result["answer"]
+    assert "bukan lama hari matahari" in result["answer"].casefold()
+    assert result["metadata"]["confidence_score"] < 0.48
+    assert len(result["semantic_result"]["semantics"]) == 12
+    assert len(result["reasoning_result"]) == 6

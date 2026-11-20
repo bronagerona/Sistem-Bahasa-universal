@@ -26,6 +26,7 @@ _VERBS = {
     "beli", "pulang", "membakar", "bakar", "bunyi", "bunyikan",
     "menyalakan", "matikan", "tutup", "buka", "ambil", "berikan",
     "panggil", "dengarkan", "lihat", "buat", "simpan", "hapus", "jawab", "menyentuh",
+    "memiliki", "berotasi", "mengorbit",
 }
 _COMPLEX_MARKERS = {
     "dan", "tetapi", "namun", "karena", "sehingga", "ketika", "meskipun",
@@ -33,7 +34,7 @@ _COMPLEX_MARKERS = {
 }
 _INTERROGATIVE_MARKERS = {
     "apakah", "siapa", "apa", "mengapa", "kenapa", "bagaimana",
-    "kapan", "dimana", "di mana", "mana",
+    "kapan", "dimana", "di mana", "mana", "berapa",
 }
 _COMMAND_MARKERS = {"tolong", "silakan", "harap", "mohon"}
 _IMPERATIVE_VERBS = {"bunyikan", "menyalakan", "matikan", "tutup", "buka", "ambil", "berikan", "panggil", "dengarkan", "simpan", "hapus", "jawab"}

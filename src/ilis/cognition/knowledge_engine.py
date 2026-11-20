@@ -221,6 +221,27 @@ class KnowledgeEngine:
         normalized = " ".join(concept.casefold().split())
         return self.fact_store.find_by_concept(normalized)
 
+    def search_dataset_facts(
+        self, subject: str, relation_terms: list[str]
+    ) -> list[dict[str, Any]]:
+        """Find dataset facts for one exact subject and explicit relation cues.
+
+        This is intentionally conservative: it never performs fuzzy subject
+        matching and requires every supplied cue to occur in the stored
+        predicate. Only imported dataset records are eligible.
+        """
+        subject_key = " ".join(subject.casefold().split())
+        terms = [" ".join(term.casefold().split()) for term in relation_terms]
+        terms = [term for term in terms if term]
+        if not subject_key or not terms:
+            return []
+        return [
+            fact for fact in self.fact_store.all()
+            if "dataset_record" in fact
+            and fact.get("subject") == subject_key
+            and all(term in fact.get("relation", "") for term in terms)
+        ]
+
     def detect_conflicts(self) -> list[list[dict[str, Any]]]:
         groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
         for fact in self.fact_store.all():

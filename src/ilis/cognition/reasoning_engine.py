@@ -326,13 +326,20 @@ class ReasoningEngine:
         actor = semantics.get("Actor")
         predicate = semantics.get("Predicate")
         patient = semantics.get("Patient/Object")
-        if not all(isinstance(value, str) and value.strip() for value in (actor, predicate, patient)):
+        if not all(
+            isinstance(value, str) and value.strip()
+            for value in (actor, predicate)
+        ):
             return self._result(
-                conclusion="Pertanyaan belum memiliki subjek, predikat, dan objek yang cukup jelas.",
+                conclusion="Pertanyaan belum memiliki subjek dan predikat yang cukup jelas.",
                 confidence_score=0.0, evidence=[], reasoning_type="unknown",
                 reasons=["Komponen semantik untuk pencarian fakta tidak lengkap."],
-                uncertainty="Pertanyaan dengan pola subjek-predikat-objek diperlukan.",
+                uncertainty="Pertanyaan dengan subjek dan predikat yang jelas diperlukan.",
             )
+        if patient is not None and (
+            not isinstance(patient, str) or not patient.strip()
+        ):
+            patient = None
         if semantics.get("Negation") != "none":
             return self._result(
                 conclusion="Pertanyaan negatif belum didukung oleh aturan inferensi V2.",
@@ -360,10 +367,46 @@ class ReasoningEngine:
         relation = relation_aliases.get(predicate.casefold(), predicate.casefold())
         matches = [
             fact for fact in self.knowledge_engine.fact_store.all()
-            if fact.get("subject") == actor.casefold()
+            if patient is not None
+            and fact.get("subject") == actor.casefold()
             and fact.get("relation") == relation
             and fact.get("object") == patient.casefold()
         ]
+        dataset_fact_match = False
+        if not matches:
+            # Map only explicit, bounded predicate forms to dataset wording.
+            if predicate.casefold() == "berotasi":
+                relation_terms = ["rotasi"]
+            elif predicate.casefold() == "mengorbit":
+                relation_terms = ["orbit"]
+                if patient:
+                    relation_terms.extend(
+                        token for token in patient.casefold().split()
+                        if token not in {"mengelilingi", "mengitari"}
+                    )
+            elif predicate.casefold() == "memiliki" and patient:
+                relation_terms = patient.casefold().split()
+            else:
+                relation_terms = []
+            dataset_matches = self.knowledge_engine.search_dataset_facts(
+                actor, relation_terms,
+            )
+            if len(dataset_matches) == 1:
+                matches = dataset_matches
+                relation = dataset_matches[0]["relation"]
+                dataset_fact_match = True
+            elif len(dataset_matches) > 1:
+                return self._result(
+                    conclusion=f"Beberapa fakta cocok untuk pertanyaan tentang {actor}; sistem tidak memilih salah satunya secara otomatis.",
+                    confidence_score=0.0,
+                    evidence=[],
+                    reasoning_type="unknown",
+                    reasons=[
+                        "Pencarian KnowledgeEngine menemukan lebih dari satu fakta kandidat.",
+                        "Diperlukan pertanyaan yang lebih spesifik agar tidak memilih fakta secara sewenang-wenang.",
+                    ],
+                    uncertainty="Kandidat fakta yang ambigu belum digunakan sebagai dasar jawaban.",
+                )
         related = [
             fact for fact in self.knowledge_engine.fact_store.all()
             if fact.get("subject") == actor.casefold() and fact.get("relation") == relation
@@ -393,7 +436,7 @@ class ReasoningEngine:
                     actor, patient, context_note=context_note,
                 )
             return self._result(
-                conclusion=f"Belum ada bukti yang cukup untuk menjawab apakah {actor} {predicate} {patient}.",
+                conclusion=f"Belum ada bukti yang cukup untuk menjawab pertanyaan tentang {actor} {predicate}" + (f" {patient}." if patient else "."),
                 confidence_score=0.0, evidence=[], reasoning_type="unknown",
                 reasons=["Tidak ditemukan fakta dengan subjek, relasi, dan objek yang cocok."],
                 uncertainty="Tidak adanya fakta bukan berarti jawabannya tidak.",
@@ -415,6 +458,47 @@ class ReasoningEngine:
                 uncertainty="Periksa kembali sumber fakta.",
             )
         verified = fact.get("status") == "verified"
+        if dataset_fact_match:
+            record = fact.get("dataset_record", {})
+            original_subject = str(record.get("subject", fact["subject"]))
+            original_relation = str(record.get("predicate", fact["relation"]))
+            original_object = record.get("object", fact["object"])
+            if isinstance(original_object, list):
+                object_text = ", ".join(str(item) for item in original_object)
+            else:
+                object_text = str(original_object)
+            conclusion = (
+                f"{original_subject} {original_relation} {object_text}"
+            )
+            qualifiers = record.get("qualifiers", [])
+            if isinstance(qualifiers, list) and qualifiers:
+                conclusion += " Catatan: " + " ".join(
+                    str(item) for item in qualifiers if isinstance(item, str)
+                )
+            reasons = [
+                f"Fakta dataset {fact['id']} ditemukan melalui pencocokan subjek dan petunjuk predikat.",
+                f"Status fakta: {fact['status']}; sumber: {fact.get('source', 'tidak tercatat')}.",
+            ]
+            if isinstance(qualifiers, list):
+                reasons.extend(
+                    f"Kualifikasi sumber: {item}"
+                    for item in qualifiers if isinstance(item, str)
+                )
+            if context_note:
+                reasons.append(context_note)
+            return self._result(
+                conclusion=conclusion,
+                confidence_score=0.72 if verified else 0.48,
+                evidence=[fact["id"]],
+                reasoning_type="verified_inference" if verified else "hypothetical_inference",
+                reasons=reasons,
+                uncertainty=(
+                    "Fakta dataset berstatus draft/hipotesis dan belum diverifikasi; "
+                    "jawaban harus dipahami sebagai informasi sementara."
+                    if not verified else
+                    "Kesimpulan tetap dibatasi oleh cakupan dan kualifikasi sumber."
+                ),
+            )
         return self._result(
             conclusion=f"Ya, berdasarkan fakta yang tersimpan, {actor} dapat {predicate} {patient}." if verified
                 else f"Ada indikasi bahwa {actor} dapat {predicate} {patient}, tetapi faktanya masih hipotesis.",

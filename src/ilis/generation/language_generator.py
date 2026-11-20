@@ -129,6 +129,16 @@ class LanguageGenerator:
             return dict(supplied)
         reasoning_type = result.get("reasoning_type", "unknown")
         conclusion = result.get("conclusion", "")
+        evidence = result.get("evidence", [])
+        if (
+            reasoning_type in {"verified_inference", "hypothetical_inference"}
+            and isinstance(evidence, list)
+            and any(
+                isinstance(item, str) and re.fullmatch(r"fact-\d{4}", item)
+                for item in evidence
+            )
+        ):
+            return {"kind": "statement", "proposition": conclusion}
         if isinstance(conclusion, str) and "lonceng" in conclusion.casefold() and "naga" in conclusion.casefold() and any(marker in conclusion.casefold() for marker in ("takut", "menakuti")):
             return {"kind": "dragon_bell", "proposition": conclusion}
         if semantic_result and semantic_result.get("status") == "supported":
