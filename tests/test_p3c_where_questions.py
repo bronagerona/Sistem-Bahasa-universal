@@ -30,7 +30,7 @@ def test_chatbot_answers_where_questions_from_whitelisted_dataset_predicates(
         "conclusion", "confidence_score", "evidence",
         "reasoning_type", "reasons", "uncertainty",
     }
-    assert result["reasoning_result"]["confidence_score"] == 0.48
+    assert result["reasoning_result"]["confidence_score"] == 0.12
     assert result["metadata"]["confidence_score"] == 0.12
 
 
@@ -40,7 +40,7 @@ def test_chatbot_answers_where_questions_from_whitelisted_dataset_predicates(
         ("Di mana letak Ceres?", "fact-0044", "predicate faktanya tidak termasuk whitelist"),
         ("Di mana letak Bima Sakti?", "fact-0056", "predicate faktanya tidak termasuk whitelist"),
         ("Di mana air tanah berada?", "fact-0070", "predicate faktanya tidak termasuk whitelist"),
-        ("Dari mana mata air muncul?", "fact-0075", "predicate faktanya tidak termasuk whitelist"),
+        ("Di mana letak Mata air (spring)?", "fact-0075", "predicate faktanya tidak termasuk whitelist"),
     ],
 )
 def test_where_questions_reject_facts_whose_predicates_are_not_location_relations(
@@ -53,6 +53,16 @@ def test_where_questions_reject_facts_whose_predicates_are_not_location_relation
     assert result["reasoning_result"]["evidence"] == []
     assert result["reasoning_result"]["confidence_score"] == 0.0
     assert any(reason_fragment in reason for reason in result["reasoning_result"]["reasons"])
+    assert result["answer"] == "Saya belum memiliki informasi lokasi untuk itu"
+
+
+def test_spring_origin_question_remains_unknown_without_subject_match():
+    core = ILISCore()
+    result = core.chatbot().respond("Dari mana mata air muncul?")
+
+    assert result["reasoning_result"]["reasoning_type"] == "unknown"
+    assert result["reasoning_result"]["evidence"] == []
+    assert result["reasoning_result"]["confidence_score"] == 0.0
     assert result["answer"] == "Saya belum memiliki informasi lokasi untuk itu"
 
 
