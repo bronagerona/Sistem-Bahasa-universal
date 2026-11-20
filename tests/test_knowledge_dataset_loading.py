@@ -94,3 +94,12 @@ def test_ilis_core_loads_dataset_when_core_seeding_is_disabled():
         fact["source"] == "core_knowledge"
         for fact in core.knowledge_engine.fact_store.all()
     )
+
+
+def test_unverified_dataset_variants_do_not_create_global_conflict():
+    engine = KnowledgeEngine(seed_core_knowledge=False)
+    engine.load_jsonl_directory(DATASET_DIR)
+
+    # fact-0008 and fact-0038 express the same "Matahari merupakan ..."
+    # statement with different wording. Both source records are still drafts.
+    assert engine.detect_conflicts() == []
