@@ -199,3 +199,35 @@ def test_chatbot_answers_supported_question_from_loaded_knowledge_dataset():
     assert result["metadata"]["confidence_score"] < 0.48
     assert len(result["semantic_result"]["semantics"]) == 12
     assert len(result["reasoning_result"]) == 6
+
+
+def test_chatbot_confidence_propagates_through_reasoning_generation_and_metadata():
+    core = ILISCore()
+    result = core.chatbot().respond(
+        "Apakah Merkurius memiliki periode rotasi sideris?"
+    )
+
+    semantic_confidence = result["semantic_result"]["semantics"]["Confidence"]
+    assert semantic_confidence == 0.9
+
+    # The reasoning source remains 0.48 for a draft/hypothesis fact.
+    # The adapter applies the existing semantic-confidence multiplier once.
+    expected_final = round(0.48 * semantic_confidence, 6)
+    assert expected_final == 0.432
+    assert result["reasoning_result"]["confidence_score"] == expected_final
+    assert result["generation"]["confidence_score"] == expected_final
+    assert result["metadata"]["confidence_score"] == expected_final
+
+
+def test_chatbot_does_not_invent_confidence_when_reasoning_has_no_assessment():
+    core = ILISCore()
+    result = core.chatbot().respond(
+        "Apakah Merkurius memiliki warna ungu?"
+    )
+
+    assert result["semantic_result"]["status"] == "supported"
+    assert result["semantic_result"]["semantics"]["Confidence"] == 0.9
+    assert result["reasoning_result"]["reasoning_type"] == "unknown"
+    assert result["reasoning_result"]["confidence_score"] == 0.0
+    assert result["generation"]["confidence_score"] == 0.0
+    assert result["metadata"]["confidence_score"] == 0.0
