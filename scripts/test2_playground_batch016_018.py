@@ -412,6 +412,30 @@ def main():
             "test2_avg_reasoning_confidence": round(sum(rc)/len(rc),4) if rc else None,
             "note": "Status menilai loader, pemetaan dan kontrak output; bukan verifikasi isi DRAFT.",
         }
+    def mean_confidence(items, getter):
+        values = [v for item in items if (v := getter(item)) is not None]
+        return round(sum(values) / len(values), 4) if values else None
+
+    overall_ab_summary = {
+        "batches": 18,
+        "test_cases": len(cases),
+        "test1_baseline": {
+            "avg_semantic_confidence": mean_confidence(baseline, semantic_confidence),
+            "avg_reasoning_confidence": mean_confidence(baseline, reasoning_confidence),
+        },
+        "test2_dataset_adapter": {
+            "avg_semantic_confidence": mean_confidence(active, semantic_confidence),
+            "avg_reasoning_confidence": mean_confidence(active, reasoning_confidence),
+            "semantic_contract_failures": len(semantic_errors),
+            "reasoning_contract_failures": len(reasoning_errors),
+        },
+        "batch_status_counts": {
+            "passed": sum(1 for value in batch_summary.values() if value["status"] == "LULUS"),
+            "failed": sum(1 for value in batch_summary.values() if value["status"] != "LULUS"),
+        },
+        "interpretation": "Confidence is an observed adapter/runtime score, not measured accuracy; all source annotations remain DRAFT.",
+    }
+
     # Explicitly inspect bool-to-label conversion on all dialogue turn annotations.
     bool_negation = []
     for row in records["dialogues"]:
@@ -450,7 +474,7 @@ def main():
     if knowledge_policy_failures:
         raise AssertionError(f"Knowledge DRAFT uncertainty missing: {knowledge_policy_failures}")
     report = {
-        "title": "Tahap E — Batch 016-018 A/B + regression 001-010",
+        "title": "Tahap E — Batch 016-018 A/B + regression 001-015",
         "source_branch": "ilis-v2-development", "source_sha": SOURCE_SHA,
         "experiment_branch": BRANCH, "created_at": datetime.now(timezone.utc).isoformat(),
         "read_only": True, "dataset_status": "ALL DRAFT",
@@ -465,6 +489,7 @@ def main():
         "dialogue_negation_normalization": {"count": len(bool_negation), "examples": bool_negation[:30],
                                             "rule": "bool true -> negative; bool false -> none"},
         "batch_status": batch_summary,
+        "overall_ab_summary": overall_ab_summary,
         "semantic_contract_failures": semantic_errors,
         "reasoning_contract_failures": reasoning_errors,
         "knowledge_draft_uncertainty_failures": knowledge_policy_failures,
@@ -473,7 +498,7 @@ def main():
         "stage_d_regression": {"sessions": len(all_prior_sessions), "user_turns": all_prior_turns},
         "known_identity_guard_regression": {"status": "LULUS", "prompts": list(guard_prompts), "test2_only": True, "results": guard_results},
         "test1": {"mode": "ILIS murni; tanpa dataset adapter", "results": baseline},
-        "test2": {"mode": "ILIS + loader umum Batch 001-018; target A/B Batch 016-018; Batch 001-018 regression", "results": active},
+        "test2": {"mode": "ILIS + loader umum Batch 001-018; target A/B Batch 016-018; regression Batch 001-015", "results": active},
         "semantic_reasoning_comparison": comparison,
         "multi_turn_execution": {
             "mode": "ONE CHATBOT INSTANCE PER DIALOGUE; USER TURNS SUBMITTED IN ORDER",
@@ -487,6 +512,10 @@ def main():
         },
         "errors_and_threats": [
             "Known false-positive: broad identity regex matches substring siapa kamu in Dengan siapa kamu pergi/berdiskusi; guard is isolated to Test 2 harness only.",
+            "Resolved harness issue in Tahap D: casefolded prompt index was initially queried with a non-normalized key in Reasoning lookup; corrected before final green run.",
+            "Resolved harness issue in Tahap D: baseline cases without semantic output initially caused a None.get confidence aggregation error; aggregation now tolerates missing baseline semantics.",
+            "Multi-turn was initially evaluated as isolated prompts in early Tahap B; corrected to one chatbot instance per dialogue with ordered user turns and retained as regression.",
+            "Dialogue Negation schema mismatch: JSONL bool is normalized to runtime labels (true=negative, false=none); this is a lossy mapping and cannot distinguish negation subtypes.",
             "Dataset seluruhnya DRAFT; output adapter adalah interpretasi eksperimen, bukan gold label.",
             "Negation boolean dialog dinormalisasi ke label runtime; pemetaan true=negative tidak membedakan jenis negasi.",
             "Giliran USER dikirim berurutan pada instance chatbot yang sama per dialog; teks assistant pada JSONL menjadi acuan evaluasi, bukan disuntikkan sebagai jawaban model.",
@@ -507,6 +536,11 @@ def main():
         f"DIALOGUE_BOOLEAN_NEGATION_NORMALIZED={len(bool_negation)}",
         "TEST1=ILIS_BASELINE_NO_DATASET", "TEST2=GENERIC_BATCH_001_018_ADAPTER; TARGET_BATCHES=016-018",
         *[f"BATCH_{b}_STATUS={v.get('status')} CASES={v.get('cases')} PASSED={v.get('passed')} FAILED={v.get('failed')} TEST1_SEMANTIC_CONF={v.get('test1_avg_semantic_confidence')} TEST1_REASONING_CONF={v.get('test1_avg_reasoning_confidence')} TEST2_SEMANTIC_CONF={v.get('test2_avg_semantic_confidence')} TEST2_REASONING_CONF={v.get('test2_avg_reasoning_confidence')}" for b, v in batch_summary.items()],
+        f"OVERALL_TEST1_SEMANTIC_CONF={overall_ab_summary['test1_baseline']['avg_semantic_confidence']}",
+        f"OVERALL_TEST1_REASONING_CONF={overall_ab_summary['test1_baseline']['avg_reasoning_confidence']}",
+        f"OVERALL_TEST2_SEMANTIC_CONF={overall_ab_summary['test2_dataset_adapter']['avg_semantic_confidence']}",
+        f"OVERALL_TEST2_REASONING_CONF={overall_ab_summary['test2_dataset_adapter']['avg_reasoning_confidence']}",
+        f"OVERALL_BATCHES_PASSED={overall_ab_summary['batch_status_counts']['passed']}/18",
         f"REASONING_CONTRACT_FAILURES={len(reasoning_errors)}",
         f"SEMANTIC_CONTRACT_FAILURES={len(semantic_errors)}",
         f"STAGE_B_REGRESSION_SESSIONS={len(stage_b_sessions)}",
