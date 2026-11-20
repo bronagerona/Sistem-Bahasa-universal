@@ -329,11 +329,17 @@ def main():
     session_adapter.install(session_core)
     active_sessions = run_dialogue_sessions(session_core, dialogue_sessions)
     session_reasoning_errors = []
+    session_semantic_errors = []
     for session in active_sessions:
         for turn in session["turns"]:
             session_reasoning_errors.extend(check_reasoning([turn]))
-    if session_reasoning_errors:
-        raise AssertionError(f"Multi-turn session Reasoning contract failed: {session_reasoning_errors}")
+            sem = turn.get("semantic_result") or {}
+            if sem.get("status") != "supported" or set(sem.get("semantics") or {}) != SEMANTIC_KEYS:
+                session_semantic_errors.append({"dialogue_id": session["dialogue_id"],
+                                                "turn_id": turn["turn_id"],
+                                                "error": "semantic_12_key_or_supported_status_failure"})
+    if session_reasoning_errors or session_semantic_errors:
+        raise AssertionError(f"Multi-turn contracts failed: reasoning={session_reasoning_errors}; semantic={session_semantic_errors}")
 
     batch_summary = {}
     for batch in range(1, 6):
@@ -391,6 +397,7 @@ def main():
             "test1_baseline_sessions": baseline_sessions,
             "test2_dataset_sessions": active_sessions,
             "reasoning_contract_failures": session_reasoning_errors,
+            "semantic_contract_failures": session_semantic_errors,
         },
         "errors_and_threats": [
             "Dataset seluruhnya DRAFT; output adapter adalah interpretasi eksperimen, bukan gold label.",
@@ -417,6 +424,7 @@ def main():
         f"MULTI_TURN_SESSIONS={len(dialogue_sessions)}",
         f"MULTI_TURN_USER_TURNS={sum(x['turn_count'] for x in active_sessions)}",
         f"MULTI_TURN_REASONING_FAILURES={len(session_reasoning_errors)}",
+        f"MULTI_TURN_SEMANTIC_FAILURES={len(session_semantic_errors)}",
         "MULTI_TURN_MODE=SEQUENTIAL_USER_TURNS_SAME_CHATBOT_INSTANCE_PER_DIALOGUE",
         "DRAFT_KNOWLEDGE_POLICY=ALL_KNOWLEDGE_HYPOTHESIS_ONLY",
         "JSONL_MODIFIED=NO", "PRODUCTION_MODIFIED=NO", "MAIN_MODIFIED=NO",
