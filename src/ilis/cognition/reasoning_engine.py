@@ -549,7 +549,7 @@ class ReasoningEngine:
         """
         question = str(semantic_result.get("original_text", "")).casefold().strip()
         if not re.match(
-            r"^(?:di\\s+mana(?:kah)?|dimanakah|dari\\s+mana)\\b",
+            r"^(?:di\s+mana(?:kah)?|dimanakah|dari\s+mana)\b",
             question,
         ):
             return None
