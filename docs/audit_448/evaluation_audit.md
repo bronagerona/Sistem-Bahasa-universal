@@ -14,13 +14,13 @@ Audit struktural mencakup 18 file `batch_001.jsonl` sampai `batch_018.jsonl`, to
 - 90/90 `evaluation_id` unik dan berurutan dari `eval-0006` sampai `eval-0095`.
 - Semua record memiliki field inti yang diharapkan dan `verification_status: draft`.
 - Pembagian split sudah ditulis, tetapi distribusinya terkonfounded dengan kelompok evaluasi.
-- Audit awal menemukan input identik `eval-0010` dan `eval-0015`. Dalam revisi terpisah, `eval-0015` diusulkan diganti menjadi `Hai!`; 90 input kini unik secara tekstual pada pemeriksaan exact-match. Revisi masih menunggu review Dola.
+- Audit awal menemukan input identik `eval-0010` dan `eval-0015`. PR #31 diterima Dola dan merged: `eval-0015` kini berisi `Hai!`, sedangkan `eval-0010` tetap `Halo, apa kabar?`. Pemeriksaan exact-match atas 90 input tidak menemukan duplikasi tersisa.
 - Seluruh 18 record final_test secara eksplisit disebut konseptual/belum dijalankan sebagai tes otomatis.
 - Tidak ada bukti penguncian operasional final_test dalam data/schema Pilar E yang diaudit.
 - Pemeriksaan kemiripan otomatis internal tidak menemukan pasangan lintas split dengan kemiripan token tinggi pada ambang Jaccard 0,55. Pemindaian karakter trigram menghasilkan dua kandidat lemah yang perlu pemeriksaan manual; hasil heuristik ini bukan bukti bahwa tidak ada parafrasa semantik.
 - Pemeriksaan lintas-pilar belum dapat dinyatakan tuntas. Spot-check menemukan setidaknya satu frasa contoh Pilar A yang muncul kembali di input evaluasi.
 
-**Kesimpulan:** struktur JSONL rapi dan duplikasi exact-match telah diberi usulan pengganti pada PR revisi yang menunggu review Dola. Pilar E tetap belum layak disebut dataset evaluasi final yang independen dan terkunci. Pembagian split perlu didesain ulang sebelum digunakan untuk mengukur kualitas secara sahih.
+**Kesimpulan:** struktur JSONL rapi dan duplikasi exact-match telah diselesaikan melalui PR #31. Pilar E tetap belum layak disebut dataset evaluasi final yang independen dan terkunci. Pembagian split masih terkonfounded dan audit lintas-pilar belum tuntas.
 
 ## 2. Inventaris dan Validasi Struktur
 
@@ -81,11 +81,11 @@ Audit awal menemukan pasangan input identik berikut:
 
 **Usulan penyelesaian pada PR revisi:** `eval-0010` dipertahankan, sedangkan input `eval-0015` diganti menjadi **`Hai!`**. Bentuk satu token `hai` termasuk pola sapaan yang didukung oleh hotfix Greeting PR #18; jadi kasus pengganti tetap menguji greeting baseline, tetapi memakai bentuk ujaran yang berbeda, bukan salinan exact-match.
 
-Pemeriksaan ulang seluruh 90 input batch menemukan `Hai!` tidak digunakan sebagai input persis lain. Setelah penggantian, 90 input unik secara tekstual. Perubahan ini tetap DRAFT dan belum menjadi tes otomatis; PR revisi menunggu review Dola. Kesamaan tujuan umum (greeting) memang disengaja karena keduanya menjaga keluarga perilaku regresi yang sama, sedangkan bentuk prompt dan cakupan pemicu leksikalnya berbeda.
+PR #31 diterima Dola dan merged ke `ilis-v2-development`: `eval-0010` dipertahankan sebagai “Halo, apa kabar?” dan `eval-0015` menjadi “Hai!”. Dola menilai variasi ini cukup berbeda secara tekstual/pemicu leksikal tetapi tetap satu keluarga greeting regression. Keduanya tetap DRAFT dan bukan tes otomatis. Kesamaan tujuan umum memang disengaja; karena itu keduanya tidak boleh diperlakukan sebagai dua keluarga semantik independen.
 
 ### 4.2 Pemindaian kemiripan internal
 
-- Normalisasi teks menemukan 89 input unik dari 90 record karena satu duplikasi di atas.
+- Setelah revisi PR #31, pemeriksaan exact-match menemukan 90 input unik dari 90 record. Keunikan tekstual tidak membuktikan independensi semantik.
 - Perbandingan token lintas split tidak menemukan pasangan dengan Jaccard ≥ 0,55.
 - Pemindaian karakter trigram menghasilkan dua pasangan kandidat lemah (skor 0,30–0,32); kemiripan tersebut tampak dipengaruhi kata umum dan perlu tinjauan manual, bukan otomatis dinyatakan bocor.
 - Heuristik ini tidak dapat memastikan kesamaan makna/parafrasa. Hasilnya hanya penyaring awal.
@@ -111,7 +111,7 @@ Semua 18 `expected_behavior` atau `source` menyebut bahwa kasus bersifat konsept
 - Belum ada bukti bahwa akses terhadap final-test dibatasi atau bahwa perubahan terhadap isinya diaudit.
 - Karena seluruh final-test adalah regression, holdout independen lintas empat kelompok konten belum tersedia.
 
-**Keputusan audit:** final-test belum dapat dinyatakan LOCKED. Jangan gunakan 18 record ini sebagai tolok ukur final atau sebagai dasar klaim performa. Perlakukan sebagai kandidat skenario regression konseptual yang perlu direvisi dan diimplementasikan terpisah.
+**Keputusan audit:** final-test belum dapat dinyatakan LOCKED. Kebijakan penguncian v0.1 diusulkan pada `docs/audit_448/final_test_lock_policy.md`, tetapi masih menunggu review Dola dan keputusan Owner. Karena repositori saat ini public, kebijakan membedakan LOCKED-INTEGRITY dari LOCKED-BLIND; status blind tidak dapat diklaim selama isi tetap publik. Jangan gunakan 18 record sebagai tolok ukur final atau dasar klaim performa. Perlakukan sebagai Regression Holdout Candidate yang masih konseptual.
 
 ## 6. Kualitas Definisi Metrik
 
@@ -129,7 +129,7 @@ Belum ada definisi operasional yang cukup untuk menghitung accuracy/F1 atau skor
 | Parsing dan integritas dasar | PASS | 90/90 valid, ID unik |
 | Kelengkapan field dasar | PASS | Field inti terisi |
 | Konsistensi split | REVISE | Split terkonfounded oleh group |
-| Duplikasi internal | PENDING REVIEW | eval-0015 diusulkan diganti menjadi `Hai!`; menunggu review Dola |
+| Duplikasi internal | RESOLVED | PR #31 merged; 90 input unik secara exact-match |
 | Kemiripan internal otomatis | REVIEW | Tidak ada pasangan kuat; heuristik tidak membuktikan independensi semantik |
 | Kemiripan lintas-pilar | REVIEW | Spot-check menemukan potensi penggunaan ulang contoh; audit penuh belum selesai |
 | Final-test terkunci | REVISE | 18/18 konseptual, belum dijalankan, tidak ada bukti lock operasional |
@@ -140,7 +140,7 @@ Belum ada definisi operasional yang cukup untuk menghitung accuracy/F1 atau skor
 
 1. Pertahankan semua record sebagai DRAFT selama audit.
 2. Susun ulang split berbasis kelompok dan keluarga kasus; jangan mengubah/memindahkan JSONL sebelum review Dola dan persetujuan Owner.
-3. Revisi usulan mengganti input `eval-0015` dari `Halo, apa kabar?` menjadi `Hai!`; minta Dola menilai apakah kasus greeting alternatif ini cukup berbeda dan tepat untuk menjaga regression family. Jangan mengubah status DRAFT atau menganggap final-test sudah terkunci.
+3. PR #31 telah diterima Dola dan merged; `eval-0015` menjadi `Hai!`. Pertahankan seluruh record sebagai DRAFT dan jangan menganggap Final-Test sudah terkunci.
 4. Lakukan pemeriksaan lintas-pilar untuk seluruh input evaluasi terhadap contoh pada Lexicon, Sentence Patterns, dan Dialogues serta terhadap isi Knowledge yang menjadi dasar pertanyaan.
 5. Rancang final-test independen untuk seluruh kelompok yang akan diukur. Final-test harus disimpan terpisah, diberi versi/checksum, dan tidak digunakan untuk tuning.
 6. Tetapkan kontrak skema final, kamus `metric` ↔ `metric_name`, rubrik penilaian, dan prosedur scoring sebelum membuat runner.
@@ -152,7 +152,7 @@ Belum ada definisi operasional yang cukup untuk menghitung accuracy/F1 atau skor
 - Pemindaian duplikasi internal dilakukan pada 90 input Pilar E.
 - Pencocokan lintas-pilar baru berupa spot-check; belum merupakan audit semantik menyeluruh A–D.
 - Audit ini bukan eksekusi tes terhadap runtime ILIS.
-- Tidak ada JSONL yang diubah.
+- Pada audit struktural awal tidak ada JSONL yang diubah. Perubahan data berikutnya yang relevan adalah PR #31, yang hanya mengganti input `eval-0015`; tidak ada record lain pada Pilar E yang diubah oleh PR tersebut.
 - Tidak ada kode, tes, workflow, SQLite, atau `main` yang diubah.
 - Seluruh 90 record tetap `verification_status: draft`.
 
@@ -160,8 +160,8 @@ Belum ada definisi operasional yang cukup untuk menghitung accuracy/F1 atau skor
 
 Mohon Dola meninjau:
 1. Apakah diagnosis split terkonfounded dan rekomendasi split berbasis kelompok sudah tepat.
-2. Apakah penggantian `eval-0015` menjadi `Hai!` sudah menyelesaikan duplikasi exact-match tanpa mengubah cakupan regresi greeting.
+2. Apakah rancangan kebijakan penguncian Final-Test v0.1, termasuk pembedaan LOCKED-INTEGRITY dan LOCKED-BLIND, sudah memadai.
 3. Apakah status final-test “belum terkunci/belum operasional” sudah tepat.
 4. Apakah prosedur audit lintas-pilar dan rancangan final-test independen cukup untuk menjadi dasar revisi setelah seluruh audit 448 record selesai.
 
-**Status akhir sementara: Pilar E belum lulus sebagai evaluasi independen/final. Laporan ini menunggu review Dola; tidak mengubah isi dataset.**
+**Status akhir sementara: duplikasi exact-match terselesaikan, tetapi Pilar E belum lulus sebagai evaluasi independen/final dan Final-Test tetap NOT LOCKED. Kebijakan v0.1 menunggu review Dola.**
