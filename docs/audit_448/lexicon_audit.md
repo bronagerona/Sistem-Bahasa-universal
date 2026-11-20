@@ -25,7 +25,7 @@
 | lex-0067 | PASS | Pemeriksaan Fase 2: analisis `meng-` + `apa` dan fungsi tanya sebab dirujuk ke TBBI Edisi Keempat, Bab 7.2.2.4. |
 | lex-0068–lex-0069 | REVIEW | Fungsi kata tanya sudah masuk akal secara semantik, tetapi kelas kata dan distribusi konstruksi perlu dicocokkan dengan rujukan spesifik. |
 | lex-0070–lex-0071 | PASS | Pemeriksaan Fase 2: `-kah` dan konstruksi `apakah/adakah` dirujuk ke TBBI Edisi Keempat §8.2.5.1 dan contoh terkait. |
-| lex-0072 | REVIEW | KBBI VI Daring memberi label `pron cak` untuk `kenapa`; record memakai label internal `adverbia_tanya`. Perlu harmonisasi taksonomi kelas kata dengan `mengapa` dan kata tanya lain sebelum PASS. |
+| lex-0072 | REVIEW | KBBI VI Daring memberi label `pron cak` untuk `kenapa`, sedangkan record memakai `adverbia_tanya`. **Catatan perbedaan taksonomi, bukan kesalahan yang terbukti.** Dola menerima `adverbia_tanya` sebagai kategori fungsional; tidak perlu mengubah JSONL sekarang. Peninjauan konsistensi taksonomi seluruh 90 record dapat dilakukan kemudian dan bukan penghalang audit/merge. |
 | lex-0073 | PASS | Pemeriksaan Fase 2: pembedaan preposisi `di` dan prefiks pasif `di-` didukung TBBI; kaidah ejaan juga sesuai EYD V. |
 | lex-0074–lex-0075 | REVIEW | Makna arah/tujuan dan asal/sumber tampak konsisten, tetapi belum ada pemeriksaan sumber leksikal spesifik untuk kedua lema. |
 | lex-0076–lex-0077 | PASS | Pemeriksaan Fase 2: `pada` dirujuk ke TBBI Tabel 9.3; `dalam` sudah melalui revisi contoh dan diterima Dola. Record saat ini memuat contoh `Ia memikirkan persoalan itu dalam-dalam`, bukan contoh lama yang dinilai tidak idiomatis. |
@@ -42,7 +42,7 @@
 
 1. **Provenance terlalu umum.** Banyak record hanya menyebut “KBBI Daring” atau “TBBI” tanpa URL/entri/bagian yang mendukung sense tertentu. Itu belum cukup untuk audit yang dapat direproduksi.
 2. **Kelas kata kata tanya.** Samakan kerangka internal `pronomina_tanya`, `adverbia_tanya`, `numeralia_tanya`, dan `partikel_interogatif` dengan label rujukan dan tujuan anotasi ILIS. Jangan mengganti label hanya karena perbedaan istilah sebelum aturan taksonomi ditetapkan.
-3. **lex-0072 / kenapa.** KBBI VI Daring menampilkan `pron cak` dan makna “kata tanya untuk menanyakan sebab atau alasan”. Catat sebagai konflik taksonomi untuk review, bukan langsung mengubah JSONL.
+3. **lex-0072 / kenapa.** KBBI VI Daring menampilkan `pron cak`, sedangkan dataset memakai `adverbia_tanya`. Dola menerima label dataset sebagai kategori fungsional. Ini perbedaan sistem klasifikasi, bukan temuan kesalahan; tidak perlu mengubah JSONL. Konsistensi seluruh label kelas kata dapat ditinjau kemudian.
 4. **lex-0022 / terlanjur.** Periksa bentuk lema dan hubungan dengan bentuk `telanjur` pada KBBI VI Daring sebelum memutuskan apakah perlu koreksi.
 5. **Polisemi dan valensi.** Periksa bentuk turunan serta perubahan valensi, khususnya bentuk `meN-...-kan`, `ke-...-an`, `ter-`, preposisi, dan adverbia.
 6. **Sinonim/antonim.** Pastikan hubungan tersebut berlaku untuk sense yang sama; parafrasa atau kata yang hanya dekat makna harus tetap diberi keterangan konteks.
@@ -62,6 +62,6 @@
 - PASS pada log ini tidak mengubah `verification_status` JSONL.
 - REVIEW berarti belum ada bukti memadai untuk menyatakan benar/salah; bukan berarti record salah.
 - Belum ada record JSONL yang diedit atau dipromosikan.
-- Pilar A **belum final** sampai 74 record REVIEW selesai dicocokkan dengan sumber dan taksonomi kelas kata.
+- Pilar A **belum final** sampai 74 record REVIEW selesai dicocokkan dengan sumber. Catatan lex-0072 tidak menghalangi merge; perbedaan taksonomi diterima Dola.
 - Pilar B–E belum diaudit pada pekerjaan ini.
 - Tahap Evaluation split Dev/Validation/Final-Test tetap terpisah dan Final-Test tidak boleh dipakai untuk tuning.
