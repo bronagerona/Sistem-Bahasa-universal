@@ -90,7 +90,7 @@ class LanguageGenerator:
                 sentence = "Halo! Aku siap bantu. Apa kabar kamu?"
             else:
                 sentence = "Hai! Siap bantu, nih. Apa kabar?"
-        elif reasoning_type == "unknown" and conclusion == "Saya belum memiliki informasi tentang lokasi itu.":
+        elif reasoning_type == "unknown" and conclusion == "Saya belum memiliki informasi lokasi untuk itu":
             # Preserve the explicit, conservative P3c unknown response.
             meaning = {"kind": "unknown", "target": "lokasi itu"}
             uncertain = True
