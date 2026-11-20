@@ -554,7 +554,6 @@ class ReasoningEngine:
         ):
             return None
 
-        allowed_predicates = {"berada di", "terletak di", "terletak di antara"}
         facts = self.knowledge_engine.fact_store.all()
         subject_matches: list[tuple[str, dict[str, Any]]] = []
         for fact in facts:
@@ -570,7 +569,7 @@ class ReasoningEngine:
 
         if not subject_matches:
             return self._result(
-                conclusion="Saya belum memiliki informasi tentang lokasi itu.",
+                conclusion="Saya belum memiliki informasi lokasi untuk itu",
                 confidence_score=0.0, evidence=[], reasoning_type="unknown",
                 reasons=["Tidak ditemukan subjek yang cocok dengan pertanyaan lokasi."],
                 uncertainty="Fakta lokasi yang relevan belum tersedia dalam basis pengetahuan.",
@@ -608,7 +607,7 @@ class ReasoningEngine:
 
         if not eligible:
             return self._result(
-                conclusion="Saya belum memiliki informasi tentang lokasi itu.",
+                conclusion="Saya belum memiliki informasi lokasi untuk itu",
                 confidence_score=0.0, evidence=[], reasoning_type="unknown",
                 reasons=[
                     "Subjek ditemukan, tetapi predicate faktanya tidak termasuk whitelist lokasi P3c.",
@@ -678,7 +677,7 @@ class ReasoningEngine:
             ] if isinstance(qualifiers, list) else []
             if not location_qualifiers:
                 return self._result(
-                    conclusion="Saya belum memiliki informasi tentang lokasi itu.",
+                    conclusion="Saya belum memiliki informasi lokasi untuk itu",
                     confidence_score=0.0, evidence=[], reasoning_type="unknown",
                     reasons=[
                         "Predicate termasuk whitelist lokasi, tetapi object kosong dan tidak ada qualifier yang secara eksplisit menyatakan lokasi."
