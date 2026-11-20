@@ -11,7 +11,8 @@ def test_halo_apa_kabar_is_recognized_as_supported_greeting():
     assert result["semantic_result"]["status"] == "supported"
     assert set(result["semantic_result"]["semantics"]) == set(SEMANTIC_FIELDS)
     assert result["semantic_result"]["semantics"]["Predicate"] == "menyapa"
-    assert result["reasoning_result"]["reasoning_type"] == "assertion"
+    assert result["semantic_result"]["semantics"]["Intent"] == "greeting"
+    assert result["reasoning_result"]["reasoning_type"] == "greeting"
     assert result["generation"]["reasoning_type"] == "greeting"
     assert result["metadata"]["reasoning_type"] == "greeting"
     assert result["generation"]["meaning"] == {"kind": "greeting"}
