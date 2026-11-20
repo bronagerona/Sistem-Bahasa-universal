@@ -390,5 +390,5 @@ def test_chatbot_answers_short_what_rotation_question_from_unique_fact():
 
     assert result["reasoning_result"]["evidence"] == ["fact-0033"]
     assert "1.407,6 jam (≈ 58,65 hari Bumi)" in result["answer"]
-    assert "bukan lama hari Matahari" in result["answer"].casefold()
+    assert "bukan lama hari matahari" in result["answer"].casefold()
     assert result["reasoning_result"]["confidence_score"] == 0.12
