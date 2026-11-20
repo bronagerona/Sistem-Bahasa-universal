@@ -297,6 +297,19 @@ def check_reasoning(results):
     return failures
 
 
+def semantic_confidence(item):
+    semantic = item.get("semantic_result") or {}
+    values = semantic.get("semantics") or {}
+    value = values.get("Confidence")
+    return float(value) if isinstance(value, (int, float)) and not isinstance(value, bool) else None
+
+
+def reasoning_confidence(item):
+    reasoning = item.get("reasoning_result") or {}
+    value = reasoning.get("confidence_score")
+    return float(value) if isinstance(value, (int, float)) and not isinstance(value, bool) else None
+
+
 def main():
     records, files = read_batches()
     cases = build_cases(records)
@@ -369,10 +382,10 @@ def main():
         serr = [e for e in semantic_errors if e["input"] in inputs]
         failed = {e["input"] for e in rerr + serr}
         bselected = [x for x in baseline if x["batch"] == batch]
-        sc = [float((x.get("semantic_result") or {}).get("semantics", {}).get("Confidence")) for x in selected if isinstance((x.get("semantic_result") or {}).get("semantics", {}).get("Confidence"), (int,float))]
-        rc = [float((x.get("reasoning_result") or {}).get("confidence_score")) for x in selected if isinstance((x.get("reasoning_result") or {}).get("confidence_score"), (int,float))]
-        bsc = [float((x.get("semantic_result") or {}).get("semantics", {}).get("Confidence")) for x in bselected if isinstance((x.get("semantic_result") or {}).get("semantics", {}).get("Confidence"), (int,float))]
-        brc = [float((x.get("reasoning_result") or {}).get("confidence_score")) for x in bselected if isinstance((x.get("reasoning_result") or {}).get("confidence_score"), (int,float))]
+        sc = [v for x in selected if (v := semantic_confidence(x)) is not None]
+        rc = [v for x in selected if (v := reasoning_confidence(x)) is not None]
+        bsc = [v for x in bselected if (v := semantic_confidence(x)) is not None]
+        brc = [v for x in bselected if (v := reasoning_confidence(x)) is not None]
         batch_summary[f"{batch:03d}"] = {
             "status": "LULUS" if selected and not failed else "GAGAL",
             "cases": len(selected), "passed": len(selected)-len(failed), "failed": len(failed),
