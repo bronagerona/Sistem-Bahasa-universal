@@ -154,7 +154,7 @@ class GenericBatchAdapter:
         # Knowledge is retained only as in-memory hypotheses, never verified facts.
         for row in self.knowledge:
             core.knowledge_engine.add_fact(
-                row.get("subject"), row.get("predicate"), row.get("object"),
+                str(row.get("subject") or ""), str(row.get("predicate") or ""), str(row.get("object") or ""),
                 status="hypothesis", source=f"dataset_draft:{row.get('fact_id')}",
             )
         original_analyze = core.analyze_text
