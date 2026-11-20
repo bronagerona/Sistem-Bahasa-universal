@@ -259,6 +259,10 @@ class ReasoningEngine:
                 uncertainty="Kirim hasil Semantic Engine dengan wrapper dan tepat dua belas field yang valid.",
             )
 
+        where_result = self._infer_where_dataset_question(validated_result)
+        if where_result is not None:
+            return where_result
+
         if validated_result["status"] != "supported":
             direct_result = self._infer_direct_dataset_question(validated_result)
             if direct_result is not None:
@@ -533,6 +537,144 @@ class ReasoningEngine:
                 else "Premis masih berupa hipotesis dan belum diverifikasi.",
         )
 
+
+    def _infer_where_dataset_question(
+        self, semantic_result: dict[str, Any],
+    ) -> dict[str, Any] | None:
+        """Answer narrowly recognized Indonesian location questions from dataset facts.
+
+        Only the exact dataset predicates below are eligible. The question
+        wording selects a subject; the stored object is copied verbatim.
+        No dataset schema, Semantic fields, or Reasoning keys are changed.
+        """
+        question = str(semantic_result.get("original_text", "")).casefold().strip()
+        if not re.match(
+            r"^(?:di\\s+mana(?:kah)?|dimanakah|dari\\s+mana)\\b",
+            question,
+        ):
+            return None
+
+        allowed_predicates = {"berada di", "terletak di", "terletak di antara"}
+        facts = self.knowledge_engine.fact_store.all()
+        subject_matches: list[tuple[str, dict[str, Any]]] = []
+        for fact in facts:
+            record = fact.get("dataset_record")
+            if not isinstance(record, dict):
+                continue
+            subject = record.get("subject")
+            if not isinstance(subject, str) or not subject.strip():
+                continue
+            normalized_subject = subject.casefold().strip()
+            if normalized_subject in question:
+                subject_matches.append((normalized_subject, fact))
+
+        if not subject_matches:
+            return self._result(
+                conclusion="Saya belum memiliki informasi tentang lokasi itu.",
+                confidence_score=0.0, evidence=[], reasoning_type="unknown",
+                reasons=["Tidak ditemukan subjek yang cocok dengan pertanyaan lokasi."],
+                uncertainty="Fakta lokasi yang relevan belum tersedia dalam basis pengetahuan.",
+            )
+
+        # Prefer the longest exact subject phrase to avoid matching a shorter
+        # entity embedded inside a more specific subject (for example, Mars
+        # inside 'orbit Mars dan Jupiter').
+        longest_subject = max(len(subject) for subject, _ in subject_matches)
+        selected_subjects = {
+            subject for subject, _ in subject_matches if len(subject) == longest_subject
+        }
+        selected_facts = [
+            fact for subject, fact in subject_matches if subject in selected_subjects
+        ]
+        eligible = []
+        seen_ids = set()
+        for fact in selected_facts:
+            record = fact.get("dataset_record", {})
+            predicate = record.get("predicate")
+            if (
+                isinstance(predicate, str)
+                and predicate.casefold().strip() in allowed_predicates
+                and fact.get("id") not in seen_ids
+            ):
+                eligible.append(fact)
+                seen_ids.add(fact.get("id"))
+
+        if not eligible:
+            return self._result(
+                conclusion="Saya belum memiliki informasi tentang lokasi itu.",
+                confidence_score=0.0, evidence=[], reasoning_type="unknown",
+                reasons=[
+                    "Subjek ditemukan, tetapi predicate faktanya tidak termasuk whitelist lokasi P3c.",
+                    "Predicate di luar whitelist sengaja tidak dipadankan atau ditafsirkan.",
+                ],
+                uncertainty="Diperlukan fakta dengan predicate berada di, terletak di, atau terletak di antara.",
+            )
+
+        if len(eligible) > 1:
+            ids = sorted(str(fact["id"]) for fact in eligible)
+            return self._result(
+                conclusion="Ada beberapa fakta lokasi yang cocok untuk pertanyaan ini; saya tidak memilih salah satunya.",
+                confidence_score=0.0, evidence=ids, reasoning_type="unknown",
+                reasons=[
+                    "Lebih dari satu fakta memakai predicate lokasi yang diizinkan untuk subjek yang sama.",
+                    "Sistem menyebutkan ambiguitas dan tidak menggabungkan atau memilih fakta secara sepihak.",
+                ],
+                uncertainty="Perjelas lokasi atau hubungan yang dimaksud agar fakta dapat dibedakan.",
+            )
+
+        fact = eligible[0]
+        provenance = self.knowledge_engine.get_provenance(fact["id"])
+        if provenance is None:
+            return self._result(
+                conclusion="Fakta lokasi ditemukan, tetapi provenance-nya tidak tersedia.",
+                confidence_score=0.0, evidence=[fact["id"]], reasoning_type="unknown",
+                reasons=["Fakta pendukung tidak memiliki catatan provenance."],
+                uncertainty="Lengkapi provenance sebelum menggunakan fakta lokasi.",
+            )
+        if (
+            fact.get("status") != provenance.get("status")
+            or fact.get("status") == "conflicting"
+        ):
+            return self._result(
+                conclusion="Status fakta lokasi tidak konsisten atau saling bertentangan; jawaban ditahan.",
+                confidence_score=0.0, evidence=[fact["id"]], reasoning_type="conflicting",
+                reasons=["Status fakta dan provenance harus konsisten dan tidak conflicting."],
+                uncertainty="Periksa kembali fakta dan provenance sebelum menjawab.",
+            )
+
+        record = fact["dataset_record"]
+        subject = str(record["subject"])
+        predicate = str(record["predicate"])
+        object_value = record.get("object")
+        object_text = (
+            ", ".join(str(item) for item in object_value)
+            if isinstance(object_value, list) else str(object_value)
+        )
+        sentence = f"{subject} {predicate} {object_text}."
+        qualifiers = record.get("qualifiers", [])
+        if isinstance(qualifiers, list):
+            qualifier_text = " ".join(
+                item for item in qualifiers if isinstance(item, str)
+            )
+            if qualifier_text:
+                sentence += " " + qualifier_text
+        verified = fact.get("status") == "verified"
+        return self._result(
+            conclusion=sentence,
+            confidence_score=0.72 if verified else 0.48,
+            evidence=[fact["id"]],
+            reasoning_type="verified_inference" if verified else "hypothetical_inference",
+            reasons=[
+                f"Pertanyaan lokasi cocok dengan predicate whitelist pada fakta {fact['id']}.",
+                f"Object disalin langsung dari record dataset: {object_text}.",
+                f"Status fakta: {fact['status']}; sumber: {fact.get('source', 'tidak tercatat')}.",
+            ],
+            uncertainty=(
+                "Fakta dataset berstatus draft/hipotesis dan belum diverifikasi; jawaban bersifat sementara."
+                if not verified else
+                "Jawaban dibatasi oleh cakupan dan kualifikasi sumber."
+            ),
+        )
 
     def _infer_direct_dataset_question(
         self, semantic_result: dict[str, Any],
