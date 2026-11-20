@@ -14,6 +14,7 @@ DIALOGUE_DIR = ROOT / "data" / "indonesian" / "dialogues"
  ("Saya tidak membaca buku.",False,"negative"),
  ("Saya belum membaca buku.",False,"not_yet"),
  ("Dia bukan kakak saya.",False,"identity_negative"),
+ ("Orang itu bukan kakakku.",False,"identity_negative"),
  ("Jangan kirim berkas itu.",False,"prohibitive"),
  ("Pengunjung dilarang merokok.",False,"prohibitive"),
  ("Kamu tidak boleh menghapus berkas.",False,"prohibitive"),
