@@ -53,7 +53,7 @@ def test_where_questions_reject_facts_whose_predicates_are_not_location_relation
     assert result["reasoning_result"]["evidence"] == []
     assert result["reasoning_result"]["confidence_score"] == 0.0
     assert any(reason_fragment in reason for reason in result["reasoning_result"]["reasons"])
-    assert result["answer"] == "Saya belum memiliki informasi tentang lokasi itu."
+    assert result["answer"] == "Saya belum memiliki informasi lokasi untuk itu"
 
 
 def test_chatbot_returns_unknown_when_no_location_fact_matches():
@@ -63,7 +63,7 @@ def test_chatbot_returns_unknown_when_no_location_fact_matches():
     assert result["reasoning_result"]["reasoning_type"] == "unknown"
     assert result["reasoning_result"]["evidence"] == []
     assert result["reasoning_result"]["confidence_score"] == 0.0
-    assert result["answer"] == "Saya belum memiliki informasi tentang lokasi itu."
+    assert result["answer"] == "Saya belum memiliki informasi lokasi untuk itu"
 
 
 def test_where_question_does_not_use_unlisted_predicate_aliases():
@@ -72,4 +72,4 @@ def test_where_question_does_not_use_unlisted_predicate_aliases():
 
     assert result["reasoning_result"]["reasoning_type"] == "unknown"
     assert result["reasoning_result"]["evidence"] == []
-    assert result["answer"] == "Saya belum memiliki informasi tentang lokasi itu."
+    assert result["answer"] == "Saya belum memiliki informasi lokasi untuk itu"
