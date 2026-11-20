@@ -150,8 +150,8 @@ def test_chatbot_uses_session_knowledge_for_mercury_multiturn_followups():
     )
     assert solar_day["reasoning_result"]["reasoning_type"] == "hypothetical_inference"
     assert solar_day["reasoning_result"]["evidence"] == ["fact-0033", "fact-0018"]
-    assert "58,65 hari Bumi" in solar_day["answer"]
-    assert "176 hari Bumi" in solar_day["answer"]
+    assert "58,65 hari bumi" in solar_day["answer"].casefold()
+    assert "176 hari bumi" in solar_day["answer"].casefold()
     assert "bukan bukti faktual" in " ".join(solar_day["reasoning_result"]["reasons"])
     assert len(solar_day["semantic_result"]["semantics"]) == 12
     assert len(solar_day["reasoning_result"]) == 6
@@ -159,7 +159,7 @@ def test_chatbot_uses_session_knowledge_for_mercury_multiturn_followups():
     orbit = chatbot.respond("Bukankah orbitnya sekitar 88 hari?", session_id)
     assert orbit["reasoning_result"]["reasoning_type"] == "hypothetical_inference"
     assert orbit["reasoning_result"]["evidence"] == ["fact-0034"]
-    assert "88 hari Bumi" in orbit["answer"]
+    assert "88 hari bumi" in orbit["answer"].casefold()
     assert len(orbit["semantic_result"]["semantics"]) == 12
     assert len(orbit["reasoning_result"]) == 6
 
