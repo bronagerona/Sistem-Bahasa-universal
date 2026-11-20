@@ -8,6 +8,7 @@ from typing import Any
 from ilis.experimental.negation_mapping import map_negation
 from ilis.interfaces.ilis_core import ILISCore
 from ilis.interfaces.session_manager import SessionManager
+from ilis.semantics.contract_validator import validate_output
 from ilis.persona import PersonaConfig, PersonaRenderer
 from ilis.persona.profiles import MODE_A
 
@@ -148,6 +149,28 @@ class ChatbotAdapter:
             }
 
         semantic = self.core.analyze_text(text, context_snapshot=snapshot)
+
+        # BL-ILIS-002 uses a richer diagnostic label set than Semantic 1.0.
+        # Map only labels representable by the stable Semantic.Negation enum;
+        # prohibitive is represented as negative, while ambiguous/none leave
+        # the parser's value intact rather than inventing a new contract value.
+        semantic_negation = {
+            "negative": "negative",
+            "not_yet": "not_yet",
+            "identity_negative": "identity_negative",
+            "prohibitive": "negative",
+        }.get(negation_result["mapping_label"])
+        semantics = semantic.get("semantics")
+        if semantic_negation is not None and isinstance(semantics, dict):
+            semantics["Negation"] = semantic_negation
+            validate_output(semantic)
+        negation_metadata["semantic_value"] = (
+            semantics.get("Negation") if isinstance(semantics, dict) else None
+        )
+        negation_metadata["applied_to_semantic"] = (
+            semantic_negation is not None and isinstance(semantics, dict)
+        )
+
         reasoning = self.core.reasoning_engine.infer_semantic(
             semantic, context_snapshot=snapshot,
         )

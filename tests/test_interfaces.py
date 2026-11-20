@@ -110,3 +110,25 @@ def test_chatbot_runtime_exposes_bl_ilis_002_not_yet_mapping():
     assert negation["confidence"] == 0.86
     assert negation["evidence"]["detected_cues"] == ["belum"]
     assert "belum" in negation["evidence"]["reason"].casefold()
+
+
+@pytest.mark.parametrize(
+    ("message", "expected_label", "expected_semantic"),
+    [
+        ("Saya belum selesai", "not_yet", "not_yet"),
+        ("Dia bukan dokter", "identity_negative", "identity_negative"),
+        ("Jangan masuk", "prohibitive", "negative"),
+        ("Kami datang tanpa mobil", "negative", "negative"),
+    ],
+)
+def test_chatbot_runtime_maps_bl_ilis_002_into_semantic_negation(
+    message, expected_label, expected_semantic
+):
+    core = ILISCore()
+    result = core.chatbot().respond(message)
+
+    assert result["metadata"]["negation"]["negation_type"] == expected_label
+    assert result["metadata"]["negation"]["semantic_value"] == expected_semantic
+    assert result["metadata"]["negation"]["applied_to_semantic"] is True
+    assert result["semantic_result"]["semantics"]["Negation"] == expected_semantic
+    assert len(result["semantic_result"]["semantics"]) == 12
