@@ -48,6 +48,24 @@ def test_chatbot_api_touching_wooden_house_acknowledges_assertion(register, expe
     assert result["metadata"]["semantic_status"] == "supported"
 
 
+@pytest.mark.parametrize(
+    "message",
+    ["Halo", "Hai", "Hi", "Hello", "Apa kabar", "Halo apa kabar"],
+)
+def test_chatbot_synchronizes_greeting_intent_across_runtime_layers(message):
+    core = ILISCore()
+    result = core.chatbot().respond(message)
+
+    assert result["semantic_result"]["status"] == "supported"
+    assert result["semantic_result"]["semantics"]["Intent"] == "greeting"
+    assert result["reasoning_result"]["reasoning_type"] == "greeting"
+    assert result["generation"]["reasoning_type"] == "greeting"
+    assert result["metadata"]["reasoning_type"] == "greeting"
+    assert result["generation"]["meaning"]["kind"] == "greeting"
+    assert len(result["semantic_result"]["semantics"]) == 12
+    assert len(result["reasoning_result"]) == 6
+
+
 def test_chatbot_explicit_register_overrides_session_register():
     core = ILISCore()
     session_id = core.create_session(metadata={"register": "formal"})

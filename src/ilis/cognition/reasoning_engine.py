@@ -274,6 +274,18 @@ class ReasoningEngine:
         # Work on a private interpretation copy. The Semantic 12-field result
         # returned to callers remains untouched by contextual resolution.
         semantics = dict(validated_result["semantics"])
+        if semantics.get("Intent") == "greeting":
+            return self._result(
+                conclusion="Sapaan dikenali sebagai tindakan percakapan.",
+                confidence_score=0.0,
+                evidence=[],
+                reasoning_type="greeting",
+                reasons=[
+                    "Semantic Engine mengklasifikasikan Intent sebagai greeting.",
+                    "Sapaan tidak memerlukan inferensi fakta dari KnowledgeEngine.",
+                ],
+                uncertainty="Tidak ada klaim faktual yang sedang dinilai.",
+            )
         context_note = None
         if context_snapshot is not None:
             if not isinstance(context_snapshot, dict):
