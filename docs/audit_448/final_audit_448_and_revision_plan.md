@@ -94,7 +94,7 @@ Semua lima pilar sudah memiliki laporan audit tersendiri dan telah diterima Dola
 | JSONL parse | 90/90 valid |
 | ID | 90/90 unik, eval-0006–eval-0095 |
 | Split | Development 36, Validation 36, Final-Test 18 |
-| Duplikasi persis | Usulan revisi eval-0015 menjadi “Hai!”; menunggu review Dola |
+| Duplikasi persis | Diselesaikan PR #31: eval-0015 menjadi “Hai!”; 90 input exact-match unik |
 | Final-Test | 18 kasus konseptual, belum dijalankan sebagai tes otomatis |
 | Skema sampel | sample.jsonl eval-0001–eval-0005 berbeda dari skema batch |
 | Lintas-pilar | Baru spot-check, belum audit menyeluruh |
@@ -102,8 +102,8 @@ Semua lima pilar sudah memiliki laporan audit tersendiri dan telah diterima Dola
 - Laporan: `docs/audit_448/evaluation_audit.md`
 - PR #27 — diterima Dola dan merged ke `ilis-v2-development`.
 - Pembagian split terkonfounded oleh kelompok: Lexicon hanya di Development, Knowledge hanya di Validation, Regression hanya di Final-Test. Skor antar-split saat ini tidak boleh dibandingkan seolah-olah mengukur komposisi kemampuan yang sama.
-- Duplikasi exact-match `eval-0010` dan `eval-0015` ditangani dalam usulan PR revisi: `eval-0010` dipertahankan (“Halo, apa kabar?”), sedangkan `eval-0015` diganti menjadi “Hai!” berdasarkan pola sapaan satu token yang didukung hotfix Greeting PR #18. Perubahan menunggu review Dola; keduanya tetap DRAFT dan final_test belum operasional/terkunci.
-- Final-Test harus tetap dianggap konseptual/belum terkunci. Belum ada mekanisme operasional yang membuktikan data tidak dipakai untuk tuning.
+- Duplikasi exact-match `eval-0010` dan `eval-0015` diselesaikan melalui PR #31 yang diterima Dola dan merged: `eval-0010` dipertahankan (“Halo, apa kabar?”), sedangkan `eval-0015` menjadi “Hai!”. Keduanya tetap DRAFT dan final_test belum operasional/terkunci.
+- Final-Test tetap konseptual/belum terkunci. Draf kebijakan v0.1 tersedia di `docs/audit_448/final_test_lock_policy.md`; belum ada pemisahan fisik, manifest/checksum resmi, loader exclusion, atau kontrol akses. Repositori public, sehingga blind holdout memerlukan penyimpanan privat terpisah.
 - `sample.jsonl` perlu diselaraskan dengan skema batch sebelum finalisasi.
 - Pemeriksaan lintas-pilar belum menyeluruh; tidak boleh ada klaim “bebas kebocoran 100%”.
 
@@ -140,14 +140,9 @@ Ketiga item harus diperiksa substansinya, dicatat dalam change log, tetap DRAFT 
 
 ### Tahap 3 — Perbaikan Evaluation
 
-1. Duplikasi exact-match: usulan revisi mengganti input `eval-0015` menjadi `Hai!`, mempertahankan `eval-0010`. Keduanya tetap satu keluarga regression greeting tetapi berbeda bentuk input/pemicu; tunggu review Dola sebelum dianggap selesai.
+1. Duplikasi exact-match: selesai melalui PR #31 yang diterima Dola dan merged. `eval-0010` dipertahankan dan `eval-0015` menjadi `Hai!`; keduanya tetap satu keluarga regression greeting.
 2. Split: pertahankan catatan bahwa split saat ini terkonfounded. Jika diperlukan evaluasi komparatif yang adil, rancang ulang secara stratifikasi per kelompok dan keluarga kasus. Jangan mengacak baris secara naif karena kasus yang semakna dapat bocor lintas split.
-3. Final-Test: buat aturan tertulis sebelum evaluasi resmi:
-   - disimpan terpisah dari data development/validation;
-   - tidak dimuat ke loader atau proses tuning;
-   - daftar ID dan versi/checksum dikunci;
-   - setiap akses/perubahan dicatat;
-   - dibuka hanya untuk evaluasi final sesuai prosedur.
+3. Final-Test: tinjau dan sahkan kebijakan v0.1 pada `docs/audit_448/final_test_lock_policy.md`. Status tetap CONCEPTUAL / NOT LOCKED sampai gerbang pra-lock, pemisahan fisik, manifest/checksum, loader exclusion, dan otorisasi Owner terpenuhi. Karena repo public, LOCKED-BLIND mensyaratkan lokasi privat terpisah.
 4. Skema: selaraskan `sample.jsonl` dengan skema batch yang disepakati; tetapkan field kanonis untuk `group`/`test_group` dan `metric`/`metric_name`.
 5. Lintas-pilar: jalankan pemeriksaan duplikasi dan kemiripan menyeluruh antara seluruh input Evaluation dan contoh pada Pilar A–D. Laporkan metode, ambang, kandidat, dan pemeriksaan manual; jangan mengklaim bebas kebocoran absolut.
 6. Definisikan rubrik/expected behavior dan kontrak metrik sebelum membangun runner otomatis.
