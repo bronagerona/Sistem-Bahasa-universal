@@ -260,6 +260,9 @@ class ReasoningEngine:
             )
 
         if validated_result["status"] != "supported":
+            direct_result = self._infer_direct_dataset_question(validated_result)
+            if direct_result is not None:
+                return direct_result
             contextual_result = self._infer_mercury_followup(
                 validated_result, context_snapshot=context_snapshot,
             )
@@ -530,6 +533,123 @@ class ReasoningEngine:
                 else "Premis masih berupa hipotesis dan belum diverifikasi.",
         )
 
+
+    def _infer_direct_dataset_question(
+        self, semantic_result: dict[str, Any],
+    ) -> dict[str, Any] | None:
+        """Resolve a small, explicit set of direct WH questions from dataset facts.
+
+        This fallback does not alter Semantic output. It uses lexical question
+        cues only to select an exact-subject KnowledgeEngine lookup; context is
+        never treated as factual evidence.
+        """
+        text = str(semantic_result.get("original_text", "")).casefold().strip()
+        if not text.endswith("?") or "merkurius" not in text:
+            return None
+
+        if re.match(r"^(?:apa(?: itu)?|definisi)\\b", text):
+            if "rotasi" not in text:
+                return None
+            relation_terms = ["rotasi"]
+            if "sideris" in text:
+                relation_terms.append("sideris")
+            question_kind = "definition"
+        elif re.match(r"^berapa(?: lama| hari)?\\b", text):
+            if "hari" not in text and "lama" not in text:
+                return None
+            if "mengelilingi" not in text or "matahari" not in text:
+                return None
+            relation_terms = ["orbit", "mengelilingi", "matahari"]
+            question_kind = "quantity"
+        else:
+            return None
+
+        matches = self.knowledge_engine.search_dataset_facts(
+            "merkurius", relation_terms,
+        )
+        if not matches:
+            return self._result(
+                conclusion="Saya belum memiliki informasi yang cocok untuk menjawab pertanyaan tentang Merkurius.",
+                confidence_score=0.0, evidence=[], reasoning_type="unknown",
+                reasons=["Tidak ditemukan fakta dataset dengan subjek dan petunjuk relasi yang diminta."],
+                uncertainty="Pertanyaan perlu diperjelas atau fakta yang relevan belum tersedia.",
+            )
+
+        def relevance(fact: dict[str, Any]) -> int:
+            record = fact.get("dataset_record", {})
+            relation = str(record.get("predicate", fact.get("relation", ""))).casefold()
+            qualifiers = record.get("qualifiers", [])
+            qualifier_text = " ".join(
+                item for item in qualifiers if isinstance(item, str)
+            ).casefold() if isinstance(qualifiers, list) else ""
+            return sum(term in relation for term in relation_terms) + sum(
+                term in qualifier_text for term in relation_terms
+            )
+
+        best_score = max(relevance(fact) for fact in matches)
+        best_matches = [fact for fact in matches if relevance(fact) == best_score]
+        if len(best_matches) != 1:
+            ids = sorted(fact["id"] for fact in best_matches)
+            return self._result(
+                conclusion="Ada beberapa fakta yang cocok untuk pertanyaan ini; mohon perjelas apakah yang dimaksud.",
+                confidence_score=0.0, evidence=ids, reasoning_type="unknown",
+                reasons=[
+                    "Lebih dari satu fakta memiliki tingkat kecocokan tertinggi.",
+                    "Sistem tidak menggabungkan fakta atau memilih kandidat yang seri secara sewenang-wenang.",
+                ],
+                uncertainty="Kandidat yang ambigu belum digunakan sebagai dasar jawaban.",
+            )
+
+        fact = best_matches[0]
+        provenance = self.knowledge_engine.get_provenance(fact["id"])
+        if provenance is None:
+            return self._result(
+                conclusion="Fakta ditemukan, tetapi provenance-nya tidak tersedia.",
+                confidence_score=0.0, evidence=[fact["id"]], reasoning_type="unknown",
+                reasons=["Fakta pendukung tidak memiliki catatan provenance."],
+                uncertainty="Lengkapi provenance sebelum menarik jawaban.",
+            )
+        if fact.get("status") != provenance.get("status") or fact.get("status") == "conflicting":
+            return self._result(
+                conclusion="Status fakta tidak konsisten atau saling bertentangan; jawaban ditahan.",
+                confidence_score=0.0, evidence=[fact["id"]], reasoning_type="conflicting",
+                reasons=["Status fakta dan provenance harus konsisten dan tidak conflicting."],
+                uncertainty="Periksa kembali fakta dan provenance.",
+            )
+
+        record = fact.get("dataset_record", {})
+        subject = str(record.get("subject", fact["subject"]))
+        predicate = str(record.get("predicate", fact["relation"]))
+        object_value = record.get("object", fact["object"])
+        object_text = (
+            ", ".join(str(item) for item in object_value)
+            if isinstance(object_value, list) else str(object_value)
+        )
+        verified = fact.get("status") == "verified"
+        sentence = f"{subject} {predicate} {object_text}."
+        if not verified:
+            sentence = "Ada kemungkinan bahwa " + sentence[0].lower() + sentence[1:]
+        qualifiers = record.get("qualifiers", [])
+        if isinstance(qualifiers, list):
+            sentence += " " + " ".join(
+                item for item in qualifiers if isinstance(item, str)
+            )
+        return self._result(
+            conclusion=sentence,
+            confidence_score=0.72 if verified else 0.48,
+            evidence=[fact["id"]],
+            reasoning_type="verified_inference" if verified else "hypothetical_inference",
+            reasons=[
+                f"Pertanyaan {question_kind} cocok dengan fakta dataset {fact['id']}.",
+                f"Nilai diambil langsung dari object pada record: {object_text}.",
+                f"Status fakta: {fact['status']}; sumber: {fact.get('source', 'tidak tercatat')}.",
+            ],
+            uncertainty=(
+                "Fakta dataset berstatus draft/hipotesis dan belum diverifikasi; jawaban bersifat sementara."
+                if not verified else
+                "Jawaban dibatasi oleh cakupan dan kualifikasi sumber."
+            ),
+        )
 
     def _infer_mercury_followup(
         self,
