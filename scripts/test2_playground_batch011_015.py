@@ -235,7 +235,7 @@ class GenericBatchAdapter:
         def infer_semantic(semantic, *, context_snapshot=None):
             base = original_reason(semantic, context_snapshot=context_snapshot)
             text = semantic.get("original_text", "")
-            case = self.by_text.get(text)
+            case = self.by_text.get(text.strip().casefold())
             if not case:
                 return base
             src = ", ".join(case["source_ids"])
@@ -430,7 +430,7 @@ def main():
     if knowledge_policy_failures:
         raise AssertionError(f"Knowledge DRAFT uncertainty missing: {knowledge_policy_failures}")
     report = {
-        "title": "Tahap D — Batch 011-015 A/B + regression 001-005",
+        "title": "Tahap D — Batch 011-015 A/B + regression 001-010",
         "source_branch": "ilis-v2-development", "source_sha": SOURCE_SHA,
         "experiment_branch": BRANCH, "created_at": datetime.now(timezone.utc).isoformat(),
         "read_only": True, "dataset_status": "ALL DRAFT",
@@ -477,13 +477,13 @@ def main():
     (outdir / "test2-batch011-015-ab-report.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     log = [
-        "TAHAP C — GENERIC LOADER + A/B TEST",
+        "TAHAP D — GENERIC LOADER + A/B TEST",
         f"SOURCE_SHA={SOURCE_SHA}", f"EXPERIMENT_BRANCH={BRANCH}",
         f"FILES_LOADED={len(files)}", f"RECORDS_LOADED={report['total_records']}",
         f"TEST_CASES={len(cases)}", "STAGE_A_REGRESSION=LULUS (5/5)",
         f"DIALOGUE_BOOLEAN_NEGATION_NORMALIZED={len(bool_negation)}",
         "TEST1=ILIS_BASELINE_NO_DATASET", "TEST2=GENERIC_BATCH_001_015_ADAPTER; TARGET_BATCHES=011-015",
-        *[f"BATCH_{b}_STATUS={v.get('status')} CASES={v.get('cases')} PASSED={v.get('passed')} FAILED={v.get('failed')} SEMANTIC_CONF={v.get('test2_avg_semantic_confidence')} REASONING_CONF={v.get('test2_avg_reasoning_confidence')}" for b, v in batch_summary.items()],
+        *[f"BATCH_{b}_STATUS={v.get('status')} CASES={v.get('cases')} PASSED={v.get('passed')} FAILED={v.get('failed')} TEST1_SEMANTIC_CONF={v.get('test1_avg_semantic_confidence')} TEST1_REASONING_CONF={v.get('test1_avg_reasoning_confidence')} TEST2_SEMANTIC_CONF={v.get('test2_avg_semantic_confidence')} TEST2_REASONING_CONF={v.get('test2_avg_reasoning_confidence')}" for b, v in batch_summary.items()],
         f"REASONING_CONTRACT_FAILURES={len(reasoning_errors)}",
         f"SEMANTIC_CONTRACT_FAILURES={len(semantic_errors)}",
         f"STAGE_B_REGRESSION_SESSIONS={len(stage_b_sessions)}",
