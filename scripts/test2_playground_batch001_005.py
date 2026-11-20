@@ -59,13 +59,13 @@ def normalize_dialogue_semantics(annotation):
     else:
         negation = str(negation) if str(negation) in {"none", "negative", "not_yet", "identity_negative"} else "negative"
     aspect = value.get("Aspect")
-    aspect = aspect if aspect in {"progressive", "completed", "prospective", "habitual", "unspecified"} else "unspecified"
+    aspect = aspect if isinstance(aspect, str) and aspect in {"progressive", "completed", "prospective", "habitual", "unspecified"} else "unspecified"
     modality = value.get("Modality")
-    modality = modality if modality in {"none", "ability", "obligation", "possibility", "desire", "permission"} else "none"
+    modality = modality if isinstance(modality, str) and modality in {"none", "ability", "obligation", "possibility", "desire", "permission"} else "none"
     register = value.get("Register")
-    register = register if register in {"formal", "informal", "slang", "unknown"} else "unknown"
+    register = register if isinstance(register, str) and register in {"formal", "informal", "slang", "unknown"} else "unknown"
     intent = value.get("Intent")
-    intent = intent if intent in {"assertion", "question", "command"} else "assertion"
+    intent = intent if isinstance(intent, str) and intent in {"assertion", "question", "command"} else "assertion"
     result = {
         "Actor": value.get("Actor"),
         "Predicate": value.get("Predicate"),
