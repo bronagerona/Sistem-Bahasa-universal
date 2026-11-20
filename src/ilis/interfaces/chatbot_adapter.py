@@ -148,6 +148,9 @@ class ChatbotAdapter:
                 "semantic_result": None, "reasoning_result": None, "generation": None,
             }
 
+        topic_context = self.session_manager.update_topic_context(session_id, text)
+        snapshot["topic_context"] = topic_context
+
         semantic = self.core.analyze_text(text, context_snapshot=snapshot)
 
         # BL-ILIS-002 uses a richer diagnostic label set than Semantic 1.0.
@@ -170,6 +173,61 @@ class ChatbotAdapter:
         negation_metadata["applied_to_semantic"] = (
             semantic_negation is not None and isinstance(semantics, dict)
         )
+
+        topic_resolution = topic_context.get("resolution", {})
+        if (
+            topic_resolution.get("status") == "returned_to_previous"
+            and semantic.get("status") != "supported"
+        ):
+            topic_label = topic_resolution.get("topic") or "topik sebelumnya"
+            recovery_answer = (
+                f"Baik, kita kembali ke topik {topic_label}. "
+                "Kamu ingin mencari rekomendasi buku, atau membutuhkan "
+                "bahan/ringkasan untuk tugas sekolah?"
+            )
+            recovery_answer = self.persona_renderer.render(
+                recovery_answer, include_identity=False
+            )
+            reasoning = {
+                "conclusion": f"Rujukan percakapan berhasil dikembalikan ke topik {topic_label}.",
+                "confidence_score": 0.0,
+                "evidence": [],
+                "reasoning_type": "topic_recovery",
+                "reasons": [
+                    "Frasa kembali ke ... cocok secara unik dengan anchor topik pada riwayat sesi.",
+                    "Riwayat percakapan hanya digunakan untuk resolusi rujukan, bukan sebagai bukti faktual.",
+                    "Semantic saat ini belum cukup didukung; sistem meminta klarifikasi alih-alih membuat klaim.",
+                ],
+                "uncertainty": "Kebutuhan spesifik pengguna belum dapat dipastikan.",
+            }
+            generation = {
+                "text": recovery_answer,
+                "register": "formal",
+                "meaning": {"kind": "topic_recovery", "topic": topic_label},
+                "reasoning_type": "topic_recovery",
+                "confidence_score": 0.0,
+                "uncertainty_preserved": True,
+                "evidence": [],
+                "session_id": session_id,
+            }
+            self.session_manager.add_turn(session_id, text, recovery_answer, metadata={
+                "response_type": "topic_recovery", "speaker": speaker,
+                "register": "formal", "semantic_result": semantic,
+                "topic_context": topic_context,
+            })
+            return {
+                "answer": recovery_answer, "text": recovery_answer,
+                "metadata": {
+                    "register": "formal", "confidence_score": 0.0,
+                    "reasoning_type": "topic_recovery", "conflict_status": "clear",
+                    "evidence": [], "semantic_status": semantic.get("status"),
+                    "session_id": session_id,
+                    "context_turns_used": len(snapshot.get("turns", [])),
+                    "negation": negation_metadata,
+                },
+                "semantic_result": semantic, "reasoning_result": reasoning,
+                "generation": generation, "context_snapshot": snapshot,
+            }
 
         reasoning = self.core.reasoning_engine.infer_semantic(
             semantic, context_snapshot=snapshot,
