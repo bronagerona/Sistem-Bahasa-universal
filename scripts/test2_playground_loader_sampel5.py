@@ -77,10 +77,11 @@ def main() -> int:
 
     # A/B condition 2: a separate ILIS instance with an allowlisted adapter.
     # The adapter receives only the twelve records loaded above.
-    adapter = Sample5InjectionAdapter({
-        case_id: {pillar: rows for pillar, rows in pillars.items()}
-        for case_id, pillars in loaded.items()
-    })
+    adapter_records = {}
+    for pillars in loaded.values():
+        for pillar, rows in pillars.items():
+            adapter_records.setdefault(pillar, []).extend(rows)
+    adapter = Sample5InjectionAdapter(adapter_records)
     injected_core = ILISCore()
     adapter.install(injected_core)
     injected = run_core(injected_core, CASES)
