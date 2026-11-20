@@ -49,6 +49,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: tahap-c-batch006-010-proof
-          path: test-results/test2-batch001-005-*
+          path: test-results/test2-batch006-010-*
           if-no-files-found: error
           retention-days: 30
