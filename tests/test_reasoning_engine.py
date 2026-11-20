@@ -159,8 +159,6 @@ def test_v2_semantic_intents_are_distinguished():
 
 
 def test_dataset_fact_retrieval_matches_subject_and_relation_cues():
-    from pathlib import Path
-
     from ilis.interfaces import ILISCore
 
     core = ILISCore()
@@ -177,7 +175,10 @@ def test_dataset_fact_retrieval_matches_subject_and_relation_cues():
     assert result["evidence"] == ["fact-0033"]
     assert "1.407,6 jam" in result["conclusion"]
     assert "bukan lama hari Matahari" in result["conclusion"]
-    assert any("verification" not in reason and "sumber:" in reason for reason in result["reasons"])
+    assert any(
+        reason.startswith("Status fakta:") and "sumber:" in reason
+        for reason in result["reasons"]
+    )
 
 
 def test_dataset_fact_retrieval_supports_rotation_question_without_object():
@@ -230,3 +231,24 @@ def test_dataset_fact_retrieval_does_not_choose_between_multiple_candidates():
     assert result["reasoning_type"] == "unknown"
     assert result["evidence"] == []
     assert "lebih dari satu fakta kandidat" in result["conclusion"]
+
+
+def test_dataset_fact_retrieval_answers_mercury_orbital_period_separately():
+    from ilis.interfaces import ILISCore
+
+    core = ILISCore()
+    semantic = core.analyze_text(
+        "Apakah Merkurius memiliki periode orbit mengelilingi Matahari?"
+    )
+    assert semantic["status"] == "supported"
+    assert semantic["semantics"]["Actor"] == "merkurius"
+    assert semantic["semantics"]["Patient/Object"] == (
+        "periode orbit mengelilingi matahari"
+    )
+
+    result = core.reasoning_engine.infer_semantic(semantic)
+
+    assert result["reasoning_type"] == "hypothetical_inference"
+    assert result["evidence"] == ["fact-0034"]
+    assert "88 hari Bumi" in result["conclusion"]
+    assert "berbeda dari periode rotasi" in result["conclusion"]
