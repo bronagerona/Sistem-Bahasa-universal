@@ -90,6 +90,11 @@ class LanguageGenerator:
                 sentence = "Halo! Aku siap bantu. Apa kabar kamu?"
             else:
                 sentence = "Hai! Siap bantu, nih. Apa kabar?"
+        elif reasoning_type == "unknown" and conclusion == "Saya belum memiliki informasi tentang lokasi itu.":
+            # Preserve the explicit, conservative P3c unknown response.
+            meaning = {"kind": "unknown", "target": "lokasi itu"}
+            uncertain = True
+            sentence = conclusion.strip()
         elif is_dataset_fact_answer:
             # Dataset fact conclusions already contain the exact record value
             # and qualifiers. Do not pass them through _phrase(), which
