@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 from ilis.cognition.context_engine import ContextEngine
@@ -37,6 +38,13 @@ class ILISCore:
         self.knowledge_engine = KnowledgeEngine(
             seed_core_knowledge=seed_core_knowledge,
             storage_provider=self.storage_provider,
+        )
+        dataset_dir = (
+            Path(__file__).resolve().parents[3]
+            / "data" / "indonesian" / "knowledge"
+        )
+        self.knowledge_dataset_loaded = (
+            self.knowledge_engine.load_jsonl_directory(dataset_dir)
         )
         self.reasoning_engine = ReasoningEngine(self.knowledge_engine)
         self.context_engine = ContextEngine(
