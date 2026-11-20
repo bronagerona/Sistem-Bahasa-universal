@@ -14,13 +14,13 @@ Audit struktural mencakup 18 file `batch_001.jsonl` sampai `batch_018.jsonl`, to
 - 90/90 `evaluation_id` unik dan berurutan dari `eval-0006` sampai `eval-0095`.
 - Semua record memiliki field inti yang diharapkan dan `verification_status: draft`.
 - Pembagian split sudah ditulis, tetapi distribusinya terkonfounded dengan kelompok evaluasi.
-- Ditemukan satu pasangan input identik di final_test: `eval-0010` dan `eval-0015`.
+- Audit awal menemukan input identik `eval-0010` dan `eval-0015`. Dalam revisi terpisah, `eval-0015` diusulkan diganti menjadi `Hai!`; 90 input kini unik secara tekstual pada pemeriksaan exact-match. Revisi masih menunggu review Dola.
 - Seluruh 18 record final_test secara eksplisit disebut konseptual/belum dijalankan sebagai tes otomatis.
 - Tidak ada bukti penguncian operasional final_test dalam data/schema Pilar E yang diaudit.
 - Pemeriksaan kemiripan otomatis internal tidak menemukan pasangan lintas split dengan kemiripan token tinggi pada ambang Jaccard 0,55. Pemindaian karakter trigram menghasilkan dua kandidat lemah yang perlu pemeriksaan manual; hasil heuristik ini bukan bukti bahwa tidak ada parafrasa semantik.
 - Pemeriksaan lintas-pilar belum dapat dinyatakan tuntas. Spot-check menemukan setidaknya satu frasa contoh Pilar A yang muncul kembali di input evaluasi.
 
-**Kesimpulan:** struktur JSONL rapi, tetapi Pilar E belum layak disebut dataset evaluasi final yang independen dan terkunci. Pembagian split perlu didesain ulang sebelum digunakan untuk mengukur kualitas secara sahih.
+**Kesimpulan:** struktur JSONL rapi dan duplikasi exact-match telah diberi usulan pengganti pada PR revisi yang menunggu review Dola. Pilar E tetap belum layak disebut dataset evaluasi final yang independen dan terkunci. Pembagian split perlu didesain ulang sebelum digunakan untuk mengukur kualitas secara sahih.
 
 ## 2. Inventaris dan Validasi Struktur
 
@@ -72,14 +72,16 @@ Konsekuensinya:
 
 ### 4.1 Duplikasi persis
 
-Ditemukan satu pasangan input identik:
+Audit awal menemukan pasangan input identik berikut:
 
-| Record | Split | Input |
+| Record | Split | Input awal |
 |---|---|---|
 | eval-0010 | final_test | Halo, apa kabar? |
 | eval-0015 | final_test | Halo, apa kabar? |
 
-Keduanya juga mengarah ke `baseline_v3_1_beta_greeting` dan memiliki tujuan evaluasi yang hampir sama. Dua record ini tidak boleh dihitung sebagai dua kasus independen. Salah satunya perlu dihapus atau diganti dengan kasus greeting yang berbeda setelah audit lengkap dan persetujuan revisi.
+**Usulan penyelesaian pada PR revisi:** `eval-0010` dipertahankan, sedangkan input `eval-0015` diganti menjadi **`Hai!`**. Bentuk satu token `hai` termasuk pola sapaan yang didukung oleh hotfix Greeting PR #18; jadi kasus pengganti tetap menguji greeting baseline, tetapi memakai bentuk ujaran yang berbeda, bukan salinan exact-match.
+
+Pemeriksaan ulang seluruh 90 input batch menemukan `Hai!` tidak digunakan sebagai input persis lain. Setelah penggantian, 90 input unik secara tekstual. Perubahan ini tetap DRAFT dan belum menjadi tes otomatis; PR revisi menunggu review Dola. Kesamaan tujuan umum (greeting) memang disengaja karena keduanya menjaga keluarga perilaku regresi yang sama, sedangkan bentuk prompt dan cakupan pemicu leksikalnya berbeda.
 
 ### 4.2 Pemindaian kemiripan internal
 
@@ -127,7 +129,7 @@ Belum ada definisi operasional yang cukup untuk menghitung accuracy/F1 atau skor
 | Parsing dan integritas dasar | PASS | 90/90 valid, ID unik |
 | Kelengkapan field dasar | PASS | Field inti terisi |
 | Konsistensi split | REVISE | Split terkonfounded oleh group |
-| Duplikasi internal | REVISE | eval-0010 dan eval-0015 identik |
+| Duplikasi internal | PENDING REVIEW | eval-0015 diusulkan diganti menjadi `Hai!`; menunggu review Dola |
 | Kemiripan internal otomatis | REVIEW | Tidak ada pasangan kuat; heuristik tidak membuktikan independensi semantik |
 | Kemiripan lintas-pilar | REVIEW | Spot-check menemukan potensi penggunaan ulang contoh; audit penuh belum selesai |
 | Final-test terkunci | REVISE | 18/18 konseptual, belum dijalankan, tidak ada bukti lock operasional |
@@ -138,7 +140,7 @@ Belum ada definisi operasional yang cukup untuk menghitung accuracy/F1 atau skor
 
 1. Pertahankan semua record sebagai DRAFT selama audit.
 2. Susun ulang split berbasis kelompok dan keluarga kasus; jangan mengubah/memindahkan JSONL sebelum review Dola dan persetujuan Owner.
-3. Tandai `eval-0015` sebagai duplikasi dari `eval-0010`; usulkan satu kasus pengganti yang berbeda.
+3. Revisi usulan mengganti input `eval-0015` dari `Halo, apa kabar?` menjadi `Hai!`; minta Dola menilai apakah kasus greeting alternatif ini cukup berbeda dan tepat untuk menjaga regression family. Jangan mengubah status DRAFT atau menganggap final-test sudah terkunci.
 4. Lakukan pemeriksaan lintas-pilar untuk seluruh input evaluasi terhadap contoh pada Lexicon, Sentence Patterns, dan Dialogues serta terhadap isi Knowledge yang menjadi dasar pertanyaan.
 5. Rancang final-test independen untuk seluruh kelompok yang akan diukur. Final-test harus disimpan terpisah, diberi versi/checksum, dan tidak digunakan untuk tuning.
 6. Tetapkan kontrak skema final, kamus `metric` ↔ `metric_name`, rubrik penilaian, dan prosedur scoring sebelum membuat runner.
@@ -158,7 +160,7 @@ Belum ada definisi operasional yang cukup untuk menghitung accuracy/F1 atau skor
 
 Mohon Dola meninjau:
 1. Apakah diagnosis split terkonfounded dan rekomendasi split berbasis kelompok sudah tepat.
-2. Apakah `eval-0010` dan `eval-0015` harus diperlakukan sebagai satu duplikasi yang perlu diganti.
+2. Apakah penggantian `eval-0015` menjadi `Hai!` sudah menyelesaikan duplikasi exact-match tanpa mengubah cakupan regresi greeting.
 3. Apakah status final-test “belum terkunci/belum operasional” sudah tepat.
 4. Apakah prosedur audit lintas-pilar dan rancangan final-test independen cukup untuk menjadi dasar revisi setelah seluruh audit 448 record selesai.
 

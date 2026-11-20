@@ -94,7 +94,7 @@ Semua lima pilar sudah memiliki laporan audit tersendiri dan telah diterima Dola
 | JSONL parse | 90/90 valid |
 | ID | 90/90 unik, eval-0006–eval-0095 |
 | Split | Development 36, Validation 36, Final-Test 18 |
-| Duplikasi persis | eval-0010 dan eval-0015 identik |
+| Duplikasi persis | Usulan revisi eval-0015 menjadi “Hai!”; menunggu review Dola |
 | Final-Test | 18 kasus konseptual, belum dijalankan sebagai tes otomatis |
 | Skema sampel | sample.jsonl eval-0001–eval-0005 berbeda dari skema batch |
 | Lintas-pilar | Baru spot-check, belum audit menyeluruh |
@@ -102,7 +102,7 @@ Semua lima pilar sudah memiliki laporan audit tersendiri dan telah diterima Dola
 - Laporan: `docs/audit_448/evaluation_audit.md`
 - PR #27 — diterima Dola dan merged ke `ilis-v2-development`.
 - Pembagian split terkonfounded oleh kelompok: Lexicon hanya di Development, Knowledge hanya di Validation, Regression hanya di Final-Test. Skor antar-split saat ini tidak boleh dibandingkan seolah-olah mengukur komposisi kemampuan yang sama.
-- `eval-0010` dan `eval-0015` memuat input “Halo, apa kabar?” yang identik. Salah satu perlu dihapus atau diganti saat revisi terpisah; jangan dihitung sebagai dua kasus independen.
+- Duplikasi exact-match `eval-0010` dan `eval-0015` ditangani dalam usulan PR revisi: `eval-0010` dipertahankan (“Halo, apa kabar?”), sedangkan `eval-0015` diganti menjadi “Hai!” berdasarkan pola sapaan satu token yang didukung hotfix Greeting PR #18. Perubahan menunggu review Dola; keduanya tetap DRAFT dan final_test belum operasional/terkunci.
 - Final-Test harus tetap dianggap konseptual/belum terkunci. Belum ada mekanisme operasional yang membuktikan data tidak dipakai untuk tuning.
 - `sample.jsonl` perlu diselaraskan dengan skema batch sebelum finalisasi.
 - Pemeriksaan lintas-pilar belum menyeluruh; tidak boleh ada klaim “bebas kebocoran 100%”.
@@ -140,7 +140,7 @@ Ketiga item harus diperiksa substansinya, dicatat dalam change log, tetap DRAFT 
 
 ### Tahap 3 — Perbaikan Evaluation
 
-1. Duplikasi: pilih satu dari `eval-0010` / `eval-0015` untuk diganti dengan kasus greeting yang berbeda secara semantik dan tujuan evaluasinya.
+1. Duplikasi exact-match: usulan revisi mengganti input `eval-0015` menjadi `Hai!`, mempertahankan `eval-0010`. Keduanya tetap satu keluarga regression greeting tetapi berbeda bentuk input/pemicu; tunggu review Dola sebelum dianggap selesai.
 2. Split: pertahankan catatan bahwa split saat ini terkonfounded. Jika diperlukan evaluasi komparatif yang adil, rancang ulang secara stratifikasi per kelompok dan keluarga kasus. Jangan mengacak baris secara naif karena kasus yang semakna dapat bocor lintas split.
 3. Final-Test: buat aturan tertulis sebelum evaluasi resmi:
    - disimpan terpisah dari data development/validation;
