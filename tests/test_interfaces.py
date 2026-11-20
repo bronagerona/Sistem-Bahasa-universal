@@ -285,3 +285,37 @@ def test_chatbot_does_not_switch_topic_on_ambiguous_return_reference():
     assert result["resolution"]["status"] == "ambiguous_reference"
     assert after == before
     assert len(result["topic_history"]) == 2
+
+
+def test_topic_history_keeps_prior_topics_beyond_bounded_transcript():
+    from ilis.interfaces.session_manager import SessionManager
+
+    manager = SessionManager(max_turns=1)
+    session_id = manager.create_session()
+
+    first_message = "Aku sedang mencari buku sejarah."
+    first = manager.update_topic_context(session_id, first_message)
+    first_topic_id = first["active_topic"]["topic_id"]
+    manager.add_turn(session_id, first_message, "Baik.")
+
+    deeper_message = "Siapa penulis buku sejarah itu?"
+    deeper = manager.update_topic_context(session_id, deeper_message)
+    assert deeper["resolution"]["status"] == "same_topic_deepened"
+    assert deeper["active_topic"]["topic_id"] == first_topic_id
+    manager.add_turn(session_id, deeper_message, "Saya belum tahu.")
+
+    switch_message = "Ngomong-ngomong, apa fungsi akar tumbuhan?"
+    switched = manager.update_topic_context(session_id, switch_message)
+    assert switched["resolution"]["status"] == "new_topic"
+    second_topic_id = switched["active_topic"]["topic_id"]
+    manager.add_turn(session_id, switch_message, "Baik.")
+
+    assert len(manager.get_recent_turns(session_id)) == 1
+    assert len(manager.get_topic_context(session_id)["topic_history"]) == 2
+
+    returned = manager.update_topic_context(
+        session_id, "Kembali ke buku sejarah tadi, ya."
+    )
+    assert returned["resolution"]["status"] == "returned_to_previous"
+    assert returned["active_topic"]["topic_id"] == first_topic_id
+    assert returned["active_topic"]["topic_id"] != second_topic_id
