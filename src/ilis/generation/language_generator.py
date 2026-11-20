@@ -68,7 +68,7 @@ class LanguageGenerator:
             reasoning_type in {"verified_inference", "hypothetical_inference"}
             and isinstance(evidence, list)
             and any(
-                isinstance(item, str) and re.fullmatch(r"fact-\\d{4}", item)
+                isinstance(item, str) and re.fullmatch(r"fact-\d{4}", item)
                 for item in evidence
             )
             and isinstance(conclusion, str)
