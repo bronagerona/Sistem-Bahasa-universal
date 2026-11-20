@@ -369,3 +369,16 @@ def test_chatbot_does_not_answer_direct_dataset_question_without_matching_fact()
     assert result["reasoning_result"]["evidence"] == []
     assert result["reasoning_result"]["confidence_score"] == 0.0
     assert "belum cukup informasi" in result["answer"].casefold()
+
+
+def test_chatbot_keeps_hypothesis_opening_for_existing_supported_dataset_question():
+    core = ILISCore()
+    result = core.chatbot().respond(
+        "Apakah Merkurius memiliki periode rotasi sideris?"
+    )
+
+    assert result["reasoning_result"]["evidence"] == ["fact-0033"]
+    assert result["reasoning_result"]["reasoning_type"] == "hypothetical_inference"
+    assert result["answer"].startswith("Ada kemungkinan bahwa ")
+    assert "1.407,6 jam (≈ 58,65 hari Bumi)" in result["answer"]
+    assert result["metadata"]["confidence_score"] == 0.432
