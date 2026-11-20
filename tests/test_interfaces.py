@@ -134,6 +134,39 @@ def test_chatbot_runtime_maps_bl_ilis_002_into_semantic_negation(
     assert len(result["semantic_result"]["semantics"]) == 12
 
 
+
+def test_chatbot_uses_session_knowledge_for_mercury_multiturn_followups():
+    core = ILISCore()
+    chatbot = core.chatbot()
+    session_id = chatbot.create_session()
+
+    initial = chatbot.respond("Merkurius berotasi sekitar 58,6 hari.", session_id)
+    assert initial["semantic_result"]["status"] == "supported"
+    assert initial["semantic_result"]["semantics"]["Actor"] == "merkurius"
+    assert initial["reasoning_result"]["reasoning_type"] == "assertion"
+
+    solar_day = chatbot.respond(
+        "Jadi satu hari Matahari di Merkurius juga 58,6 hari?", session_id
+    )
+    assert solar_day["reasoning_result"]["reasoning_type"] == "hypothetical_inference"
+    assert solar_day["reasoning_result"]["evidence"] == ["fact-0033", "fact-0018"]
+    assert "58,65 hari bumi" in solar_day["answer"].casefold()
+    assert "176 hari bumi" in solar_day["answer"].casefold()
+    assert "bukan bukti faktual" in " ".join(solar_day["reasoning_result"]["reasons"])
+    assert len(solar_day["semantic_result"]["semantics"]) == 12
+    assert len(solar_day["reasoning_result"]) == 6
+
+    orbit = chatbot.respond("Bukankah orbitnya sekitar 88 hari?", session_id)
+    assert orbit["reasoning_result"]["reasoning_type"] == "hypothetical_inference"
+    assert orbit["reasoning_result"]["evidence"] == ["fact-0034"]
+    assert "88 hari bumi" in orbit["answer"].casefold()
+    assert len(orbit["semantic_result"]["semantics"]) == 12
+    assert len(orbit["reasoning_result"]) == 6
+
+    assert core.knowledge_dataset_loaded == 90
+    assert len(core.knowledge_engine.fact_store.all()) == 93
+
+
 def test_chatbot_answers_supported_question_from_loaded_knowledge_dataset():
     core = ILISCore()
     result = core.chatbot().respond(

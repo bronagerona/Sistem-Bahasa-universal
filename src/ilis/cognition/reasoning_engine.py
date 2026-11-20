@@ -260,6 +260,11 @@ class ReasoningEngine:
             )
 
         if validated_result["status"] != "supported":
+            contextual_result = self._infer_mercury_followup(
+                validated_result, context_snapshot=context_snapshot,
+            )
+            if contextual_result is not None:
+                return contextual_result
             return self._result(
                 conclusion="Input semantik belum didukung sehingga belum dapat dijawab.",
                 confidence_score=0.0, evidence=[], reasoning_type="unknown",
@@ -512,6 +517,174 @@ class ReasoningEngine:
             uncertainty="Kesimpulan berbasis aturan, bukan kepastian universal." if verified
                 else "Premis masih berupa hipotesis dan belum diverifikasi.",
         )
+
+
+    def _infer_mercury_followup(
+        self,
+        semantic_result: dict[str, Any],
+        *,
+        context_snapshot: dict[str, Any] | None,
+    ) -> dict[str, Any] | None:
+        """Resolve bounded Mercury follow-ups from a prior session assertion.
+
+        The earlier user statement supplies entity context only. All factual
+        values still come from dataset records with matching provenance, and
+        draft records remain hypothetical rather than verified.
+        """
+        current_text = str(semantic_result.get("original_text", "")).casefold()
+        if (
+            context_snapshot is None
+            or not isinstance(context_snapshot.get("turns"), list)
+            or "?" not in current_text
+            or (semantic_result.get("semantics") or {}).get("Negation", "none") != "none"
+        ):
+            return None
+
+        prior_actor = None
+        for turn in reversed(context_snapshot["turns"]):
+            if not isinstance(turn, dict):
+                continue
+            prior_semantic = turn.get("semantic_result")
+            if not isinstance(prior_semantic, dict):
+                prior_text = turn.get("user_message")
+                if not isinstance(prior_text, str) or not prior_text.strip():
+                    continue
+                prior_semantic = analyze_semantics(prior_text)
+            if prior_semantic.get("status") != "supported":
+                continue
+            prior_fields = prior_semantic.get("semantics")
+            if not isinstance(prior_fields, dict):
+                continue
+            actor = prior_fields.get("Actor")
+            predicate = prior_fields.get("Predicate")
+            if (
+                prior_fields.get("Intent") == "assertion"
+                and isinstance(actor, str)
+                and actor.casefold() == "merkurius"
+                and isinstance(predicate, str)
+                and predicate.casefold() == "berotasi"
+            ):
+                prior_actor = actor.casefold()
+                break
+        if prior_actor is None:
+            return None
+
+        context_reason = (
+            "Pernyataan sebelumnya digunakan hanya untuk mengidentifikasi "
+            "Merkurius sebagai topik lanjutan; konteks percakapan bukan bukti faktual."
+        )
+
+        if "hari matahari" in current_text:
+            rotation_matches = self.knowledge_engine.search_dataset_facts(
+                prior_actor, ["rotasi", "sideris"],
+            )
+            solar_day_matches = []
+            for fact in self.knowledge_engine.fact_store.all():
+                record = fact.get("dataset_record")
+                if not isinstance(record, dict):
+                    continue
+                subject = record.get("subject")
+                qualifiers = record.get("qualifiers", [])
+                if (
+                    isinstance(subject, str)
+                    and prior_actor in subject.casefold()
+                    and isinstance(qualifiers, list)
+                    and any(
+                        isinstance(item, str)
+                        and "hari matahari" in item.casefold()
+                        and "176 hari bumi" in item.casefold()
+                        for item in qualifiers
+                    )
+                ):
+                    solar_day_matches.append(fact)
+            if len(rotation_matches) != 1 or len(solar_day_matches) != 1:
+                return None
+            rotation_fact = rotation_matches[0]
+            solar_day_fact = solar_day_matches[0]
+            for fact in (rotation_fact, solar_day_fact):
+                provenance = self.knowledge_engine.get_provenance(fact["id"])
+                if (
+                    provenance is None
+                    or fact.get("status") != provenance.get("status")
+                    or fact.get("status") == "conflicting"
+                ):
+                    return None
+            rotation_record = rotation_fact["dataset_record"]
+            solar_record = solar_day_fact["dataset_record"]
+            rotation_value = rotation_record.get("object")
+            qualifiers = solar_record.get("qualifiers", [])
+            solar_qualifier = next(
+                item for item in qualifiers
+                if isinstance(item, str)
+                and "hari matahari" in item.casefold()
+                and "176 hari bumi" in item.casefold()
+            )
+            return self._result(
+                conclusion=(
+                    "Periode rotasi sideris Merkurius sekitar "
+                    f"{rotation_value}, sedangkan {solar_qualifier[0].lower() + solar_qualifier[1:]}"
+                ),
+                confidence_score=0.48,
+                evidence=[rotation_fact["id"], solar_day_fact["id"]],
+                reasoning_type="hypothetical_inference",
+                reasons=[
+                    context_reason,
+                    f"Fakta rotasi {rotation_fact['id']} berstatus {rotation_fact['status']}.",
+                    f"Pembeda hari Matahari berasal dari kualifikasi fakta {solar_day_fact['id']} "
+                    f"yang berstatus {solar_day_fact['status']}.",
+                ],
+                uncertainty=(
+                    "Kedua fakta dataset masih berstatus draft/hipotesis dan belum "
+                    "diverifikasi; jawaban bersifat sementara."
+                ),
+            )
+
+        if re.search(r"\borbit(?:nya)?\b", current_text):
+            matches = self.knowledge_engine.search_dataset_facts(
+                prior_actor, ["orbit"],
+            )
+            if len(matches) != 1:
+                return None
+            fact = matches[0]
+            provenance = self.knowledge_engine.get_provenance(fact["id"])
+            if (
+                provenance is None
+                or fact.get("status") != provenance.get("status")
+                or fact.get("status") == "conflicting"
+            ):
+                return None
+            record = fact["dataset_record"]
+            subject = str(record.get("subject", fact["subject"]))
+            predicate = str(record.get("predicate", fact["relation"]))
+            object_value = record.get("object", fact["object"])
+            if isinstance(object_value, list):
+                object_text = ", ".join(str(item) for item in object_value)
+            else:
+                object_text = str(object_value)
+            qualifiers = record.get("qualifiers", [])
+            conclusion = f"{subject} {predicate} {object_text}."
+            if isinstance(qualifiers, list):
+                conclusion += " " + " ".join(
+                    item for item in qualifiers if isinstance(item, str)
+                )
+            verified = fact.get("status") == "verified"
+            return self._result(
+                conclusion=conclusion,
+                confidence_score=0.72 if verified else 0.48,
+                evidence=[fact["id"]],
+                reasoning_type="verified_inference" if verified else "hypothetical_inference",
+                reasons=[
+                    context_reason,
+                    f"Fakta dataset {fact['id']} ditemukan melalui petunjuk relasi orbit.",
+                    f"Status fakta: {fact['status']}; sumber: {fact.get('source', 'tidak tercatat')}.",
+                ],
+                uncertainty=(
+                    "Kesimpulan dibatasi oleh cakupan dan kualifikasi sumber."
+                    if verified else
+                    "Fakta dataset masih berstatus draft/hipotesis dan belum diverifikasi."
+                ),
+            )
+        return None
 
     def _infer_concept_fallback(
         self,

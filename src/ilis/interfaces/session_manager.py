@@ -126,6 +126,7 @@ class SessionManager:
                     "sequence": turn.sequence,
                     "user_message": turn.user_message,
                     "assistant_response": turn.assistant_response,
+                    "semantic_result": turn.metadata.get("semantic_result"),
                 }
                 for turn in session.turns[-self.max_turns:]
             ],
