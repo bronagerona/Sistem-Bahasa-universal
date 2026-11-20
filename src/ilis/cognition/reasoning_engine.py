@@ -591,11 +591,18 @@ class ReasoningEngine:
         for fact in selected_facts:
             record = fact.get("dataset_record", {})
             predicate = record.get("predicate")
-            if (
-                isinstance(predicate, str)
-                and predicate.casefold().strip() in allowed_predicates
-                and fact.get("id") not in seen_ids
-            ):
+            normalized_predicate = (
+                " ".join(predicate.casefold().split())
+                if isinstance(predicate, str) else ""
+            )
+            # Prefer the more specific phrase first; substring matching then
+            # naturally includes predicates such as "terletak di antara orbit".
+            matches_location = (
+                "terletak di antara" in normalized_predicate
+                or "terletak di" in normalized_predicate
+                or "berada di" in normalized_predicate
+            )
+            if matches_location and fact.get("id") not in seen_ids:
                 eligible.append(fact)
                 seen_ids.add(fact.get("id"))
 
@@ -648,16 +655,38 @@ class ReasoningEngine:
         object_value = record.get("object")
         object_text = (
             ", ".join(str(item) for item in object_value)
-            if isinstance(object_value, list) else str(object_value)
+            if isinstance(object_value, list) else
+            str(object_value).strip() if object_value is not None else ""
         )
-        sentence = f"{subject} {predicate} {object_text}."
-        qualifiers = record.get("qualifiers", [])
-        if isinstance(qualifiers, list):
-            qualifier_text = " ".join(
-                item for item in qualifiers if isinstance(item, str)
-            )
-            if qualifier_text:
-                sentence += " " + qualifier_text
+        if object_text:
+            # A populated object is the primary and direct answer. Do not append
+            # qualifiers that could introduce a different or broader location.
+            answer_text = object_text
+            sentence = f"{subject} {predicate} {answer_text}."
+        else:
+            # Qualifiers are considered only after a location predicate has
+            # already passed the whitelist and the object is empty. Require an
+            # explicit location phrase in the qualifier itself.
+            qualifiers = record.get("qualifiers", [])
+            location_qualifiers = [
+                item.strip() for item in qualifiers
+                if isinstance(item, str)
+                and any(
+                    marker in item.casefold()
+                    for marker in ("berada di", "terletak di")
+                )
+            ] if isinstance(qualifiers, list) else []
+            if not location_qualifiers:
+                return self._result(
+                    conclusion="Saya belum memiliki informasi tentang lokasi itu.",
+                    confidence_score=0.0, evidence=[], reasoning_type="unknown",
+                    reasons=[
+                        "Predicate termasuk whitelist lokasi, tetapi object kosong dan tidak ada qualifier yang secara eksplisit menyatakan lokasi."
+                    ],
+                    uncertainty="Diperlukan nilai object atau qualifier lokasi yang eksplisit.",
+                )
+            answer_text = " ".join(location_qualifiers)
+            sentence = answer_text
         verified = fact.get("status") == "verified"
         return self._result(
             conclusion=sentence,
@@ -666,7 +695,11 @@ class ReasoningEngine:
             reasoning_type="verified_inference" if verified else "hypothetical_inference",
             reasons=[
                 f"Pertanyaan lokasi cocok dengan predicate whitelist pada fakta {fact['id']}.",
-                f"Object disalin langsung dari record dataset: {object_text}.",
+                (
+                    f"Object disalin langsung dari record dataset: {object_text}."
+                    if object_text else
+                    "Object kosong; qualifier eksplisit lokasi digunakan setelah predicate lolos whitelist."
+                ),
                 f"Status fakta: {fact['status']}; sumber: {fact.get('source', 'tidak tercatat')}.",
             ],
             uncertainty=(
