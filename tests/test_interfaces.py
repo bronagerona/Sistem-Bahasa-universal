@@ -382,3 +382,13 @@ def test_chatbot_keeps_hypothesis_opening_for_existing_supported_dataset_questio
     assert result["answer"].startswith("Ada kemungkinan bahwa ")
     assert "1.407,6 jam (≈ 58,65 hari Bumi)" in result["answer"]
     assert result["metadata"]["confidence_score"] == 0.432
+
+
+def test_chatbot_answers_short_what_rotation_question_from_unique_fact():
+    core = ILISCore()
+    result = core.chatbot().respond("Apa rotasi Merkurius?")
+
+    assert result["reasoning_result"]["evidence"] == ["fact-0033"]
+    assert "1.407,6 jam (≈ 58,65 hari Bumi)" in result["answer"]
+    assert "bukan lama hari Matahari" in result["answer"].casefold()
+    assert result["reasoning_result"]["confidence_score"] == 0.12
