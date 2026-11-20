@@ -362,17 +362,17 @@ def main():
     guard_results = {x["input"]: x for x in active if x["input"] in guard_prompts}
     guard_missing = [p for p in guard_prompts if p not in guard_results]
     if guard_missing:
-        raise AssertionError(f"Known Test-2 guard prompts missing: {guard_missing}")
+        raise AssertionError(f"Identity false-positive regression prompts missing: {guard_missing}")
     guard_failures = []
     for prompt, item in guard_results.items():
         sem = item.get("semantic_result") or {}
         reasoning = item.get("reasoning_result") or {}
         if sem.get("status") != "supported" or set(sem.get("semantics") or {}) != SEMANTIC_KEYS:
-            guard_failures.append({"input": prompt, "error": "test2_identity_guard_semantic_failure"})
+            guard_failures.append({"input": prompt, "error": "production_identity_false_positive_semantic_failure"})
         if set(reasoning) != REASONING_KEYS:
-            guard_failures.append({"input": prompt, "error": "test2_identity_guard_reasoning_failure"})
+            guard_failures.append({"input": prompt, "error": "production_identity_false_positive_reasoning_failure"})
     if guard_failures:
-        raise AssertionError(f"Known Test-2 identity guard regression failed: {guard_failures}")
+        raise AssertionError(f"Production identity false-positive regression failed: {guard_failures}")
 
     dialogue_sessions, multi_turn_eval = build_dialogue_sessions(records)
     baseline_sessions = run_dialogue_sessions(ILISCore(), dialogue_sessions)
@@ -503,7 +503,7 @@ def main():
         "stage_b_regression": {"sessions": len(stage_b_sessions), "user_turns": stage_b_turns},
         "stage_c_regression": {"sessions": len(prior_sessions), "user_turns": prior_turns},
         "stage_d_regression": {"sessions": len(all_prior_sessions), "user_turns": all_prior_turns},
-        "known_identity_guard_regression": {"status": "LULUS", "prompts": list(guard_prompts), "test2_only": True, "results": guard_results},
+        "identity_false_positive_regression": {"status": "LULUS", "prompts": list(guard_prompts), "scope": "production matcher; temporary Test-2 guard removed", "results": guard_results},
         "test1": {"mode": "ILIS murni; tanpa dataset adapter", "results": baseline},
         "test2": {"mode": "ILIS + loader umum Batch 001-018; target A/B Batch 016-018; regression Batch 001-015", "results": active},
         "semantic_reasoning_comparison": comparison,
