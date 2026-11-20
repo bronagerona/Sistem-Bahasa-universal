@@ -319,3 +319,76 @@ def test_topic_history_keeps_prior_topics_beyond_bounded_transcript():
     assert returned["resolution"]["status"] == "returned_to_previous"
     assert returned["active_topic"]["topic_id"] == first_topic_id
     assert returned["active_topic"]["topic_id"] != second_topic_id
+
+
+@pytest.mark.parametrize(
+    ("message", "fact_id", "expected_value", "expected_phrase"),
+    [
+        (
+            "Apa rotasi sideris Merkurius?",
+            "fact-0033",
+            "1.407,6 jam (≈ 58,65 hari Bumi)",
+            "bukan lama hari Matahari",
+        ),
+        (
+            "Berapa hari Merkurius mengelilingi Matahari?",
+            "fact-0034",
+            "88 hari Bumi",
+            "berbeda dari periode rotasi",
+        ),
+    ],
+)
+def test_chatbot_answers_direct_mercury_dataset_questions_without_changing_contracts(
+    message, fact_id, expected_value, expected_phrase,
+):
+    core = ILISCore()
+    result = core.chatbot().respond(message)
+
+    assert result["reasoning_result"]["reasoning_type"] == "hypothetical_inference"
+    assert result["reasoning_result"]["evidence"] == [fact_id]
+    assert expected_value in result["reasoning_result"]["conclusion"]
+    assert expected_value in result["answer"]
+    assert expected_phrase.casefold() in result["answer"].casefold()
+    assert result["semantic_result"]["status"] == "low_confidence"
+    assert len(result["semantic_result"]["semantics"]) == 12
+    assert set(result["reasoning_result"]) == {
+        "conclusion", "confidence_score", "evidence",
+        "reasoning_type", "reasons", "uncertainty",
+    }
+    assert result["reasoning_result"]["confidence_score"] == 0.12
+    assert result["generation"]["confidence_score"] == 0.12
+    assert result["metadata"]["confidence_score"] == 0.12
+    assert result["metadata"]["reasoning_type"] == "hypothetical_inference"
+
+
+def test_chatbot_does_not_answer_direct_dataset_question_without_matching_fact():
+    core = ILISCore()
+    result = core.chatbot().respond("Apa rotasi sideris Venus?")
+
+    assert result["reasoning_result"]["reasoning_type"] == "unknown"
+    assert result["reasoning_result"]["evidence"] == []
+    assert result["reasoning_result"]["confidence_score"] == 0.0
+    assert "belum cukup informasi" in result["answer"].casefold()
+
+
+def test_chatbot_keeps_hypothesis_opening_for_existing_supported_dataset_question():
+    core = ILISCore()
+    result = core.chatbot().respond(
+        "Apakah Merkurius memiliki periode rotasi sideris?"
+    )
+
+    assert result["reasoning_result"]["evidence"] == ["fact-0033"]
+    assert result["reasoning_result"]["reasoning_type"] == "hypothetical_inference"
+    assert result["answer"].startswith("Ada kemungkinan bahwa ")
+    assert "1.407,6 jam (≈ 58,65 hari Bumi)" in result["answer"]
+    assert result["metadata"]["confidence_score"] == 0.432
+
+
+def test_chatbot_answers_short_what_rotation_question_from_unique_fact():
+    core = ILISCore()
+    result = core.chatbot().respond("Apa rotasi Merkurius?")
+
+    assert result["reasoning_result"]["evidence"] == ["fact-0033"]
+    assert "1.407,6 jam (≈ 58,65 hari Bumi)" in result["answer"]
+    assert "bukan lama hari matahari" in result["answer"].casefold()
+    assert result["reasoning_result"]["confidence_score"] == 0.12

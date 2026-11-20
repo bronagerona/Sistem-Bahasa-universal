@@ -62,6 +62,18 @@ class LanguageGenerator:
             and (semantic_result or {}).get("status") == "supported"
             and semantics.get("Intent") == "greeting"
         )
+        evidence = reasoning_result.get("evidence", [])
+        conclusion = reasoning_result.get("conclusion", "")
+        is_dataset_fact_answer = (
+            reasoning_type in {"verified_inference", "hypothetical_inference"}
+            and isinstance(evidence, list)
+            and any(
+                isinstance(item, str) and re.fullmatch(r"fact-\d{4}", item)
+                for item in evidence
+            )
+            and isinstance(conclusion, str)
+            and bool(conclusion.strip())
+        )
         concept_status = reasoning_type if reasoning_type in {
             "concept_inference_known",
             "concept_inference_partial",
@@ -78,6 +90,21 @@ class LanguageGenerator:
                 sentence = "Halo! Aku siap bantu. Apa kabar kamu?"
             else:
                 sentence = "Hai! Siap bantu, nih. Apa kabar?"
+        elif is_dataset_fact_answer:
+            # Dataset fact conclusions already contain the exact record value
+            # and qualifiers. Do not pass them through _phrase(), which
+            # case-folds text and would alter source values such as "Bumi".
+            meaning = {"kind": "statement", "proposition": conclusion}
+            uncertain = self._is_uncertain(reasoning_result)
+            sentence = conclusion.strip()
+            if (
+                reasoning_type == "hypothetical_inference"
+                and not any(
+                    marker in sentence.casefold()
+                    for marker in ("mungkin", "kemungkinan", "berpotensi")
+                )
+            ):
+                sentence = "Ada kemungkinan bahwa " + sentence
         elif concept_status == "concept_inference_unknown":
             meaning = {"kind": "unknown", "target": "pertanyaanmu"}
             uncertain = True
