@@ -201,7 +201,7 @@ def semantic_for_case(case):
 class GenericBatchAdapter:
     """Per-instance adapter: exact prompts from loaded DRAFT records only."""
     def __init__(self, cases):
-        self.by_text = {c["input"]: c for c in cases}
+        self.by_text = {c["input"].strip().casefold(): c for c in cases}
         self.knowledge = []
 
     def install(self, core):
@@ -214,7 +214,7 @@ class GenericBatchAdapter:
         original_analyze = core.analyze_text
         def analyze_text(text, *, context_snapshot=None):
             base = original_analyze(text, context_snapshot=context_snapshot)
-            case = self.by_text.get(text)
+            case = self.by_text.get(text.strip().casefold())
             if not case:
                 return base
             semantic = semantic_for_case(case)
@@ -224,6 +224,8 @@ class GenericBatchAdapter:
             result["status"] = "supported"
             result["semantics"] = semantic
             validate_output(result)
+            # Preserve the exact user utterance for the paired Reasoning adapter.
+            result["original_text"] = text
             return result
         core.analyze_text = analyze_text
 
