@@ -1,0 +1,65 @@
+name: ILIS General Chatbot Playground
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Pilih Final-Test 18 kasus atau prompt custom"
+        required: true
+        type: choice
+        options:
+          - final_test
+          - custom
+        default: final_test
+      custom_prompts_json:
+        description: "Opsional: array JSON kasus custom; wajib untuk mode custom"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  chatbot-playground:
+    name: Jalankan prompt pada ILIS development
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout kode ILIS development
+        uses: actions/checkout@v4
+        with:
+          ref: ilis-v2-development
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ILIS
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+
+      - name: Jalankan chatbot playground
+        env:
+          PLAYGROUND_MODE: \${{ inputs.mode }}
+          CUSTOM_PROMPTS_JSON: \${{ inputs.custom_prompts_json }}
+        run: |
+          if [ "$PLAYGROUND_MODE" = "custom" ]; then
+            if [ -z "$CUSTOM_PROMPTS_JSON" ]; then
+              echo "Mode custom memerlukan custom_prompts_json."
+              exit 2
+            fi
+            python scripts/run_chatbot_playground.py --mode custom --custom-json "$CUSTOM_PROMPTS_JSON"
+          else
+            python scripts/run_chatbot_playground.py --mode final_test
+          fi
+
+      - name: Simpan hasil mentah sebagai artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ilis-chatbot-playground-\${{ github.run_number }}
+          path: playground-results/
+          if-no-files-found: warn
+          retention-days: 30
