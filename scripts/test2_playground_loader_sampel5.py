@@ -186,8 +186,8 @@ def main() -> int:
                 handle.write(f"## {item['id']}\n\n")
                 handle.write(f"- Semantic status: {item['semantic_status_changed']}\n")
                 handle.write(f"- Semantic confidence: {item['semantic_confidence_changed']}\n")
-                handle.write(f"- Reasoning type: {item['reasoning_type_changed']}\n")
-                handle.write(f"- Reasoning confidence: {item['reasoning_confidence_changed']}\n\n")
+                handle.write(f"- Reasoning before repair: {item['reasoning_before_repair']}\n")
+                handle.write(f"- Reasoning after repair: {item['reasoning_after_repair']}\n\n")
     return 0
 
 
