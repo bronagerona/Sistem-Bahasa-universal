@@ -99,3 +99,14 @@ def test_invalid_session_and_empty_inputs_are_rejected():
         core.game().handle_event("   ", session_id)
     with pytest.raises(KeyError):
         core.chatbot().respond("Api menyentuh rumah kayu", "missing")
+
+
+def test_chatbot_runtime_exposes_bl_ilis_002_not_yet_mapping():
+    core = ILISCore()
+    result = core.chatbot().respond("Saya belum selesai")
+
+    negation = result["metadata"]["negation"]
+    assert negation["negation_type"] == "not_yet"
+    assert negation["confidence"] == 0.86
+    assert negation["evidence"]["detected_cues"] == ["belum"]
+    assert "belum" in negation["evidence"]["reason"].casefold()
