@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
@@ -10,6 +11,35 @@ from uuid import uuid4
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+_TOPIC_STOPWORDS = {
+    "aku", "saya", "kamu", "dia", "kami", "kita", "mereka", "nya", "ini", "itu",
+    "tadi", "tersebut", "yang", "dan", "atau", "di", "ke", "dari", "untuk",
+    "pada", "dengan", "dalam", "sedang", "lagi", "sudah", "belum", "akan",
+    "apa", "siapa", "bagaimana", "mengapa", "apakah", "ngomong", "omong",
+    "fungsi", "tentang", "mengenai", "mencari", "cari", "butuh", "perlu",
+    "ingin", "mau", "adalah", "yaitu", "jadi", "maka", "juga", "saja",
+    "sebuah", "suatu", "beberapa", "lebih", "paling", "bisa", "dapat",
+    "tolong", "dong", "ya", "nih", "kan", "kok", "deh", "pun",
+}
+_TOPIC_RETURN = re.compile(
+    r"^\\s*(?:kembali|balik)\\s+(?:lagi\\s+)?(?:ke|ke\\s+topik|ke\\s+pembahasan)\\s+(?P<reference>[^,;.!?]+)",
+    re.IGNORECASE,
+)
+_TOPIC_SHIFT = re.compile(
+    r"\\b(?:ngomong[- ]ngomong|omong[- ]omong|beralih\\s+ke|ganti\\s+topik|topik\\s+lain)\\b",
+    re.IGNORECASE,
+)
+
+
+def _topic_tokens(text: str) -> list[str]:
+    """Extract conservative lexical anchors; this is not semantic parsing."""
+    tokens = re.findall(r"[a-zA-ZÀ-ÿ0-9]+", text.casefold())
+    return list(dict.fromkeys(
+        token for token in tokens
+        if len(token) > 2 and token not in _TOPIC_STOPWORDS and not token.isdigit()
+    ))
 
 
 @dataclass(frozen=True)
@@ -35,6 +65,9 @@ class ConversationSession:
     active: bool = True
     metadata: dict[str, Any] = field(default_factory=dict)
     turns: list[ConversationTurn] = field(default_factory=list)
+    topic_history: list[dict[str, Any]] = field(default_factory=list)
+    active_topic_id: str | None = None
+    topic_resolution: dict[str, Any] = field(default_factory=dict)
 
 
 class SessionManager:
@@ -42,6 +75,8 @@ class SessionManager:
 
     The manager never accesses ContextEngine, Knowledge, Episodic Memory, or
     SQLite. Existing host-generated IDs can be adopted with ensure_session().
+    Topic history is kept separately from the bounded transcript so a topic
+    can be revisited even after it is no longer active.
     """
 
     def __init__(self, *, max_turns: int = 5) -> None:
@@ -90,6 +125,119 @@ class SessionManager:
             raise ValueError(f"session is closed: {session_id}")
         return session
 
+    def update_topic_context(self, session_id: str, user_message: str) -> dict[str, Any]:
+        """Track topic changes and conservatively resolve explicit return references.
+
+        Topic anchors are lexical hints only. They never become Semantic fields,
+        Knowledge facts, or evidence for factual conclusions.
+        """
+        session = self.require_session(session_id)
+        if not isinstance(user_message, str) or not user_message.strip():
+            raise ValueError("user_message must be a non-empty string")
+        sequence = session.turns[-1].sequence + 1 if session.turns else 1
+        return_match = _TOPIC_RETURN.match(user_message)
+        if return_match:
+            reference_tokens = _topic_tokens(return_match.group("reference"))
+            ranked: list[tuple[int, dict[str, Any]]] = []
+            for topic in session.topic_history:
+                overlap = set(reference_tokens).intersection(topic.get("anchors", []))
+                if overlap:
+                    ranked.append((len(overlap), topic))
+            if ranked:
+                best_score = max(score for score, _ in ranked)
+                best = [topic for score, topic in ranked if score == best_score]
+                if len(best) == 1:
+                    topic = best[0]
+                    session.active_topic_id = topic["topic_id"]
+                    topic["last_mentioned_sequence"] = sequence
+                    topic["mention_count"] = int(topic.get("mention_count", 1)) + 1
+                    session.topic_resolution = {
+                        "status": "returned_to_previous",
+                        "topic_id": topic["topic_id"],
+                        "topic": topic["label"],
+                        "matched_anchors": sorted(
+                            set(reference_tokens).intersection(topic.get("anchors", []))
+                        ),
+                        "explicit_reference": True,
+                    }
+                    return self.get_topic_context(session_id)
+
+            session.topic_resolution = {
+                "status": "ambiguous_reference",
+                "topic_id": None,
+                "topic": None,
+                "matched_anchors": [],
+                "explicit_reference": True,
+            }
+            return self.get_topic_context(session_id)
+
+        anchors = _topic_tokens(user_message)
+        active = next(
+            (topic for topic in session.topic_history
+             if topic["topic_id"] == session.active_topic_id),
+            None,
+        )
+        overlap = (
+            set(anchors).intersection(active.get("anchors", []))
+            if active is not None else set()
+        )
+        explicit_shift = bool(_TOPIC_SHIFT.search(user_message))
+
+        if anchors and (
+            active is None
+            or (explicit_shift and not overlap)
+            or (not overlap and len(anchors) >= 2)
+        ):
+            topic_id = f"topic-{sequence}"
+            topic = {
+                "topic_id": topic_id,
+                "label": " ".join(anchors[:3]),
+                "anchors": list(anchors),
+                "first_sequence": sequence,
+                "last_mentioned_sequence": sequence,
+                "mention_count": 1,
+            }
+            session.topic_history.append(topic)
+            session.active_topic_id = topic_id
+            status = "new_topic" if active is not None else "initial_topic"
+            session.topic_resolution = {
+                "status": status, "topic_id": topic_id,
+                "topic": topic["label"], "matched_anchors": [],
+                "explicit_reference": False,
+            }
+        elif active is not None and overlap:
+            active["last_mentioned_sequence"] = sequence
+            active["mention_count"] = int(active.get("mention_count", 1)) + 1
+            session.topic_resolution = {
+                "status": "same_topic_deepened",
+                "topic_id": active["topic_id"],
+                "topic": active["label"],
+                "matched_anchors": sorted(overlap),
+                "explicit_reference": False,
+            }
+        else:
+            session.topic_resolution = {
+                "status": "topic_uncertain",
+                "topic_id": session.active_topic_id,
+                "topic": active.get("label") if active else None,
+                "matched_anchors": [],
+                "explicit_reference": False,
+            }
+        return self.get_topic_context(session_id)
+
+    def get_topic_context(self, session_id: str) -> dict[str, Any]:
+        session = self.require_session(session_id)
+        active = next(
+            (topic for topic in session.topic_history
+             if topic["topic_id"] == session.active_topic_id),
+            None,
+        )
+        return {
+            "active_topic": dict(active) if active else None,
+            "topic_history": [dict(topic) for topic in session.topic_history],
+            "resolution": dict(session.topic_resolution),
+        }
+
     def add_turn(
         self, session_id: str, user_message: str, assistant_response: str,
         *, metadata: dict[str, Any] | None = None,
@@ -130,12 +278,16 @@ class SessionManager:
                 }
                 for turn in session.turns[-self.max_turns:]
             ],
+            "topic_context": self.get_topic_context(session_id),
         }
 
     def reset_session(self, session_id: str) -> dict[str, Any]:
         session = self.require_session(session_id)
         deleted = len(session.turns)
         session.turns.clear()
+        session.topic_history.clear()
+        session.active_topic_id = None
+        session.topic_resolution = {}
         session.updated_at = _now()
         return {"session_id": session_id, "deleted_turns": deleted, "reset": True}
 
