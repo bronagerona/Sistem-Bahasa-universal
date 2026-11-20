@@ -156,3 +156,77 @@ def test_v2_semantic_intents_are_distinguished():
     assertion = engine.analyze(payload("Saya makan nasi.", ["saya", "makan", "nasi", "."]))
     assert reasoner.infer_semantic(command)["reasoning_type"] == "command"
     assert reasoner.infer_semantic(assertion)["reasoning_type"] == "assertion"
+
+
+def test_dataset_fact_retrieval_matches_subject_and_relation_cues():
+    from pathlib import Path
+
+    from ilis.interfaces import ILISCore
+
+    core = ILISCore()
+    semantic = core.analyze_text("Apakah Merkurius memiliki periode rotasi sideris?")
+    assert semantic["status"] == "supported"
+    assert semantic["semantics"]["Actor"] == "merkurius"
+    assert semantic["semantics"]["Predicate"] == "memiliki"
+    assert semantic["semantics"]["Patient/Object"] == "periode rotasi sideris"
+
+    result = core.reasoning_engine.infer_semantic(semantic)
+
+    assert result["reasoning_type"] == "hypothetical_inference"
+    assert result["confidence_score"] == 0.48
+    assert result["evidence"] == ["fact-0033"]
+    assert "1.407,6 jam" in result["conclusion"]
+    assert "bukan lama hari Matahari" in result["conclusion"]
+    assert any("verification" not in reason and "sumber:" in reason for reason in result["reasons"])
+
+
+def test_dataset_fact_retrieval_supports_rotation_question_without_object():
+    from ilis.interfaces import ILISCore
+
+    core = ILISCore()
+    semantic = core.analyze_text("Berapa lama Merkurius berotasi?")
+    assert semantic["status"] == "supported"
+    assert semantic["semantics"]["Intent"] == "question"
+    assert semantic["semantics"]["Actor"] == "merkurius"
+    assert semantic["semantics"]["Predicate"] == "berotasi"
+    assert semantic["semantics"]["Patient/Object"] is None
+
+    result = core.reasoning_engine.infer_semantic(semantic)
+    assert result["evidence"] == ["fact-0033"]
+    assert "58,65 hari Bumi" in result["conclusion"]
+
+
+def test_dataset_fact_retrieval_does_not_choose_between_multiple_candidates():
+    from ilis.cognition import KnowledgeEngine
+    from ilis.cognition.reasoning_engine import ReasoningEngine
+
+    knowledge = KnowledgeEngine(seed_core_knowledge=False)
+    knowledge.load_dataset_record({
+        "fact_id": "fact-9001", "subject": "Merkurius",
+        "predicate": "memiliki periode rotasi sideris sekitar",
+        "object": "58,65 hari", "source": "source A",
+        "verification_status": "draft",
+    })
+    knowledge.load_dataset_record({
+        "fact_id": "fact-9002", "subject": "Merkurius",
+        "predicate": "memiliki periode rotasi sideris sekitar",
+        "object": "59 hari", "source": "source B",
+        "verification_status": "draft",
+    })
+    semantic = {
+        "contract_version": "1.0", "status": "supported",
+        "semantics": {
+            "Actor": "merkurius", "Predicate": "memiliki",
+            "Patient/Object": "periode rotasi sideris", "Recipient": None,
+            "Location": None, "Time": None, "Aspect": "unspecified",
+            "Negation": "none", "Modality": "none", "Intent": "question",
+            "Register": "formal", "Confidence": 0.9,
+        },
+        "original_text": "Apakah Merkurius memiliki periode rotasi sideris?",
+        "ilve": {"normalized_text": "apakah merkurius memiliki periode rotasi sideris",
+                 "tokens": [], "variation_hints": []},
+    }
+    result = ReasoningEngine(knowledge).infer_semantic(semantic)
+    assert result["reasoning_type"] == "unknown"
+    assert result["evidence"] == []
+    assert "lebih dari satu fakta kandidat" in result["conclusion"]
