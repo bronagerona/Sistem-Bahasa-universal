@@ -57,19 +57,27 @@ def normalize_dialogue_semantics(annotation):
     elif negation is None:
         negation = "none"
     else:
-        negation = str(negation)
+        negation = str(negation) if str(negation) in {"none", "negative", "not_yet", "identity_negative"} else "negative"
+    aspect = value.get("Aspect")
+    aspect = aspect if aspect in {"progressive", "completed", "prospective", "habitual", "unspecified"} else "unspecified"
+    modality = value.get("Modality")
+    modality = modality if modality in {"none", "ability", "obligation", "possibility", "desire", "permission"} else "none"
+    register = value.get("Register")
+    register = register if register in {"formal", "informal", "slang", "unknown"} else "unknown"
+    intent = value.get("Intent")
+    intent = intent if intent in {"assertion", "question", "command"} else "assertion"
     result = {
         "Actor": value.get("Actor"),
         "Predicate": value.get("Predicate"),
         "Patient/Object": value.get("Patient/Object"),
-        "Intent": value.get("Intent") or "unknown",
+        "Intent": intent,
         "Time": value.get("Time"),
-        "Aspect": value.get("Aspect") or "unspecified",
+        "Aspect": aspect,
         "Location": value.get("Location"),
         "Recipient": value.get("Recipient"),
         "Negation": negation,
-        "Modality": value.get("Modality") or "none",
-        "Register": value.get("Register") or "unknown",
+        "Modality": modality,
+        "Register": register,
         "Confidence": float(value.get("Confidence", 0.5)),
     }
     if set(result) != SEMANTIC_KEYS:
@@ -137,7 +145,7 @@ def semantic_for_case(case):
     predicate = record.get("lemma") or record.get("name") or record.get("predicate")
     return {
         "Actor": actor, "Predicate": predicate, "Patient/Object": None,
-        "Intent": str(intent)[:100], "Time": None, "Aspect": "unspecified",
+        "Intent": "question" if "?" in text else "command" if re.search(r"\b(tolong|jangan|silakan|ayo|yuk)\b", lower) else "assertion", "Time": None, "Aspect": "unspecified",
         "Location": None, "Recipient": None, "Negation": neg,
         "Modality": "none", "Register": record.get("register", "unknown"),
         "Confidence": 0.55,
