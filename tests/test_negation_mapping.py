@@ -1,5 +1,6 @@
 """Regression tests for the isolated BL-ILIS-002 negation interpreter."""
 import json
+import warnings
 from pathlib import Path
 import pytest
 from ilis.experimental.negation_mapping import LABELS, legacy_mapping, map_negation
@@ -9,6 +10,7 @@ DIALOGUE_DIR = ROOT / "data" / "indonesian" / "dialogues"
 
 @pytest.mark.parametrize(("text","source","expected"), [
  ("Saya membaca buku.",False,"none"),
+ ("Boleh.",False,"none"),
  ("Saya tidak membaca buku.",False,"negative"),
  ("Saya belum membaca buku.",False,"not_yet"),
  ("Dia bukan kakak saya.",False,"identity_negative"),
@@ -66,6 +68,8 @@ def test_all_205_dialogue_annotations_are_read_only_and_classified():
  labels={label:0 for label in sorted(LABELS)}
  discrepancies=[]
  baseline_changes=[]
+ ambiguous_cases=[]
+ cue_cases=[]
  for path in paths:
   for line in before[path].decode("utf-8").splitlines():
    if not line.strip(): continue
@@ -82,6 +86,8 @@ def test_all_205_dialogue_annotations_are_read_only_and_classified():
     utterance=turn["utterance"]
     result=map_negation(utterance,source,context=prior_turns)
     labels[result["mapping_label"]]+=1
+    if result["mapping_label"]=="ambiguous": ambiguous_cases.append((dialogue["dialogue_id"],turn["turn_id"],utterance))
+    if result["detected_cues"]: cue_cases.append((dialogue["dialogue_id"],turn["turn_id"],result["detected_cues"],result["mapping_label"]))
     if legacy_mapping(source,utterance)!=result["mapping_label"]:
      baseline_changes.append((dialogue["dialogue_id"],turn["turn_id"]))
     if result["annotation_discrepancy"]:
@@ -93,4 +99,4 @@ def test_all_205_dialogue_annotations_are_read_only_and_classified():
  assert sum(labels.values())==205
  assert all(label in LABELS for label in labels)
  assert {path:path.read_bytes() for path in paths}==before
- print({"annotations":total,"labels":labels,"baseline_changes":len(baseline_changes),"discrepancies":len(discrepancies)})
+ warnings.warn("NEGATION_MAPPING_AUDIT "+json.dumps({"dialogues":dialogue_count,"turns":turn_count,"annotations":total,"labels":labels,"baseline_changes":baseline_changes,"discrepancies":discrepancies,"ambiguous_cases":ambiguous_cases,"cue_cases":cue_cases},ensure_ascii=False),UserWarning)
