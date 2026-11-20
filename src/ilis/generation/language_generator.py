@@ -97,6 +97,14 @@ class LanguageGenerator:
             meaning = {"kind": "statement", "proposition": conclusion}
             uncertain = self._is_uncertain(reasoning_result)
             sentence = conclusion.strip()
+            if (
+                reasoning_type == "hypothetical_inference"
+                and not any(
+                    marker in sentence.casefold()
+                    for marker in ("mungkin", "kemungkinan", "berpotensi")
+                )
+            ):
+                sentence = "Ada kemungkinan bahwa " + sentence
         elif concept_status == "concept_inference_unknown":
             meaning = {"kind": "unknown", "target": "pertanyaanmu"}
             uncertain = True
