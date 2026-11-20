@@ -217,6 +217,7 @@ class ChatbotAdapter:
         self.session_manager.add_turn(session_id, text, final_answer, metadata={
             "response_type": "normal", "speaker": speaker,
             "register": generated["register"],
+            "semantic_result": semantic,
         })
         conflicts = self.core.knowledge_engine.detect_conflicts()
         return {
