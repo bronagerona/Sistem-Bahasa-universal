@@ -639,7 +639,7 @@ class ReasoningEngine:
                 ),
             )
 
-        if re.search(r"\\borbit\\b", current_text):
+        if re.search(r"\borbit\b", current_text):
             matches = self.knowledge_engine.search_dataset_facts(
                 prior_actor, ["orbit"],
             )
