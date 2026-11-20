@@ -42,8 +42,8 @@ jobs:
 
       - name: Jalankan chatbot playground
         env:
-          PLAYGROUND_MODE: \${{ inputs.mode }}
-          CUSTOM_PROMPTS_JSON: \${{ inputs.custom_prompts_json }}
+          PLAYGROUND_MODE: ${{ inputs.mode }}
+          CUSTOM_PROMPTS_JSON: ${{ inputs.custom_prompts_json }}
         run: |
           if [ "$PLAYGROUND_MODE" = "custom" ]; then
             if [ -z "$CUSTOM_PROMPTS_JSON" ]; then
@@ -59,7 +59,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ilis-chatbot-playground-\${{ github.run_number }}
+          name: ilis-chatbot-playground-${{ github.run_number }}
           path: playground-results/
           if-no-files-found: warn
           retention-days: 30
