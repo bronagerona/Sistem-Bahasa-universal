@@ -1,0 +1,54 @@
+name: Tahap C - Generic Playground Batch 006-010
+
+on:
+  push:
+    branches:
+      - test-playground-batch006-010
+    paths:
+      - ".github/workflows/test2-playground-batch006-010.yml"
+      - "scripts/test2_playground_batch006_010.py"
+      - "scripts/test2_playground_loader_sampel5.py"
+      - "scripts/test2_sample5_injection_adapter.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  batch-ab:
+    name: Stage-A + Tahap-B regression; Batch 006-010 A/B
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout isolated experiment branch
+        uses: actions/checkout@v4
+        with:
+          ref: test-playground-batch006-010
+          fetch-depth: 0
+      - name: Verify pinned ancestry and branch isolation
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_SHA="80475e0f5e7c78c92a84109522777946dd9fb797"
+          git cat-file -e "$SOURCE_SHA^{commit}"
+          test "$(git branch --show-current)" = "test-playground-batch006-010"
+          git merge-base --is-ancestor "$SOURCE_SHA" HEAD
+          echo "EXPERIMENT_BRANCH=$(git branch --show-current)"
+          echo "EXPERIMENT_HEAD=$(git rev-parse HEAD)"
+          echo "PINNED_DATASET_SHA=$SOURCE_SHA"
+          echo "SOURCE_IS_ANCESTOR=yes"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install ILIS package
+        run: python -m pip install -e .
+      - name: Run Stage-A + Tahap-B regression and generic Batch 006-010 A/B
+        run: python scripts/test2_playground_batch006_010.py
+      - name: Upload JSON report and proof log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tahap-c-batch006-010-proof
+          path: test-results/test2-batch001-005-*
+          if-no-files-found: error
+          retention-days: 30
