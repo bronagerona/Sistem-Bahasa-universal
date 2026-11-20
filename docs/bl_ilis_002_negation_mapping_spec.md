@@ -382,8 +382,31 @@ Implementasi interpreter, validator enam label, dan regresi 205 anotasi merupaka
 
 ## 12. Status akhir BL-ILIS-002
 
-**DESAIN LENGKAP — MENUNGGU EVALUASI.**
+**DESAIN LENGKAP — DITERIMA DOLA.**
 
 Desain menetapkan pemisahan data sumber, interpretasi, dan keluaran runtime; enam label; aturan pemicu dan prioritas; fallback konservatif; penanganan negasi ganda; serta rencana regresi 205 anotasi.
 
 Status ini hanya menyatakan spesifikasi telah disusun. BL-ILIS-002 belum dinyatakan selesai secara implementasi sampai interpreter enam label diuji terhadap 205 anotasi dan seluruh kriteria lulus terpenuhi.
+
+
+## 13. Catatan evaluasi Dola — diterima
+
+**Keputusan evaluator: DITERIMA; siap di-merge ke `ilis-v2-development`.**
+
+Lima poin evaluasi:
+
+1. Boolean sumber `false` dengan cue teks eksplisit mengikuti makna teks dan dicatat sebagai discrepancy; JSONL tidak diubah — **diterima**.
+2. Batas `identity_negative` dan `negative` — **diterima**.
+3. `jangan` dan `tidak boleh` dipetakan sebagai `prohibitive` bila berfungsi sebagai larangan — **diterima**.
+4. `ambiguous` sebagai fallback konservatif untuk negasi ganda/scope tak pasti — **sangat disetujui**.
+5. Inventarisasi dan verifikasi jumlah 205 anotasi sebelum dan sesudah tes — **diterima**.
+
+Catatan implementasi yang harus tetap diperhatikan:
+
+- `belum tentu` tidak otomatis berarti `not_yet`; fungsi dan konteks harus diperiksa.
+- Kata negasi yang hanya disebut atau dikutip tidak dihitung sebagai negasi fungsional.
+- Confidence harus diturunkan untuk hasil `ambiguous`; jangan menampilkan kepastian palsu.
+- Negasi ganda tetap `ambiguous` pada tahap awal sampai aturan khusus didukung contoh dan evaluasi yang memadai.
+- Daftar pemicu dapat diperluas kemudian berdasarkan contoh terverifikasi.
+
+Evaluasi ini menerima **dokumen desain**, bukan menyatakan implementasi runtime atau audit 205 anotasi telah selesai. Dataset tetap DRAFT dan seluruh JSONL tetap tidak berubah.
