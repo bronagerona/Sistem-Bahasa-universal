@@ -24,6 +24,14 @@ def _functional_text(text: str) -> tuple[str, list[str]]:
     quoted_cues = [m.group(0).casefold() for q in quoted for m in _CUE_RE.finditer(q)]
     return outside, quoted_cues
 
+def _is_identity_nominal(token: str) -> bool:
+    if token in _IDENTITY_NOUNS:
+        return True
+    for suffix in ("ku", "mu", "nya"):
+        if token.endswith(suffix) and token[:-len(suffix)] in _IDENTITY_NOUNS:
+            return True
+    return False
+
 def map_negation(utterance: str, source_boolean: bool | None, context: list[str] | tuple[str, ...] | None = None) -> dict[str, Any]:
     """Return a six-label mapping plus a diagnostic trace; context is prior turns oldest first."""
     if not isinstance(utterance, str) or not utterance.strip():
@@ -73,7 +81,7 @@ def map_negation(utterance: str, source_boolean: bool | None, context: list[str]
         elif "bukan" in words:
             idx = words.index("bukan")
             following = words[idx + 1:]
-            if following and following[0] in _IDENTITY_NOUNS:
+            if following and _is_identity_nominal(following[0]):
                 label, confidence, reason = "identity_negative", 0.90, "Bukan menyangkal identitas, kategori, atau relasi nominal."
             else:
                 label, confidence, reason = "negative", 0.80, "Bukan menyangkal proposisi/unsur non-identitas."
