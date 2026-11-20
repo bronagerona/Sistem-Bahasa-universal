@@ -32,3 +32,8 @@ def test_final_test_inventory_is_exactly_18_without_mutation():
     cases = RUNNER.load_final_test_cases()
     assert len(cases) == 18
     assert all(case["verification_status"] == "draft" for case in cases)
+
+def test_report_records_actual_code_branch_and_checkout_sha():
+    report = RUNNER.build_report([], "final_test", "abc123def456", "ilis-v2-development")
+    assert "Code branch: ilis-v2-development" in report
+    assert "Code commit (actual checkout HEAD): abc123def456" in report

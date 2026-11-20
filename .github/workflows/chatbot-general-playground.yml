@@ -3,6 +3,14 @@ name: ILIS General Chatbot Playground
 on:
   workflow_dispatch:
     inputs:
+      target_branch:
+        description: "Pilih branch kode ILIS yang akan diuji"
+        required: true
+        type: choice
+        options:
+          - ilis-v2-development
+          - main
+        default: ilis-v2-development
       mode:
         description: "Pilih Final-Test 18 kasus atau prompt custom"
         required: true
@@ -21,14 +29,19 @@ permissions:
 
 jobs:
   chatbot-playground:
-    name: Jalankan prompt pada ILIS development
+    name: Jalankan prompt pada branch terpilih
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout kode ILIS development
+      - name: Checkout kode ILIS dari branch terpilih
         uses: actions/checkout@v4
         with:
-          ref: ilis-v2-development
+          ref: ${{ inputs.target_branch }}
+
+      - name: Catat identitas kode yang diuji
+        run: |
+          echo "PLAYGROUND_CODE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "PLAYGROUND_CODE_BRANCH=${{ inputs.target_branch }}" >> "$GITHUB_ENV"
 
       - name: Setup Python
         uses: actions/setup-python@v5
