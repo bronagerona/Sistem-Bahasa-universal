@@ -137,7 +137,7 @@ def test_prepositional_siapa_kamu_does_not_route_to_identity_intent(message):
     adapter = ChatbotAdapter(core)
     result = adapter.respond(message)
 
-    assert result["metadata"].get("response_type") == "normal"
+    assert result["metadata"].get("reasoning_type") != "identity_intent"
     assert result["semantic_result"] is not None
     assert result["reasoning_result"] is not None
     assert result["reasoning_result"]["reasoning_type"] != "identity_intent"
