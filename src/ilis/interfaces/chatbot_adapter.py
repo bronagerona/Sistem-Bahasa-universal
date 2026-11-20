@@ -15,7 +15,7 @@ class ChatbotAdapter:
     """Run ILIS for one turn while keeping transcript state in SessionManager."""
 
     _IDENTITY_INTENT = re.compile(
-        r"\b(?:siapa\s+kamu|apa\s+yang\s+bisa\s+kamu\s+lakukan|"
+        r"(?<!dengan )\b(?:siapa\s+kamu|apa\s+yang\s+bisa\s+kamu\s+lakukan|"
         r"kemampuanmu|jelaskan\s+kemampuanmu|"
         r"lu\s+siapa|kamu\s+bisa\s+ngapain|"
         r"kemampuan\s+lu\s+apa\s+aja|kemampuan\s+lo\s+apa\s+aja|"

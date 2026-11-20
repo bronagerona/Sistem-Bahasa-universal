@@ -123,3 +123,21 @@ def test_non_mode_a_identity_phrase_uses_normal_core_pipeline(
     assert result["semantic_result"] is not None
     assert result["reasoning_result"] is not None
     assert result["generation"] is not None
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "Dengan siapa kamu pergi?",
+        "Dengan siapa kamu berdiskusi?",
+    ],
+)
+def test_prepositional_siapa_kamu_does_not_route_to_identity_intent(message):
+    core = ILISCore()
+    adapter = ChatbotAdapter(core)
+    result = adapter.respond(message)
+
+    assert result["metadata"].get("reasoning_type") != "identity_intent"
+    assert result["semantic_result"] is not None
+    assert result["reasoning_result"] is not None
+    assert result["reasoning_result"]["reasoning_type"] != "identity_intent"
