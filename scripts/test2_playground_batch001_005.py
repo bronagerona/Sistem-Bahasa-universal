@@ -142,12 +142,14 @@ def semantic_for_case(case):
     if "?" in text:
         intent = "question"
     actor = next(iter(re.findall(r"\b[A-Z][a-zA-Z]+\b", text)), None)
+    register = record.get("register", "unknown")
+    register = register if isinstance(register, str) and register in {"formal", "informal", "slang", "unknown"} else "unknown"
     predicate = record.get("lemma") or record.get("name") or record.get("predicate")
     return {
         "Actor": actor, "Predicate": predicate, "Patient/Object": None,
         "Intent": "question" if "?" in text else "command" if re.search(r"\b(tolong|jangan|silakan|ayo|yuk)\b", lower) else "assertion", "Time": None, "Aspect": "unspecified",
         "Location": None, "Recipient": None, "Negation": neg,
-        "Modality": "none", "Register": record.get("register", "unknown"),
+        "Modality": "none", "Register": register,
         "Confidence": 0.55,
     }
 
