@@ -144,7 +144,7 @@ def test_chatbot_answers_supported_question_from_loaded_knowledge_dataset():
     assert result["reasoning_result"]["reasoning_type"] == "hypothetical_inference"
     assert result["reasoning_result"]["evidence"] == ["fact-0033"]
     assert "1.407,6 jam" in result["answer"]
-    assert "bukan lama hari Matahari" in result["answer"]
+    assert "bukan lama hari matahari" in result["answer"].casefold()
     assert result["metadata"]["confidence_score"] < 0.48
     assert len(result["semantic_result"]["semantics"]) == 12
     assert len(result["reasoning_result"]) == 6

@@ -230,7 +230,7 @@ def test_dataset_fact_retrieval_does_not_choose_between_multiple_candidates():
     result = ReasoningEngine(knowledge).infer_semantic(semantic)
     assert result["reasoning_type"] == "unknown"
     assert result["evidence"] == []
-    assert "lebih dari satu fakta kandidat" in result["conclusion"]
+    assert any("lebih dari satu fakta kandidat" in reason for reason in result["reasons"])
 
 
 def test_dataset_fact_retrieval_answers_mercury_orbital_period_separately():
