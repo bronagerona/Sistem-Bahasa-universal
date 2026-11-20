@@ -60,7 +60,7 @@ class LanguageGenerator:
         is_greeting = (
             isinstance(semantics, dict)
             and (semantic_result or {}).get("status") == "supported"
-            and semantics.get("Predicate") == "menyapa"
+            and semantics.get("Intent") == "greeting"
         )
         concept_status = reasoning_type if reasoning_type in {
             "concept_inference_known",
