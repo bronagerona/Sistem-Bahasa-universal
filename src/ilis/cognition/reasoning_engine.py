@@ -547,14 +547,14 @@ class ReasoningEngine:
         if not text.endswith("?") or "merkurius" not in text:
             return None
 
-        if re.match(r"^(?:apa(?: itu)?|definisi)\\b", text):
+        if re.match(r"^(?:apa(?: itu)?|definisi)\b", text):
             if "rotasi" not in text:
                 return None
             relation_terms = ["rotasi"]
             if "sideris" in text:
                 relation_terms.append("sideris")
             question_kind = "definition"
-        elif re.match(r"^berapa(?: lama| hari)?\\b", text):
+        elif re.match(r"^berapa(?: lama| hari)?\b", text):
             if "hari" not in text and "lama" not in text:
                 return None
             if "mengelilingi" not in text or "matahari" not in text:
