@@ -118,7 +118,7 @@ def run_cases(cases: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return results
 
 
-def build_report(results: list[dict[str, Any]], mode: str, commit: str) -> str:
+def build_report(results: list[dict[str, Any]], mode: str, commit: str, branch: str = "") -> str:
     executed = sum(item["execution_status"] == "EXECUTED" for item in results)
     errors = len(results) - executed
     total_turns = sum(len(item["turn_results"]) for item in results)
@@ -126,7 +126,8 @@ def build_report(results: list[dict[str, Any]], mode: str, commit: str) -> str:
         "# ILIS Chatbot Playground — Observational Run", "",
         f"- Mode: {mode}",
         f"- Timestamp (UTC): {datetime.now(timezone.utc).isoformat()}",
-        f"- Checked-out commit: {commit or 'not supplied'}",
+        f"- Code branch: {branch or 'not supplied'}",
+        f"- Code commit (actual checkout HEAD): {commit or 'not supplied'}",
         f"- Cases: **{len(results)}**",
         f"- Cases executed without runtime exception: **{executed}**",
         f"- Cases with execution error: **{errors}**",
@@ -184,7 +185,12 @@ def main() -> int:
         json.dumps(results, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8"
     )
     import os
-    report = build_report(results, args.mode, os.environ.get("GITHUB_SHA", ""))
+    report = build_report(
+        results,
+        args.mode,
+        os.environ.get("PLAYGROUND_CODE_SHA", ""),
+        os.environ.get("PLAYGROUND_CODE_BRANCH", ""),
+    )
     (output_dir / "report.md").write_text(report, encoding="utf-8")
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
     if summary_path:
