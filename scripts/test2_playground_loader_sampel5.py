@@ -86,6 +86,24 @@ def main() -> int:
     adapter.install(injected_core)
     injected = run_core(injected_core, CASES)
 
+    reasoning_keys = {"conclusion", "confidence_score", "evidence", "reasoning_type", "reasons", "uncertainty"}
+    for item in injected:
+        reasoning = item.get("reasoning_result") or {}
+        if set(reasoning) != reasoning_keys:
+            raise AssertionError(f"{item['id']}: Reasoning 6 Keys incomplete: {sorted(reasoning)}")
+        if not isinstance(reasoning["confidence_score"], (int, float)) or reasoning["confidence_score"] <= 0:
+            raise AssertionError(f"{item['id']}: Reasoning confidence must be positive")
+    au = next(item for item in injected if item["id"] == "T2-05")["reasoning_result"]
+    if "DRAFT" not in au["uncertainty"] or "belum diverifikasi" not in au["uncertainty"]:
+        raise AssertionError("T2-05 must explicitly state DRAFT and unverified status")
+
+    previous_reasoning = {
+        "T2-01": {"confidence_score": 0.0, "reasoning_type": "unknown"},
+        "T2-02": {"confidence_score": 0.0, "reasoning_type": "unknown"},
+        "T2-03": {"confidence_score": 0.0, "reasoning_type": "unknown"},
+        "T2-04": {"confidence_score": 0.0, "reasoning_type": "unknown"},
+        "T2-05": {"confidence_score": 0.432, "reasoning_type": "hypothetical_inference"},
+    }
     comparison = []
     for before, after in zip(baseline, injected):
         bsem = before.get("semantic_result") or {}
@@ -104,9 +122,12 @@ def main() -> int:
             "reasoning_type_changed": [
                 breason.get("reasoning_type"), areason.get("reasoning_type")
             ],
-            "reasoning_confidence_changed": [
-                breason.get("confidence_score"), areason.get("confidence_score")
-            ],
+            "reasoning_before_repair": previous_reasoning[before["id"]],
+            "reasoning_after_repair": {
+                "confidence_score": areason.get("confidence_score"),
+                "reasoning_type": areason.get("reasoning_type"),
+                "six_keys_complete": set(areason) == reasoning_keys,
+            },
         })
 
     report = {
@@ -124,6 +145,8 @@ def main() -> int:
             "draft_knowledge_policy": "fact-0048 inserted into in-memory KnowledgeEngine as hypothesis, never verified",
             "results": injected,
         },
+        "previous_reasoning_before_repair": previous_reasoning,
+        "reasoning_contract": sorted(reasoning_keys),
         "comparison": comparison,
         "production_modified": False,
         "source_branches_modified": False,
