@@ -657,35 +657,44 @@ class ReasoningEngine:
             if isinstance(object_value, list) else
             str(object_value).strip() if object_value is not None else ""
         )
-        if object_text:
-            # A populated object is the primary and direct answer. Do not append
-            # qualifiers that could introduce a different or broader location.
+        qualifiers = record.get("qualifiers", [])
+        location_qualifiers = [
+            item.strip() for item in qualifiers
+            if isinstance(item, str)
+            and any(
+                marker in item.casefold()
+                for marker in ("berada di", "terletak di")
+            )
+        ] if isinstance(qualifiers, list) else []
+        qualifier_is_distinct_location = bool(
+            location_qualifiers
+            and object_text
+            and not any(
+                object_text.casefold() in item.casefold()
+                for item in location_qualifiers
+            )
+        )
+
+        if object_text and not qualifier_is_distinct_location:
+            # A populated object is the primary answer. Keep it when an
+            # explicit location qualifier merely repeats the same object.
             answer_text = object_text
             sentence = f"{subject} {predicate} {answer_text}."
-        else:
-            # Qualifiers are considered only after a location predicate has
-            # already passed the whitelist and the object is empty. Require an
-            # explicit location phrase in the qualifier itself.
-            qualifiers = record.get("qualifiers", [])
-            location_qualifiers = [
-                item.strip() for item in qualifiers
-                if isinstance(item, str)
-                and any(
-                    marker in item.casefold()
-                    for marker in ("berada di", "terletak di")
-                )
-            ] if isinstance(qualifiers, list) else []
-            if not location_qualifiers:
-                return self._result(
-                    conclusion="Saya belum memiliki informasi lokasi untuk itu",
-                    confidence_score=0.0, evidence=[], reasoning_type="unknown",
-                    reasons=[
-                        "Predicate termasuk whitelist lokasi, tetapi object kosong dan tidak ada qualifier yang secara eksplisit menyatakan lokasi."
-                    ],
-                    uncertainty="Diperlukan nilai object atau qualifier lokasi yang eksplisit.",
-                )
+        elif location_qualifiers:
+            # The predicate has already passed the location whitelist. Use a
+            # qualifier only when the object is empty or the qualifier states
+            # a distinct explicit location not contained in the object.
             answer_text = " ".join(location_qualifiers)
             sentence = answer_text
+        else:
+            return self._result(
+                conclusion="Saya belum memiliki informasi lokasi untuk itu",
+                confidence_score=0.0, evidence=[], reasoning_type="unknown",
+                reasons=[
+                    "Predicate termasuk whitelist lokasi, tetapi object tidak menyediakan lokasi dan tidak ada qualifier yang secara eksplisit menyatakan lokasi."
+                ],
+                uncertainty="Diperlukan nilai object atau qualifier lokasi yang eksplisit.",
+            )
         verified = fact.get("status") == "verified"
         return self._result(
             conclusion=sentence,
@@ -696,8 +705,8 @@ class ReasoningEngine:
                 f"Pertanyaan lokasi cocok dengan predicate whitelist pada fakta {fact['id']}.",
                 (
                     f"Object disalin langsung dari record dataset: {object_text}."
-                    if object_text else
-                    "Object kosong; qualifier eksplisit lokasi digunakan setelah predicate lolos whitelist."
+                    if object_text and not qualifier_is_distinct_location else
+                    "Qualifier lokasi eksplisit digunakan setelah predicate lolos whitelist karena object kosong atau tidak memuat lokasi tersebut."
                 ),
                 f"Status fakta: {fact['status']}; sumber: {fact.get('source', 'tidak tercatat')}.",
             ],
