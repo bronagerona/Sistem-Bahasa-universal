@@ -6,7 +6,7 @@ STATUSES = frozenset({"supported", "unsupported", "low_confidence"})
 ASPECTS = frozenset({"progressive", "completed", "prospective", "habitual", "unspecified"})
 NEGATIONS = frozenset({"none", "negative", "not_yet", "identity_negative"})
 MODALITIES = frozenset({"none", "ability", "obligation", "possibility", "desire", "permission"})
-INTENTS = frozenset({"assertion", "question", "command"})
+INTENTS = frozenset({"assertion", "question", "command", "greeting"})
 REGISTERS = frozenset({"formal", "informal", "slang", "unknown"})
 
 SEMANTIC_FIELDS = (
