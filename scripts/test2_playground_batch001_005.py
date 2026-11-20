@@ -32,6 +32,7 @@ def read_batches():
                     if not line.strip():
                         continue
                     row = json.loads(line)
+                    row["_source_batch"] = batch
                     rid = next((row[k] for k in ("entry_id", "pattern_id", "dialogue_id", "fact_id", "evaluation_id") if k in row), None)
                     if not rid:
                         raise ValueError(f"{rel}:{line_no}: missing record ID")
@@ -86,7 +87,7 @@ def build_cases(records):
             utterance = (turn.get("utterance") or "").strip()
             if utterance and utterance not in cases:
                 cases[utterance] = {
-                    "input": utterance, "batch": int(row["dialogue_id"].split("-")[1]) // 5 + 1,
+                    "input": utterance, "batch": row["_source_batch"],
                     "pillar": "dialogues", "source_ids": [row["dialogue_id"]],
                     "draft_semantic": normalize_dialogue_semantics(turn.get("semantic_annotation")),
                     "draft_status": "DRAFT",
@@ -100,7 +101,7 @@ def build_cases(records):
             target = by_id.get(row.get("target_ref"))
             if prompt not in cases:
                 cases[prompt] = {
-                    "input": prompt, "batch": int(row["evaluation_id"].split("-")[1]) // 5 + 1,
+                    "input": prompt, "batch": row["_source_batch"],
                     "pillar": "evaluation", "source_ids": [row["evaluation_id"], row.get("target_ref")],
                     "draft_semantic": None, "target_record": target, "draft_status": "DRAFT",
                 }
@@ -115,7 +116,7 @@ def build_cases(records):
                 if prompt and prompt not in cases:
                     rid = row.get("entry_id") or row.get("pattern_id")
                     cases[prompt] = {
-                        "input": prompt, "batch": int(rid.split("-")[1]) // 5 + 1,
+                        "input": prompt, "batch": row["_source_batch"],
                         "pillar": pillar, "source_ids": [rid], "draft_semantic": None,
                         "target_record": row, "draft_status": "DRAFT",
                     }
@@ -180,7 +181,7 @@ class GenericBatchAdapter:
             if not case:
                 return base
             src = ", ".join(case["source_ids"])
-            draft_fact = case.get("pillar") == "knowledge"
+            draft_fact = case.get("pillar") == "knowledge" or bool((case.get("target_record") or {}).get("fact_id"))
             return {
                 "conclusion": f"Interpretasi sementara untuk input: {text}",
                 "confidence_score": min(float((case.get("draft_semantic") or {}).get("Confidence", 0.55)), 0.75),
@@ -248,6 +249,10 @@ def main():
         for c in REGRESSION_CASES
     ])
     regression_errors = check_reasoning(regression_results)
+    for item in regression_results:
+        sem = item.get("semantic_result") or {}
+        if sem.get("status") != "supported" or len(sem.get("semantics") or {}) != 12:
+            regression_errors.append({"input": item["input"], "error": "stage_a_semantic_regression"})
     if regression_errors:
         raise AssertionError(f"Stage-A regression failed: {regression_errors}")
 
