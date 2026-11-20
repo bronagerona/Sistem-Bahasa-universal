@@ -30,7 +30,7 @@ def test_chatbot_answers_where_questions_from_whitelisted_dataset_predicates(
     core = ILISCore()
     result = core.chatbot().respond(message)
 
-    assert result["reasoning_result"]["reasoning_type"] == "hypothetical_inference"
+    assert result["reasoning_result"]["reasoning_type"] == "hypothetical_inference", result["reasoning_result"]
     assert result["reasoning_result"]["evidence"] == [fact_id]
     assert expected_object in result["reasoning_result"]["conclusion"]
     assert expected_object in result["answer"]
