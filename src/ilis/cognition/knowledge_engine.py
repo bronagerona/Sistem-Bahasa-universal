@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 
 from ilis.cognition.concept_store import ConceptStore
@@ -60,6 +62,107 @@ class KnowledgeEngine:
                         subject, relation, object_,
                         status="verified", source="core_knowledge",
                     )
+
+    def load_dataset_record(self, record: dict[str, Any]) -> dict[str, Any]:
+        """Load one enrichment JSONL record without changing its source data.
+
+        Dataset records use fact_id/predicate/verification_status, while the
+        runtime store uses id/relation/status. Draft records remain unverified
+        by mapping them to the engine's existing hypothesis status.
+        """
+        if not isinstance(record, dict):
+            raise TypeError("dataset record must be a dictionary")
+
+        fact_id = record.get("fact_id")
+        subject = record.get("subject")
+        relation = record.get("predicate")
+        object_value = record.get("object")
+        source = record.get("source")
+        source_status = record.get("verification_status")
+
+        if not isinstance(fact_id, str) or not fact_id.strip():
+            raise ValueError("dataset record requires a non-empty fact_id")
+        if self.fact_store.get(fact_id) is not None:
+            raise ValueError(f"duplicate dataset fact_id: {fact_id}")
+        if not isinstance(subject, str) or not subject.strip():
+            raise ValueError(f"{fact_id}: subject must be a non-empty string")
+        if not isinstance(relation, str) or not relation.strip():
+            raise ValueError(f"{fact_id}: predicate must be a non-empty string")
+        if not isinstance(source, str) or not source.strip():
+            raise ValueError(f"{fact_id}: source must be a non-empty string")
+
+        if isinstance(object_value, list):
+            if not object_value or not all(
+                isinstance(item, (str, int, float)) and not isinstance(item, bool)
+                for item in object_value
+            ):
+                raise ValueError(f"{fact_id}: object list must contain scalar values")
+            object_text = ", ".join(str(item) for item in object_value)
+        elif isinstance(object_value, (str, int, float)) and not isinstance(object_value, bool):
+            object_text = str(object_value)
+        else:
+            raise ValueError(f"{fact_id}: object must be a string, number, or scalar list")
+
+        status_map = {
+            "draft": "hypothesis",
+            "verified": "verified",
+            "hypothesis": "hypothesis",
+            "conflicting": "conflicting",
+        }
+        if source_status not in status_map:
+            raise ValueError(
+                f"{fact_id}: unsupported verification_status {source_status!r}"
+            )
+        status = status_map[source_status]
+
+        fact = {
+            "id": fact_id,
+            "subject": self.add_concept(subject),
+            "relation": self.add_relation(relation),
+            "object": self.add_concept(object_text),
+            "status": status,
+            "source": source.strip(),
+            # Keep the original record, including qualifiers and review metadata.
+            "dataset_record": dict(record),
+        }
+        self.fact_store.load(fact)
+        self.provenance.load({
+            "fact_id": fact_id,
+            "source": source.strip(),
+            "status": status,
+        })
+        return self.fact_store.get(fact_id)  # type: ignore[return-value]
+
+    def load_jsonl_directory(self, directory: str | Path) -> int:
+        """Load every batch_*.jsonl fact file in deterministic filename order."""
+        dataset_dir = Path(directory)
+        if not dataset_dir.is_dir():
+            raise FileNotFoundError(f"Knowledge dataset directory not found: {dataset_dir}")
+
+        files = sorted(dataset_dir.glob("batch_*.jsonl"))
+        if not files:
+            raise FileNotFoundError(f"No batch_*.jsonl files found in {dataset_dir}")
+
+        loaded = 0
+        for path in files:
+            with path.open("r", encoding="utf-8") as stream:
+                for line_number, line in enumerate(stream, start=1):
+                    if not line.strip():
+                        continue
+                    try:
+                        record = json.loads(line)
+                    except json.JSONDecodeError as exc:
+                        raise ValueError(
+                            f"Invalid JSON in {path}:{line_number}: {exc.msg}"
+                        ) from exc
+                    try:
+                        self.load_dataset_record(record)
+                    except (TypeError, ValueError) as exc:
+                        raise ValueError(
+                            f"Invalid Knowledge record in {path}:{line_number}: {exc}"
+                        ) from exc
+                    loaded += 1
+        return loaded
 
     def add_concept(self, concept: str) -> str:
         return self.concept_store.add(concept)
