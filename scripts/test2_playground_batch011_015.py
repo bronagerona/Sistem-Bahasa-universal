@@ -261,7 +261,7 @@ def apply_dataset_route_guard(bot):
     """Avoid a known substring false-positive in the isolated Test-2 harness only."""
     original = bot._IDENTITY_INTENT
     bot._IDENTITY_INTENT = re.compile(
-        r"^(?!dengan siapa kamu (?:pergi|berdiskusi)\\s*\\?).*" + original.pattern,
+        r"^(?!dengan siapa kamu (?:pergi|berdiskusi)\s*\?).*" + original.pattern,
         re.IGNORECASE,
     )
 
