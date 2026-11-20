@@ -445,7 +445,7 @@ def main():
         f"TEST_CASES={len(cases)}", "STAGE_A_REGRESSION=LULUS (5/5)",
         f"DIALOGUE_BOOLEAN_NEGATION_NORMALIZED={len(bool_negation)}",
         "TEST1=ILIS_BASELINE_NO_DATASET", "TEST2=GENERIC_BATCH_001_010_ADAPTER; TARGET_BATCHES=006-010",
-        *[f"BATCH_{b}_STATUS={v['status']} CASES={v['cases']}" for b, v in batch_summary.items()],
+        *[f"BATCH_{b}_STATUS={v.get('status')} CASES={v.get('cases')} PASSED={v.get('passed')} FAILED={v.get('failed')} SEMANTIC_CONF={v.get('test2_avg_semantic_confidence')} REASONING_CONF={v.get('test2_avg_reasoning_confidence')}" for b, v in batch_summary.items()],
         f"REASONING_CONTRACT_FAILURES={len(reasoning_errors)}",
         f"SEMANTIC_CONTRACT_FAILURES={len(semantic_errors)}",
         f"STAGE_B_REGRESSION_SESSIONS={len(prior_sessions)}",
