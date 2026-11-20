@@ -1,0 +1,4 @@
+TEST 2 PLAYGROUND ONLY (NOT PRODUCTION)
+Experiment branch: test-playground-loader-sampel5
+Pinned source: 80475e0f5e7c78c92a84109522777946dd9fb797
+This marker exists only to trigger the isolated experiment workflow.
