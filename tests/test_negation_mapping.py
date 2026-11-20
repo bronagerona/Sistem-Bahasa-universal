@@ -61,6 +61,8 @@ def test_all_205_dialogue_annotations_are_read_only_and_classified():
  assert len(paths)==18
  before={path:path.read_bytes() for path in paths}
  total=0
+ dialogue_count=0
+ turn_count=0
  labels={label:0 for label in sorted(LABELS)}
  discrepancies=[]
  baseline_changes=[]
@@ -68,8 +70,10 @@ def test_all_205_dialogue_annotations_are_read_only_and_classified():
   for line in before[path].decode("utf-8").splitlines():
    if not line.strip(): continue
    dialogue=json.loads(line)
+   dialogue_count+=1
    prior_turns=[]
    for turn in dialogue["turns"]:
+    turn_count+=1
     annotation=turn.get("semantic_annotation",{})
     if "Negation" not in annotation: continue
     total+=1
@@ -83,6 +87,8 @@ def test_all_205_dialogue_annotations_are_read_only_and_classified():
     if result["annotation_discrepancy"]:
      discrepancies.append((dialogue["dialogue_id"],turn["turn_id"]))
     prior_turns.append(utterance)
+ assert dialogue_count==88
+ assert turn_count==205
  assert total==205
  assert sum(labels.values())==205
  assert all(label in LABELS for label in labels)
