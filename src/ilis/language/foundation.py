@@ -27,21 +27,21 @@ _MONTHS = (
 _DAY_ALTERNATION = "|".join(re.escape(value) for value in _DAYS)
 _MONTH_ALTERNATION = "|".join(re.escape(value) for value in _MONTHS)
 _MONTH_DATE_RE = re.compile(
-    rf"(?<!\\w)(?P<day>0?[1-9]|[12][0-9]|3[01])[ \\t]+"
-    rf"(?P<month>{_MONTH_ALTERNATION})(?!\\w)"
-    rf"(?:[ \\t]+(?P<year>[0-9]{{4}})(?!\\w))?",
+    rf"(?<!\w)(?P<day>0?[1-9]|[12][0-9]|3[01])[ \t]+"
+    rf"(?P<month>{_MONTH_ALTERNATION})(?!\w)"
+    rf"(?:[ \t]+(?P<year>[0-9]{{4}})(?!\w))?",
     re.IGNORECASE,
 )
 _WEEKDAY_BEFORE_DATE_RE = re.compile(
-    rf"(?<!\\w)(?P<weekday>{_DAY_ALTERNATION})[ \\t]*,[ \\t]*$",
+    rf"(?<!\w)(?P<weekday>{_DAY_ALTERNATION})[ \t]*,[ \t]*$",
     re.IGNORECASE,
 )
 _DAY_TOKEN_RE = re.compile(
-    rf"(?<!\\w)(?P<token>{_DAY_ALTERNATION})(?!\\w)",
+    rf"(?<!\w)(?P<token>{_DAY_ALTERNATION})(?!\w)",
     re.IGNORECASE,
 )
 _MONTH_TOKEN_RE = re.compile(
-    rf"(?<!\\w)(?P<token>{_MONTH_ALTERNATION})(?!\\w)",
+    rf"(?<!\w)(?P<token>{_MONTH_ALTERNATION})(?!\w)",
     re.IGNORECASE,
 )
 _DEFERRED_SPELLING_RULES = [
