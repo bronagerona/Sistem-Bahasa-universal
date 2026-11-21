@@ -69,6 +69,12 @@
       "contoh_benar": "Pilihan itu—menurut saya—cukup baik.",
       "contoh_salah": "Pilihan itu-menurut saya-cukup baik.",
       "penjelasan": "Tanda pisah (—) berbeda dari tanda hubung (-); tanda pisah dapat mengapit keterangan sisipan atau memberi penegasan."
+    },
+    {
+      "aturan": "Kata sapaan atau kekerabatan yang digunakan untuk menyapa atau merujuk orang tertentu ditulis dengan huruf kapital, misalnya Ayah, Ibu, Kakak, dan Adik.",
+      "contoh_benar": "Apakah Ibu datang pada Desember?; Saya akan bertanya kepada Ayah.",
+      "contoh_salah": "Apakah ibu datang pada Desember? (jika Ibu merujuk orang tertentu); Saya akan bertanya kepada ayah. (jika Ayah merujuk orang tertentu)",
+      "penjelasan": "Huruf kapital digunakan ketika kata kekerabatan menjadi sapaan atau merujuk orang tertentu. Jika digunakan secara umum dan bukan sebagai sapaan atau rujukan khusus, kata tersebut ditulis dengan huruf kecil."
     }
   ]
 }
