@@ -34,7 +34,7 @@ Ketidaksinkronan `versi_data` dicatat sebagai prasyarat revisi data. Jangan mena
 ## 3. Prinsip rancangan
 
 1. **Makna dipisahkan per kelas kata.** Jika satu entri memiliki dua kelas, uraian untuk masing-masing kelas tidak boleh digabung menjadi satu definisi.
-2. **Satu kelas dapat memiliki lebih dari satu makna.** Tambahkan makna hanya jika memang diperlukan untuk menjelaskan penggunaan yang dicatat; jangan mengejar banyaknya definisi.
+2. **Satu kelas dapat memiliki lebih dari satu makna, dengan batas maksimal tiga makna per kelas kata.** Jika rujukan memuat lebih dari tiga, pilih paling banyak tiga makna yang paling umum dan relevan untuk cakupan Tahap 1. Jangan memaksakan semua rincian kamus masuk ke dataset.
 3. **Contoh harus menunjukkan makna yang dijelaskan.** Contoh bukan sekadar kalimat yang kebetulan memuat kata tersebut.
 4. **Sumber makna wajib dapat ditelusuri.** Definisi ditulis ulang secara sederhana, bukan menyalin panjang definisi kamus. Rujukan sumber dicatat per makna.
 5. **Contoh penggunaan dikurasi.** Contoh ditulis untuk kebutuhan ILIS dan harus diperiksa; tidak dibuat otomatis hanya demi mengisi kolom.
@@ -53,12 +53,20 @@ Setiap objek dalam array memuat:
 
 | Field | Tipe | Ketentuan |
 |---|---|---|
-| `jenis` | string | Harus sama persis dengan salah satu label pada array `jenis` milik entri. |
-| `makna` | array | Minimal satu makna yang telah dikurasi untuk kelas tersebut. |
-| `makna_id` | string | ID stabil dan unik di dalam entri, misalnya `nomina-01`. |
-| `penjelasan` | string | Uraian sederhana, ringkas, dan ditulis ulang dengan bahasa sendiri. |
-| `contoh_penggunaan` | string | Satu contoh singkat yang benar-benar menunjukkan makna tersebut. |
-| `rujukan` | array objek | Minimal satu rujukan yang mendukung penjelasan makna. |
+| `kelas_kata` | string | Wajib. Harus sama persis dengan salah satu label pada array lama `jenis` milik entri. |
+| `makna` | array | Wajib untuk setiap kelas yang telah dikurasi; berisi 1–3 objek makna. |
+
+Setiap objek `makna` memuat field berikut:
+
+| Field | Tipe | Status | Ketentuan |
+|---|---|---|---|
+| `makna_id` | string | Wajib | ID stabil dan unik di dalam entri, misalnya `nomina-01`. |
+| `definisi` | string | Wajib | Uraian sederhana, ringkas, dan ditulis ulang dengan bahasa sendiri. |
+| `contoh_penggunaan` | string | Wajib | Kalimat sederhana 2–5 kata yang benar-benar menunjukkan makna tersebut. |
+| `rujukan` | array objek | Wajib | Minimal satu rujukan yang mendukung definisi makna. |
+| `catatan_penggunaan` | string | Opsional | Keterangan tambahan yang benar-benar diperlukan; boleh tidak dicantumkan. |
+
+Dengan demikian, elemen wajib pada data makna adalah kelas kata (di objek induk), definisi, contoh penggunaan, dan rujukan. `catatan_penggunaan` secara tegas opsional dan tidak menjadi syarat kelengkapan.
 
 Setiap objek `rujukan` memuat:
 
@@ -88,12 +96,12 @@ Contoh berikut hanya menunjukkan struktur. Uraian dan rujukan di dalamnya adalah
   "catatan": "",
   "uraian_per_jenis": [
     {
-      "jenis": "adjektiva",
+      "kelas_kata": "adjektiva",
       "makna": [
         {
           "makna_id": "adjektiva-01",
-          "penjelasan": "<uraian sederhana yang telah diperiksa>",
-          "contoh_penggunaan": "<contoh yang menunjukkan fungsi adjektiva>",
+          "definisi": "<definisi sederhana yang telah diperiksa>",
+          "contoh_penggunaan": "<kalimat sederhana 2–5 kata>",
           "rujukan": [
             {
               "nama_sumber": "<nama kamus/rujukan>",
@@ -107,12 +115,12 @@ Contoh berikut hanya menunjukkan struktur. Uraian dan rujukan di dalamnya adalah
       ]
     },
     {
-      "jenis": "preposisi",
+      "kelas_kata": "preposisi",
       "makna": [
         {
           "makna_id": "preposisi-01",
-          "penjelasan": "<uraian sederhana yang telah diperiksa>",
-          "contoh_penggunaan": "<contoh yang menunjukkan fungsi preposisi>",
+          "definisi": "<definisi sederhana yang telah diperiksa>",
+          "contoh_penggunaan": "<kalimat sederhana 2–5 kata>",
           "rujukan": [
             {
               "nama_sumber": "<nama kamus/rujukan>",
@@ -133,18 +141,19 @@ Placeholder dalam contoh di atas tidak boleh dipakai sebagai data nyata. Contoh 
 
 ## 5. Aturan konsistensi dan validasi yang diusulkan
 
-1. `uraian_per_jenis` tidak boleh berisi label kelas yang tidak ada pada `jenis`.
-2. Untuk entri yang sudah lengkap, setiap label pada `jenis` harus memiliki tepat satu objek uraian kelas pada `uraian_per_jenis`.
-3. Satu objek kelas harus memiliki sedikitnya satu objek `makna`.
+1. `uraian_per_jenis` tidak boleh berisi `kelas_kata` yang tidak ada pada array lama `jenis`.
+2. Untuk entri yang sudah lengkap, setiap label pada `jenis` harus memiliki tepat satu objek `uraian_per_jenis`.
+3. Setiap objek kelas harus memiliki 1–3 objek `makna`; maksimal tiga makna per kelas kata. Jika sumber memuat lebih dari tiga, pilih paling banyak tiga makna yang paling umum dan relevan untuk Tahap 1.
 4. `makna_id` tidak boleh kosong dan harus unik di dalam entri. ID yang sudah dipakai tidak diganti tanpa alasan dan catatan revisi.
-5. Setiap makna harus memiliki `penjelasan`, `contoh_penggunaan`, dan sekurang-kurangnya satu `rujukan` yang valid.
-6. Teks tidak boleh hanya berisi spasi atau placeholder.
-7. `contoh_penggunaan` harus memperlihatkan bentuk sasaran dalam pemakaian yang wajar. Untuk partikel terikat seperti `-kah`, contoh boleh menampilkan partikel melekat pada bentuk yang mengikutinya sesuai ejaan.
-8. Untuk entri multi-kelas, contoh pada setiap kelas harus membedakan fungsi kelas tersebut. Jangan memakai satu contoh yang sama untuk mengklaim dua fungsi berbeda.
-9. Untuk entri multi-makna dalam kelas yang sama, buat objek makna terpisah hanya jika contoh dan penjelasannya memang menunjukkan perbedaan yang relevan.
-10. Ejaan, kapitalisasi, dan tanda baca contoh mengikuti kaidah bahasa Indonesia.
-11. Contoh tidak boleh mengandung fakta ensiklopedis yang tidak diperlukan untuk memperlihatkan fungsi kata.
-12. Nilai lama pada field inti harus tetap sama selama migrasi makna/contoh. Perubahan leksikal atau kelas kata memerlukan evaluasi terpisah.
+5. Setiap objek makna wajib memiliki `definisi`, `contoh_penggunaan`, dan sekurang-kurangnya satu `rujukan` yang valid.
+6. `catatan_penggunaan` bersifat opsional. Ketiadaannya tidak membuat objek makna tidak valid.
+7. Teks wajib tidak boleh hanya berisi spasi atau placeholder.
+8. `contoh_penggunaan` harus berupa kalimat sederhana sepanjang 2–5 kata, bukan kalimat kompleks dan bukan uraian/analisis struktur kalimat. Kalimat harus memperlihatkan bentuk sasaran dalam pemakaian yang wajar. Untuk partikel terikat seperti `-kah`, contoh boleh menampilkan partikel melekat pada bentuk yang mengikutinya sesuai ejaan.
+9. Untuk entri multi-kelas, contoh pada setiap kelas harus membedakan fungsi kelas tersebut. Jangan memakai satu contoh yang sama untuk mengklaim dua fungsi berbeda.
+10. Untuk entri multi-makna dalam kelas yang sama, buat objek makna terpisah hanya jika contoh dan definisinya memang menunjukkan perbedaan yang relevan.
+11. Ejaan, kapitalisasi, dan tanda baca contoh mengikuti kaidah bahasa Indonesia.
+12. Contoh tidak boleh mengandung fakta ensiklopedis yang tidak diperlukan untuk memperlihatkan fungsi kata.
+13. Nilai lama pada field inti harus tetap sama selama migrasi makna/contoh. Perubahan leksikal atau kelas kata memerlukan evaluasi terpisah.
 
 ### 5.1 Status selama migrasi
 
@@ -168,13 +177,13 @@ Placeholder dalam contoh di atas tidak boleh dipakai sebagai data nyata. Contoh 
 
 Rancangan ini mengubah struktur entri sehingga **jika disetujui dan diterapkan**, usulan awalnya adalah:
 
-- menaikkan `versi_format` dari `1.0` menjadi `1.1`;
-- menambahkan/melengkapi `versi_data` sesuai ketentuan versi data pada `docs/FORMAT_DATASET.md`;
-- menaikkan `versi_data` pada setiap batch perubahan isi;
+- menaikkan `versi_format` dari `1.0` menjadi `1.1` saat struktur baru benar-benar diterapkan;
+- sebelum satu pun entri diubah ke format 1.1, lakukan Tugas Pendahuluan #1 melalui PR data terpisah: tambahkan `"versi_data": "1.0"` pada root `kata_dasar.json`;
+- setelah itu, naikkan `versi_data` pada setiap batch perubahan isi sesuai kebijakan versi dataset;
 - mempertahankan `status` root sebagai `referensi`;
 - tidak mengubah data runtime karena paket runtime Tahap 1 belum disetujui.
 
-Sebelum implementasi, ketidaksinkronan `versi_data` yang ditemukan pada file saat ini harus diselesaikan secara eksplisit. Perubahan `versi_format` dan `versi_data` tidak boleh dilakukan sekarang hanya karena dokumen usulan ini dibuat.
+Sebelum migrasi entri, Tugas Pendahuluan #1 wajib diselesaikan terlebih dahulu melalui PR terpisah: menambahkan `"versi_data": "1.0"` pada root `kata_dasar.json`. PR dokumentasi ini tidak melakukan perubahan tersebut. Perubahan `versi_format` menjadi 1.1 baru dilakukan ketika struktur baru benar-benar diterapkan; dokumen usulan ini sendiri tidak mengubah versi apa pun.
 
 **Kompatibilitas runtime:** `load_word_reference()` saat ini memvalidasi field inti dan mengembalikan objek entri; kode yang ada belum menetapkan kontrak runtime untuk membaca `uraian_per_jenis`. Penambahan field data tidak otomatis membuat `lookup_word()` mengembalikan makna atau membuat chatbot memahami definisi. Jika kelak field ini akan dikonsumsi runtime, diperlukan tugas implementasi dan pengujian terpisah serta persetujuan tersendiri.
 
@@ -184,9 +193,9 @@ Sebelum seluruh 152 entri diisi:
 
 1. Evaluator menyetujui struktur dan aturan sumber.
 2. Pilih sejumlah kecil entri perwakilan untuk uji skema, termasuk:
-   - satu entri satu kelas;
+   - satu entri dengan satu kelas dan satu makna;
+   - satu entri dengan satu kelas dan dua makna;
    - `dekat` sebagai entri dua kelas;
-   - satu entri yang memiliki lebih dari satu makna dalam kelas yang sama, jika ditemukan dan disetujui;
    - partikel terikat seperti `-kah`;
    - entri multi-kata seperti `lima belas`.
 3. Kurasi sampel dilakukan hanya setelah ada tugas data terpisah yang disetujui Owner.
@@ -200,7 +209,7 @@ Sebelum seluruh 152 entri diisi:
 Dokumen ini **tidak**:
 
 - menambahkan atau mengubah satu pun dari 152 entri `kata_dasar.json`;
-- mengubah `versi_format`, `versi_data`, atau metadata dataset;
+- mengubah `versi_format`, `versi_data`, atau metadata dataset; Tugas Pendahuluan #1 untuk menambahkan `versi_data` tetap merupakan PR data terpisah;
 - mengubah `aturan_ejaan.json`;
 - mengubah kode `foundation.py` atau kontrak API;
 - mengintegrasikan makna ke Semantic 12, Reasoning 6, KnowledgeEngine, ChatbotAdapter, atau playground;
@@ -221,7 +230,7 @@ Mohon evaluasi secara khusus:
 4. Apakah aturan satu uraian untuk setiap kelas pada gerbang kelengkapan akhir tepat, dengan field yang boleh belum ada selama migrasi?
 5. Apakah usulan `versi_format` 1.1 dan penyelesaian `versi_data` sudah tepat atau perlu langkah kompatibilitas terpisah?
 6. Apakah sampel uji skema mencakup kasus khusus yang diperlukan?
-7. Adakah risiko bahwa contoh penggunaan mendorong sistem melakukan analisis sintaksis di luar batas Tahap 1? Jika ada, usulkan batas yang lebih aman.
+7. Apakah batas contoh sebagai kalimat sederhana 2–5 kata sudah cukup menjaga cakupan Tahap 1 tanpa mendorong analisis sintaksis?
 
 **Keputusan yang diminta:** evaluasi dokumen rancangan ini saja. Belum ada permintaan persetujuan untuk mengisi dataset atau mengubah runtime.
 
