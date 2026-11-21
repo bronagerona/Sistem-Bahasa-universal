@@ -49,6 +49,7 @@ def test_ambiguous_form_is_not_forced_into_one_class():
     result = lookup_word("dekat")
     assert result["status"] == "ambiguous"
     assert result["classes"] == ["adjektiva", "preposisi"]
+    assert "konteks" in result["message"].casefold()
 
 
 @pytest.mark.parametrize("word", ["kah", "siswa", "kata-yang-belum-terdaftar"])
