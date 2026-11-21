@@ -369,7 +369,7 @@ def classify_word_in_context(
         }
 
     clean_prefix = bool(tokens) and not re.search(
-        r"\\w", text[:tokens[0].start()], flags=re.UNICODE
+        r"\w", text[:tokens[0].start()], flags=re.UNICODE
     )
     clean_gaps = all(
         text[left.end():right.start()].isspace()
