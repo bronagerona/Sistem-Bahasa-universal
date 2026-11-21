@@ -124,9 +124,9 @@ Kunci di bawah adalah **usulan untuk evaluator**, belum boleh dianggap sebagai k
 | ID | Kalimat | Sasaran | Hasil usulan | Alasan/petunjuk |
 |---|---|---|---|---|
 | B-DEKAT-001 | Rumah itu dekat. | dekat | classified: adjektiva | Predikat adjektiva pada klausa sederhana |
-| B-DEKAT-002 | Rumah itu sangat dekat. | dekat | classified: adjektiva | Penguat eksplisit `sangat` |
+| B-DEKAT-002 | Rumah itu sangat dekat. | dekat | needs_context | `sangat` belum terdaftar; posisi sebelum sasaran tidak cukup menjadi bukti kelas kata |
 | B-DEKAT-003 | Gedung itu cukup dekat. | dekat | needs_context | Penguat `cukup` belum disetujui sebagai pola |
-| B-DEKAT-004 | Mereka tinggal dekat sekolah. | dekat | classified: preposisi | Diikuti nomina sasaran `sekolah` |
+| B-DEKAT-004 | Mereka tinggal dekat sekolah. | dekat | needs_context | `sekolah` belum terdaftar; kelas kata unsur setelah `dekat` tidak dapat diverifikasi |
 | B-DEKAT-005 | Kami duduk dekat pintu. | dekat | classified: preposisi | Diikuti nomina sasaran `pintu` |
 | B-DEKAT-006 | Kantor berada dekat stasiun. | dekat | needs_context | Pola verba `berada` belum disetujui |
 | B-DEKAT-007 | Dekat rumah itu ada taman. | Dekat | needs_context | Posisi awal dan struktur berbeda |
@@ -135,10 +135,23 @@ Kunci di bawah adalah **usulan untuk evaluator**, belum boleh dianggap sebagai k
 | B-DEKAT-010 | Rumah dekat. | dekat | needs_context | Struktur terlalu minim untuk pola awal |
 | B-DEKAT-011 | Dia dekat dengan saya. | dekat | needs_context | Konstruksi `dekat dengan` belum ditinjau |
 | B-DEKAT-012 | Rumah itu dekat dan nyaman. | dekat | needs_context | Koordinasi predikat belum menjadi pola awal |
-| B-DEKAT-013 | Rumah itu dekat sekolah. | dekat | classified: preposisi | Diikuti nomina langsung |
+| B-DEKAT-013 | Rumah itu dekat sekolah. | dekat | needs_context | `sekolah` belum terdaftar; kelas kata unsur setelah `dekat` tidak dapat diverifikasi |
 | B-DEKAT-014 | Rumah itu sangat dekat sekolah. | dekat | needs_context | Dua analisis mungkin; jangan paksa |
 | B-DEKAT-015 | Rumah itu dekat sekolah dan pasar. | dekat | needs_context | Frasa nominal koordinatif belum didukung |
 | B-DEKAT-016 | Mereka tinggal dekat sekolah; rumahnya jauh. | dekat | needs_context | Klausa majemuk di luar pola awal |
+
+### Revisi kunci berdasarkan audit referensi aktual
+
+Pemeriksaan ulang terhadap `data/reference/tahap_01_fondasi/kata_dasar.json` menetapkan bahwa `pintu` tercatat sebagai nomina, sedangkan `sekolah` dan `sangat` belum tercantum. Karena komponen pola yang tidak terdaftar tidak dapat dipakai sebagai bukti kelas kata, kunci kasus berikut direvisi:
+
+- **B-DEKAT-002** menjadi `needs_context`: `sangat` tidak boleh diperlakukan sebagai fitur leksikal atau bukti kelas kata. Posisi sebelum sasaran saja tidak cukup.
+- **B-DEKAT-004** menjadi `needs_context`: kelas kata `sekolah` tidak tersedia dalam referensi.
+- **B-DEKAT-013** menjadi `needs_context`: alasan yang sama dengan B-DEKAT-004.
+- **B-DEKAT-005** tetap `classified: preposisi`: `pintu` tercatat sebagai nomina dan pola sederhana yang disetujui dapat diuji.
+
+Kasus lain tetap sesuai kunci sebelumnya. Revisi ini hanya mengubah kunci dan alasan uji; tidak menambah kosakata, tidak mengubah JSON, dan tidak memperluas cakupan classifier.
+
+**Prinsip bukti:** jika salah satu unsur yang diperlukan oleh pola belum terdaftar atau tidak dapat diverifikasi dari referensi, pola tersebut tidak boleh menghasilkan `classified`. Gunakan `needs_context`; jangan menebak dan jangan membuat daftar leksikal tersembunyi.
 
 ### Kasus kontrol kontrak
 1. Token tidak ada di referensi → `unknown`.
