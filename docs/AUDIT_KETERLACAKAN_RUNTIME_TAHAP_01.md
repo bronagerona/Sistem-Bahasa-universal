@@ -43,16 +43,18 @@ Audit bersifat inspeksi dokumentasi, kode, data, dan hasil uji yang sudah tersed
 
 ## 3. Matriks keterlacakan kurikulum Tahap 1
 
-| Target kurikulum | Kondisi dokumen/referensi | Kemampuan runtime dan bukti | Status audit |
+| Target kurikulum/kemampuan | Kondisi dokumen/referensi | Kemampuan runtime dan bukti | Status audit |
 |---|---|---|---|
-| Pengenalan 26 huruf, vokal dan konsonan | Materi konseptual tersedia dalam dokumen kurikulum/penguatan | Belum ditemukan API pemeriksaan atau paket uji runtime khusus yang membuktikan pengenalan inventaris huruf | **Belum dibuktikan di runtime** |
-| Diftong dan gabungan konsonan | Materi dan contoh dijelaskan pada dokumen penguatan | Belum ada pemeriksaan runtime dan paket uji khusus yang tervalidasi dalam cakupan audit | **Ditunda; belum dibuktikan** |
-| Tanda baca utama dan normalisasi ejaan | Dua belas aturan tekstual tercatat di `aturan_ejaan.json` | `inspect_spelling()` baru menjalankan EJA-04 dalam pola tanggal eksplisit; aturan lain belum diperiksa | **Terimplementasi sebagian** |
-| Kapitalisasi nama hari/bulan dalam tanggal | Aturan EJA-04 dijelaskan dalam spesifikasi | EJA-04 berjalan untuk pola eksplisit dan diuji pada PR #54 serta regresi berikutnya | **Terimplementasi terbatas** |
-| Inventaris 11 kelas kata | 152 entri tercatat dalam `kata_dasar.json`, mencakup 11 label kelas | `lookup_word()` mengambil kelas dari entri yang cocok secara persis | **Lookup tersedia; bukan klasifikasi kontekstual umum** |
-| Klasifikasi kelas kata berdasarkan konteks | Spesifikasi kontekstual dibatasi khusus untuk `dekat` | `classify_word_in_context()` hanya memiliki dua pola yang disetujui untuk `dekat`; memerlukan target span eksplisit | **Terimplementasi sangat terbatas** |
-| Makna leksikal dasar setiap kata | Kurikulum dan dokumen implementasi meminta penjelasan/fungsi sederhana | Tidak ada field makna/penjelasan pada seluruh 152 entri yang diperiksa | **Belum terpenuhi; backlog wajib** |
-| Contoh penggunaan singkat setiap kata | Kurikulum dan dokumen implementasi meminta contoh pemakaian | Tidak ada field contoh penggunaan pada seluruh 152 entri yang diperiksa | **Belum terpenuhi; backlog wajib** |
+| Lookup persis inventaris kata | 152 entri dalam `kata_dasar.json`, mencakup 11 label kelas | `lookup_word()` mengambil kelas dari entri yang cocok secara persis; diuji langsung. **Tidak mengembalikan makna**, karena makna belum tersedia dalam JSON | **TERPENUHI untuk lookup persis saja** |
+| Pengenalan 26 huruf, vokal dan konsonan | Materi konseptual tersedia dalam dokumen kurikulum/penguatan | Belum ditemukan API pemeriksaan atau paket uji runtime khusus | **BELUM DIMULAI di runtime** |
+| Diftong dan gabungan konsonan | Materi dan contoh dijelaskan pada dokumen penguatan | Belum ada pemeriksaan runtime dan paket uji khusus yang tervalidasi | **BELUM DIMULAI; ditunda** |
+| Pemeriksaan ejaan umum | Dua belas aturan tekstual tercatat di `aturan_ejaan.json` | `inspect_spelling()` baru menjalankan EJA-04; EJA-01–03 dan EJA-05–12 belum diperiksa | **TERBATAS pada EJA-04** |
+| Kapitalisasi nama hari/bulan dalam tanggal (EJA-04) | Aturan EJA-04 dijelaskan dalam spesifikasi | Berjalan pada pola tanggal eksplisit yang disetujui dan diuji | **TERBATAS pada pola yang disetujui** |
+| Disambiguasi kelas kata berdasarkan konteks | Spesifikasi dan implementasi dibatasi khusus untuk `dekat` | Dua pola yang disetujui untuk `dekat`; memerlukan `target_span` eksplisit | **TERBATAS — bukan classifier umum** |
+| Makna leksikal dasar setiap kata | Kurikulum meminta penjelasan/fungsi sederhana | Tidak ada field makna/penjelasan pada 152 entri yang diperiksa | **BELUM DIMULAI; backlog** |
+| Contoh penggunaan singkat setiap kata | Kurikulum meminta contoh pemakaian | Tidak ada field contoh penggunaan pada 152 entri yang diperiksa | **BELUM DIMULAI; backlog** |
+
+**Arti status pada matriks:** `TERPENUHI` hanya berlaku untuk kemampuan sempit yang disebut secara eksplisit; `TERBATAS` berarti implementasi berjalan pada sebagian cakupan/pola; `BELUM DIMULAI` berarti belum ada implementasi runtime yang dibuktikan. Status `TERPENUHI` pada lookup tidak boleh dibaca sebagai pemahaman makna atau klasifikasi kontekstual.
 
 ### 3.1 Inventaris kelas kata aktual
 
@@ -83,6 +85,8 @@ Kata `dekat` tercatat dengan dua kelas, adjektiva dan preposisi. Kata `sekolah` 
 
 API: `lookup_word()`
 
+**Batas penting:** lookup saat ini mengembalikan informasi entri yang tersedia, terutama kelas kata. Ia **belum mengembalikan makna dasar**, karena field makna/penjelasan belum ada pada referensi 152 entri. Jadi status “lookup berjalan” tidak sama dengan “kamus makna sudah berjalan”.
+
 Kemampuan yang dibuktikan:
 - Pencarian bentuk kata secara persis pada file referensi.
 - Hasil membedakan kata ditemukan, ambigu menurut data kelas, dan tidak ditemukan.
@@ -93,6 +97,7 @@ Batas:
 - Ini bukan pemahaman makna kata.
 - Ini bukan penentuan kelas kata dalam setiap kalimat.
 - Hasil `unknown` hanya menyatakan tidak ada kecocokan pada referensi saat ini.
+- Disambiguasi `dekat` **bukan sistem pemilah kelas kata**. Kemampuan ini hanya berlaku untuk kata `dekat` melalui dua pola yang disetujui; tidak berlaku untuk kata lain. Batas ini tidak boleh diperluas tanpa revisi spesifikasi dan persetujuan terpisah.
 
 ### 4.2 Pemeriksaan ejaan EJA-04
 
@@ -108,12 +113,14 @@ Kemampuan yang dibuktikan:
 Batas:
 - EJA-04 bukan pemeriksa format tanggal numerik seperti `05/10/2026`.
 - Nama hari/bulan di luar pola yang didukung tidak boleh diberi koreksi otomatis.
-- Sebelas aturan ejaan lain belum menjadi kemampuan runtime.
+- **Hanya EJA-04 yang berjalan.** EJA-01–03 dan EJA-05–12 belum diimplementasikan sebagai pemeriksaan runtime. Jangan menganggap sistem sudah memeriksa ejaan lengkap.
 - Pemeriksa belum boleh dipromosikan sebagai pemeriksa ejaan umum.
 
 ### 4.3 Disambiguasi kontekstual kata `dekat`
 
 API: `classify_word_in_context(text, target_span)`
+
+**Peringatan cakupan:** Disambiguasi `dekat` ≠ sistem pemilah kelas kata. Ini hanya satu kata, dua pola yang disetujui, dan belum berlaku umum. Batas ini tidak akan dihilangkan tanpa revisi dokumen terpisah.
 
 Dua pola yang didukung:
 1. Pola adjektiva terbatas: nomina/pronomina + `itu` + `dekat` pada akhir klausa sederhana, misalnya `Rumah itu dekat.`
@@ -154,26 +161,27 @@ Angka 646 adalah hasil keseluruhan suite proyek, bukan jumlah kasus kurikulum Ta
 
 ## 6. Daftar pekerjaan tersisa menurut prioritas
 
-### P0 — Wajib sebelum Tahap 1 dinyatakan lengkap
+Item backlog adalah pekerjaan yang dicatat secara transparan untuk keputusan dan pengembangan berikutnya. **Keberadaan backlog tidak otomatis menggagalkan penutupan Tahap 1**, sepanjang item tersebut diberi status dan dampak yang jelas serta setiap pengecualian dari target wajib disetujui secara eksplisit oleh Owner dan evaluator. Tanpa keputusan pengecualian tersebut, item yang ditetapkan wajib tetap menjadi target yang harus dipenuhi.
+
+### P0 — Target wajib default sebelum penutupan, kecuali dikecualikan secara resmi
 
 1. **Makna/penjelasan sederhana untuk entri kata dasar.** Tentukan definisi sederhana yang sesuai untuk setiap entri dan kelasnya. Untuk entri multi-kelas, makna/fungsi tiap kelas harus dibedakan atau dinyatakan memerlukan konteks.
 2. **Contoh penggunaan singkat.** Sediakan contoh yang benar-benar menunjukkan penggunaan kata dan kelas yang dimaksud. Contoh harus ditinjau, tidak dibuat otomatis hanya demi mengisi kolom.
-3. **Fondasi fonologi yang ditetapkan kurikulum.** Inventaris huruf, vokal/konsonan, diftong, dan gabungan konsonan perlu memiliki batas materi, representasi, serta paket uji yang jelas. Implementasi dapat tetap bertahap; jangan mengklaim kemampuan hanya dari dokumen.
-4. **Cakupan ejaan Tahap 1.** Buat keputusan eksplisit tentang aturan mana yang wajib untuk gerbang Tahap 1, lalu implementasikan dan uji secara terpisah. EJA-04 saja belum memenuhi keseluruhan target tanda baca/ejaan pada kurikulum.
-5. **Gerbang pengujian akhir yang dapat diaudit.** Setiap target wajib harus dipetakan ke kasus uji dan bukti runtime yang relevan. Kasus manual, unit API, dan chatbot end-to-end harus tetap dibedakan.
+3. **Gerbang pengujian akhir yang dapat diaudit.** Setiap target yang dipertahankan sebagai wajib harus dipetakan ke kasus uji dan bukti runtime yang relevan. Kasus manual, unit API, dan chatbot end-to-end harus tetap dibedakan.
 
-### P1 — Perlu diputuskan dan didokumentasikan sebelum penilaian akhir
+### P1 — Perluasan bertahap / keputusan cakupan
 
-1. Tetapkan batas yang realistis untuk pengenalan kelas kata pada Tahap 1: apakah lookup leksikal ditambah beberapa pengecualian kontekstual cukup sebagai fondasi awal, atau diperlukan cakupan kontekstual yang lebih luas. Jangan memperluas classifier tanpa spesifikasi dan kunci uji yang disetujui.
-2. Putuskan apakah integrasi helper fondasi ke chatbot merupakan kriteria kelulusan Tahap 1 atau tahap integrasi sesudahnya. Jika diwajibkan, tambahkan pengujian end-to-end yang membuktikan alur itu benar-benar memanggil kemampuan fondasi.
-3. Pertahankan caveat artikula 6/10. Owner/evaluator perlu menentukan apakah inventaris terbatas tersebut diterima sebagai batas dataset Tahap 1 atau perlu dilengkapi dengan entri yang tervalidasi.
+1. **Perluasan aturan ejaan EJA-01–03 dan EJA-05–12.** Implementasikan dan uji satu per satu setelah spesifikasi masing-masing disetujui; jangan menjadikannya klaim kemampuan sebelum benar-benar berjalan.
+2. **Integrasi helper fondasi ke chatbot.** Putuskan secara terpisah apakah integrasi ini termasuk kriteria Tahap 1 atau tahap setelah fondasi; bila diwajibkan, buktikan dengan uji end-to-end.
+3. **Caveat artikula 6/10.** Pertahankan catatan bahwa enam entri tercatat dari sepuluh yang direncanakan; jangan menambah entri tanpa validasi.
 
-### P2 — Dapat ditunda atau bukan penghalang saat ini
+### P2 — Dapat ditunda / di luar jalur wajib saat ini
 
-1. Fonetik/analisis bunyi yang lebih mendalam di luar target fonologi dasar yang telah disepakati.
-2. Classifier umum untuk seluruh kata dan analisis sintaksis/struktur klausa yang lebih luas.
-3. Perluasan pola kontekstual `dekat` atau penambahan kata lain sebelum ada kebutuhan dan spesifikasi baru.
-4. Penyempurnaan status `ambiguous` pada API kontekstual. Definisi dokumentasinya tetap dipertahankan: `ambiguous` untuk beberapa kelas terdaftar tanpa bukti pembeda memadai; `needs_context` untuk informasi yang belum cukup memastikan pola yang dikenali. Implementasi saat ini memakai `needs_context` pada kasus konservatif dan belum membuktikan seluruh kontrak status.
+1. **Modul fonologi terpisah.** Materi dasar tetap tercatat dalam kurikulum, tetapi implementasi runtime fonologi dapat ditunda sebagai modul dan paket uji tersendiri; jangan mengklaim sudah berjalan.
+2. **Classifier kata lain selain `dekat`.** Belum dimulai dan ditempatkan setelah Tahap 1 selesai, dengan spesifikasi dan evaluasi terpisah. Tidak ada perluasan otomatis dari pola `dekat`.
+3. Analisis fonetik/bunyi yang lebih mendalam di luar cakupan dasar.
+4. Perluasan pola kontekstual `dekat` atau parser umum sebelum ada kebutuhan dan spesifikasi baru.
+5. Penyempurnaan status `ambiguous` pada API kontekstual. Definisi dokumentasinya tetap dipertahankan: `ambiguous` untuk beberapa kelas terdaftar tanpa bukti pembeda memadai; `needs_context` untuk informasi yang belum cukup memastikan pola yang dikenali. Implementasi saat ini memakai `needs_context` pada kasus konservatif dan belum membuktikan seluruh kontrak status.
 
 ## 7. Ketidaksinkronan dokumentasi yang perlu dirapikan
 
@@ -197,12 +205,15 @@ Tahap 1 tidak boleh dinyatakan lengkap hanya karena CI hijau atau beberapa API t
 7. Peta kasus uji dan hasil pengujian akhir dapat ditelusuri ke setiap target wajib.
 8. Dokumentasi status, kode, data, dan laporan audit konsisten.
 9. Evaluator menyetujui hasil akhir dan Owner menyatakan penerimaan. Tidak ada perubahan otomatis pada status dataset atau promosi referensi tanpa proses persetujuan tersendiri.
+10. Tidak ada perluasan ke Tahap 2–4 yang dimasukkan sebagai syarat Tahap 1. Batas antartahap tetap dijaga.
+11. Backlog yang belum selesai dicatat secara transparan beserta status dan dampaknya. Backlog tidak otomatis menghalangi penutupan apabila Owner dan evaluator secara eksplisit menerima pengecualian atas target tersebut; tanpa pengecualian, target wajib tetap berlaku.
+12. Tidak ada implementasi runtime Tahap 1 dari rangkaian pekerjaan ini yang dipromosikan ke branch `main` tanpa persetujuan rilis terpisah. Baseline `main` harus diverifikasi tetap pada SHA yang disetujui sebelum dan sesudah pekerjaan.
 
 Jika sebagian target kurikulum sengaja dikecualikan, pengecualian harus tertulis, memiliki alasan, dampak, dan persetujuan eksplisit. Pengecualian tidak boleh disamarkan sebagai implementasi yang sudah selesai.
 
 ## 9. Batas perubahan dan keputusan yang diminta
 
-Laporan ini hanya mengusulkan pencatatan kondisi aktual. Tidak ada perubahan pada:
+Laporan ini hanya mengusulkan pencatatan kondisi aktual. Seluruh pekerjaan Tahap 1 pada rangkaian PR #50–#59 tetap berada di `ilis-v2-development`; tidak ada implementasi runtime Tahap 1 dari rangkaian tersebut yang dipromosikan ke `main`. Ini tidak berarti `main` tidak pernah menerima perubahan historis lain yang tidak terkait Tahap 1. Tidak ada perubahan pada:
 - kode runtime;
 - file JSON referensi atau isi entri;
 - Semantic 12 atau Reasoning 6;
