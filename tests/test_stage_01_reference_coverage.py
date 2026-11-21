@@ -113,6 +113,48 @@ def test_spelling_api_is_explicitly_guidance_only_and_never_rewrites(sample):
     assert "belum didukung" in result["message"]
 
 
+def test_spelling_reference_is_reloaded_on_each_inspection(tmp_path):
+    source = tmp_path / "spelling.json"
+    payload = {
+        "status": "referensi",
+        "daftar_aturan": [
+            {
+                "aturan": "Aturan pertama.",
+                "contoh_benar": "Bentuk benar.",
+                "contoh_salah": "Bentuk salah.",
+                "penjelasan": "Penjelasan pertama.",
+            }
+        ],
+    }
+    source.write_text(json.dumps(payload), encoding="utf-8")
+    assert len(load_spelling_rules(source)) == 1
+
+    payload["daftar_aturan"].append(
+        {
+            "aturan": "Aturan kedua.",
+            "contoh_benar": "Contoh benar.",
+            "contoh_salah": "Contoh salah.",
+            "penjelasan": "Penjelasan kedua.",
+        }
+    )
+    source.write_text(json.dumps(payload), encoding="utf-8")
+    result = inspect_spelling("uji", source)
+    assert result["rules_available"] == 2
+    assert len(result["rules"]) == 2
+
+
+def test_spelling_reference_bytes_are_not_modified_by_read_operations():
+    from pathlib import Path
+    import hashlib
+
+    path = Path(__file__).resolve().parents[1] / "data/reference/tahap_01_fondasi/aturan_ejaan.json"
+    before = hashlib.sha256(path.read_bytes()).hexdigest()
+    load_spelling_rules()
+    inspect_spelling("Contoh masukan.")
+    after = hashlib.sha256(path.read_bytes()).hexdigest()
+    assert after == before
+
+
 def test_word_loader_rejects_invalid_json(tmp_path):
     source = tmp_path / "broken.json"
     source.write_text("{not-json", encoding="utf-8")
