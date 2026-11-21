@@ -42,7 +42,6 @@ Prefiks diletakkan di depan kata dasar.
 - Bentuk `meN-` dan `peN-` adalah lambang keluarga awalan. Bentuk nyata menyesuaikan bunyi awal kata dasar, misalnya `men-` pada *menulis*, `mem-` pada *membaca*, `meng-` pada *mengambil*, serta `pen-` pada *penulis* dan `pem-` pada *pembaca*.
 - Awalan `di-` pada kata kerja pasif ditulis melekat: *ditulis*, *dibaca*. Bedakan dari kata depan `di` yang ditulis terpisah: *di rumah*.
 - `ke-` pada *kedua* dan *ketiga* membentuk bilangan tingkat. Jangan menyamakan bentuk ini dengan kata depan `ke`, seperti *ke pasar*.
-- Bentuk *bermakan* tidak dipakai sebagai contoh produktif untuk makna “melakukan kegiatan makan”; karena itu tidak dimasukkan sebagai contoh sah. Contoh `ber-` yang digunakan adalah *berjalan*.
 
 ### B. Sufiks (Akhiran)
 
