@@ -18,6 +18,8 @@ Audit terhadap referensi aktual menemukan:
 
 Tidak ada perubahan atau penambahan data referensi dalam pekerjaan ini.
 
+Ini BUKAN pemilah kelas kata umum. Hanya penentuan antara 2 pilihan yang sudah diketahui untuk kata `dekat` saja. Tidak berlaku untuk kata lain.
+
 ## 2. Tujuan dan non-tujuan
 
 ### Tujuan
