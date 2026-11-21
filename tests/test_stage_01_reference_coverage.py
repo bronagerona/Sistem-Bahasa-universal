@@ -179,7 +179,7 @@ def test_word_loader_rejects_invalid_reference_shapes(tmp_path, payload):
     source = tmp_path / "invalid.json"
     source.write_text(json.dumps(payload), encoding="utf-8")
     with pytest.raises(ReferenceFormatError):
-        load_word_reference(source,)
+        load_word_reference(source)
 
 
 def test_spelling_loader_rejects_missing_rule_fields(tmp_path):
