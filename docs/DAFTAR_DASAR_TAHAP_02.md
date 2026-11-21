@@ -26,7 +26,7 @@ Prefiks diletakkan di depan kata dasar.
 | meN- (keluarga awalan me-) | tulis | menulis |
 | meN- | baca | membaca |
 | ber- | jalan | berjalan |
-| ber- | makan | bermakan ❌ — tidak digunakan; contoh yang benar: **berjalan** dari *jalan* |
+| ber- | bunga | berbunga |
 | di- | tulis | ditulis |
 | di- | baca | dibaca |
 | ter- | jatuh | terjatuh |
@@ -249,7 +249,7 @@ Kalimat aktif umumnya menempatkan pelaku sebagai subjek dan, pada contoh transit
 | 2 | Ayah membuka pintu. | Pintu dibuka Ayah. |
 | 3 | Adik mencuci tangan. | Tangan dicuci Adik. |
 | 4 | Budi menulis surat. | Surat ditulis Budi. |
-| 5 | Kakak membeli nasi. | Nasi dibeli Kakak. |
+| 5 | Kakak membeli buku. | Buku dibeli Kakak. |
 
 **Catatan:** Pasangan ini memakai kalimat aktif transitif yang memiliki objek. Objek pada kalimat aktif menjadi subjek pada kalimat pasif. Tidak semua kalimat aktif dapat diubah menjadi pasif dengan pola yang sama.
 
@@ -303,7 +303,7 @@ Sinonim adalah dua kata atau lebih yang memiliki makna sama atau hampir sama. Ke
 | 2 | senang | gembira |
 | 3 | cepat | lekas |
 | 4 | indah | elok |
-| 5 | besar | raya |
+| 5 | cantik | elok |
 | 6 | sulit | sukar |
 | 7 | mudah | gampang |
 | 8 | melihat | memandang |
