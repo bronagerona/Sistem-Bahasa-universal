@@ -1,7 +1,7 @@
 # PAKET UJI VERIFIKASI TAHAP 2 — PEMBENTUKAN KATA & KALIMAT
 
 **Branch:** `ilis-v2-development`  
-**Status:** Verifikasi manual referensi — SUDAH DIJALANKAN  
+**Status:** Verifikasi manual referensi v1.0 dan uji ulang kasus terdampak v1.1 — SELESAI  
 **Acuan utama:** `docs/DAFTAR_DASAR_TAHAP_02.md` dan tiga file JSON referensi Tahap 2  
 **Lokasi data:** `data/reference/tahap_02_kata_kalimat/`  
 **Batas:** Dokumen rencana uji saja. Tidak mengubah data JSON, kode, runtime, atau branch `main`.
@@ -46,17 +46,17 @@ Status semua kasus saat dokumen dibuat: **BELUM DIUJI**.
 | T2-M-005 | pukul + me- | memukul — bunyi awal p luluh | `aturan_morfologi.json` → perubahan_bunyi | LULUS |
 | T2-M-006 | pasif: ditulis → aktif | menulis — perubahan di- menjadi meN- pada pasangan ini | `aturan_morfologi.json` → prefiks di- dan meN- | TIDAK DIDUKUNG |
 | T2-M-007 | pasif: dibaca → aktif | membaca — perubahan di- menjadi meN- pada pasangan ini | `aturan_morfologi.json` → prefiks di- dan meN- | TIDAK DIDUKUNG |
-| T2-M-008 | ber- + lari | berlari — tindakan/kegiatan | `aturan_morfologi.json` → prefiks ber- | TIDAK DIDUKUNG |
+| T2-M-008 | ber- + lari | berlari — tindakan/kegiatan | `aturan_morfologi.json` → prefiks ber- | LULUS |
 | T2-M-009 | di- + tulis | ditulis — verba pasif | `aturan_morfologi.json` → prefiks di- | LULUS |
 | T2-M-010 | ter- + buka | terbuka — keadaan/kejadian sesuai konteks | `aturan_morfologi.json` → prefiks ter- | LULUS |
 | T2-M-011 | ke- + dua | kedua — bilangan tingkat/urutan | `aturan_morfologi.json` → prefiks ke- | LULUS |
-| T2-M-012 | lurus + me-…-kan | meluruskan — konfiks | `aturan_morfologi.json` → konfiks meN-…-kan | TIDAK DIDUKUNG |
-| T2-M-013 | samping + ber-…-an | bersampingan — konfiks | `aturan_morfologi.json` → konfiks ber-…-an | TIDAK DIDUKUNG |
+| T2-M-012 | lurus + me-…-kan | meluruskan — konfiks | `aturan_morfologi.json` → konfiks meN-…-kan | LULUS |
+| T2-M-013 | samping + ber-…-an | bersampingan — konfiks | `aturan_morfologi.json` → konfiks ber-…-an | LULUS |
 | T2-M-014 | baik + ke-…-an | kebaikan — konfiks | `aturan_morfologi.json` → konfiks ke-…-an | LULUS |
 | T2-M-015 | makan → makan-makan | reduplikasi; dapat menyatakan kegiatan, bukan hanya jamak | `aturan_morfologi.json` → reduplikasi | LULUS |
-| T2-M-016 | tulis + -kan → tuliskan | bentuk berakhiran -kan; fungsi harus didukung sumber | `aturan_morfologi.json` → sufiks -kan | TIDAK DIDUKUNG |
+| T2-M-016 | tulis + -kan → tuliskan | bentuk berakhiran -kan; fungsi harus didukung sumber | `aturan_morfologi.json` → sufiks -kan | LULUS |
 | T2-M-017 | warna + -i → warnai | bentuk berakhiran -i sesuai contoh pada JSON | `aturan_morfologi.json` → sufiks -i | LULUS |
-| T2-M-018 | tulis + -an → tulisan | bentuk berakhiran -an; fungsi harus didukung sumber | `aturan_morfologi.json` → sufiks -an | TIDAK DIDUKUNG |
+| T2-M-018 | tulis + -an → tulisan | bentuk berakhiran -an; fungsi harus didukung sumber | `aturan_morfologi.json` → sufiks -an | LULUS |
 | T2-M-019 | buku + -nya → bukunya | dapat menandai kepunyaan atau rujukan tertentu | `aturan_morfologi.json` → sufiks -nya | LULUS |
 | T2-M-020 | pe- + tulis → penulis | penulis — nomina pelaku | `aturan_morfologi.json` → keluarga prefiks peN-/pe- | LULUS |
 
@@ -93,12 +93,12 @@ Status semua kasus saat dokumen dibuat: **BELUM DIUJI**.
 
 | ID Uji | Pasangan / Masukan | Hubungan yang Diharapkan | Sumber Acuan | Status |
 |---|---|---|---|---|
-| T2-X-001 | cepat — laju | Sinonim dengan catatan perbedaan ragam/teknis jika didukung sumber | `frasa_dan_makna.json` → hubungan_makna.sinonim | TIDAK DIDUKUNG |
+| T2-X-001 | cepat — laju | Sinonim dengan catatan perbedaan ragam/teknis jika didukung sumber | `frasa_dan_makna.json` → hubungan_makna.sinonim | LULUS |
 | T2-X-002 | senang — gembira | Sinonim atau makna berdekatan; ragam dapat berbeda | `frasa_dan_makna.json` → hubungan_makna.sinonim | LULUS |
 | T2-X-003 | banyak — banyak sekali | Ungkapan berdekatan, tetapi tingkat jumlah berbeda; bukan identik mutlak | `frasa_dan_makna.json` → hubungan_makna.sinonim | TIDAK DIDUKUNG |
 | T2-X-004 | besar — kecil | Antonim dalam konteks ukuran | `frasa_dan_makna.json` → hubungan_makna.antonim | LULUS |
 | T2-X-005 | cepat — lambat | Antonim dalam konteks kecepatan | `frasa_dan_makna.json` → hubungan_makna.antonim | LULUS |
-| T2-X-006 | masuk — keluar | Antonim dalam konteks arah gerakan | `frasa_dan_makna.json` → hubungan_makna.antonim | TIDAK DIDUKUNG |
+| T2-X-006 | masuk — keluar | Antonim dalam konteks arah gerakan | `frasa_dan_makna.json` → hubungan_makna.antonim | LULUS |
 | T2-X-007 | jalan-jalan | Reduplikasi dapat menyatakan kegiatan, bukan sekadar jamak | `aturan_morfologi.json` → reduplikasi | LULUS |
 | T2-X-008 | kebaikan | Makna kata turunan bergantung pada kata dasar dan konteks; tidak selalu dapat dijumlahkan secara mekanis | `aturan_morfologi.json` → konfiks ke-…-an | LULUS |
 | T2-X-009 | Frasa ≠ Kalimat | Frasa tidak memiliki hubungan S-P lengkap seperti klausa/kalimat | `frasa_dan_makna.json` dan dokumen daftar dasar | TIDAK DIDUKUNG |
@@ -150,19 +150,19 @@ Bagian ini adalah catatan persiapan berdasarkan pembacaan struktur sumber, **buk
 
 | File | Blob SHA |
 |---|---|
-| `aturan_morfologi.json` | `a2c758a632ba865938264699c30ec9254deb009f` |
+| `aturan_morfologi.json` | `6be7d017ddfc032f0eb0baf48fceeca78ce6a7a0` |
 | `pola_kalimat.json` | `a00bb6d406bb3c05f3ca03a78be9d5421fb604ff` |
-| `frasa_dan_makna.json` | `eb2a02d9a06fde204e90cf70b54095749cc1c59a` |
+| `frasa_dan_makna.json` | `f952bd5d47ea79ed4b252e05b9119b4799a832a8` |
 
 ### Bagian A — Morfologi
 
 - Total: 20
-- Lulus: **13**
+- Lulus: **18**
 - Gagal: **0**
-- Tidak didukung: **7**
-- Tingkat dukungan/lulus terhadap seluruh kasus: **60%**
+- Tidak didukung: **2**
+- Tingkat dukungan/lulus terhadap seluruh kasus: **90%**
 
-**Lulus:** T2-M-001, 002, 003, 004, 005, 009, 010, 011, 014, 015, 017, 019, 020.
+**Lulus:** T2-M-001, 002, 003, 004, 005, 008, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019, 020.
 
 **Tidak didukung oleh JSON:** 
 - T2-M-006 dan T2-M-007 — bentuk aktif dan pasif tersedia, tetapi prosedur transformasi pasif-ke-aktif belum dirumuskan eksplisit.
@@ -189,43 +189,63 @@ Pemeriksaan frasa cocok dengan definisi dan kategori nomina, verba, serta prepos
 ### Bagian C — Makna & Hubungan Kata
 
 - Total: 10
-- Lulus: **6**
+- Lulus: **8**
 - Gagal: **0**
-- Tidak didukung: **4**
-- Tingkat dukungan/lulus terhadap seluruh kasus: **60%**
+- Tidak didukung: **2**
+- Tingkat dukungan/lulus terhadap seluruh kasus: **80%**
 
-**Lulus:** T2-X-002, T2-X-004, T2-X-005, T2-X-007, T2-X-008, T2-X-010.
+**Lulus:** T2-X-001, T2-X-002, T2-X-004, T2-X-005, T2-X-006, T2-X-007, T2-X-008, T2-X-010.
 
 **Tidak didukung oleh JSON:**
-- T2-X-001 — pasangan `cepat—laju` tidak tercantum; JSON mencantumkan `cepat—lekas`.
-- T2-X-003 — hubungan `banyak—banyak sekali` tidak tercantum dalam daftar sinonim JSON.
-- T2-X-006 — pasangan `masuk—keluar` tidak tercantum; JSON memiliki pasangan arah `datang—pergi`, tetapi itu bukan pasangan yang diuji.
-- T2-X-009 — perbedaan frasa dan kalimat dijelaskan di `DAFTAR_DASAR_TAHAP_02.md`, tetapi belum dinyatakan lengkap dalam `frasa_dan_makna.json`. Karena pemeriksaan ini menetapkan JSON sebagai sumber kebenaran data, kasus ini belum dapat dinyatakan lulus terhadap JSON.
+- T2-X-001 dan T2-X-006 — pasangan `cepat—laju` dan `masuk—keluar` kini tercantum pada JSON v1.1.
+- T2-X-003 tetap tidak didukung: pasangan `banyak—banyak sekali` tidak tercantum dalam daftar sinonim JSON.
+- T2-X-009 tetap tidak didukung oleh JSON: pembeda frasa dan kalimat dijelaskan di dokumen daftar dasar, tetapi belum dinyatakan lengkap dalam `frasa_dan_makna.json`.
+
+
+### Uji Ulang Terarah terhadap JSON v1.1 (2026-11-21)
+
+**Acuan:** `aturan_morfologi.json` v1.1 (blob `6be7d017ddfc032f0eb0baf48fceeca78ce6a7a0`) dan `frasa_dan_makna.json` v1.1 (blob `f952bd5d47ea79ed4b252e05b9119b4799a832a8`). `pola_kalimat.json` tidak berubah.
+
+| ID | Pemeriksaan terhadap v1.1 | Hasil |
+|---|---|---|
+| T2-M-006 | Transformasi ditulis → menulis belum dinyatakan sebagai aturan eksplisit | TIDAK DIDUKUNG |
+| T2-M-007 | Transformasi dibaca → membaca belum dinyatakan sebagai aturan eksplisit | TIDAK DIDUKUNG |
+| T2-M-008 | lari → berlari tercantum | LULUS |
+| T2-M-012 | lurus → meluruskan tercantum | LULUS |
+| T2-M-013 | samping → bersampingan tercantum | LULUS |
+| T2-M-016 | tulis → tuliskan tercantum | LULUS |
+| T2-M-018 | tulis → tulisan tercantum | LULUS |
+| T2-X-001 | cepat — laju tercantum sebagai sinonim dengan catatan ragam/teknis | LULUS |
+| T2-X-003 | banyak — banyak sekali tetap tidak tercantum | TIDAK DIDUKUNG |
+| T2-X-006 | masuk — keluar tercantum sebagai antonim arah gerakan | LULUS |
+| T2-X-009 | pembeda frasa dan kalimat tetap tidak dinyatakan lengkap dalam JSON | TIDAK DIDUKUNG |
+
+**Hasil uji ulang:** 7 LULUS, 0 GAGAL, 4 TIDAK DIDUKUNG. T2-M-005 (memukul), T2-M-020 (penulis), T2-X-002 (senang—gembira), dan T2-X-007 (makna jalan-jalan) bukan bagian dari 11 status TIDAK DIDUKUNG pada laporan awal karena sudah LULUS; pemeriksaan v1.1 juga mengonfirmasi dukungan sumber untuk contoh-contoh tersebut.
 
 ### Rekapitulasi
 
 | Status | Jumlah |
 |---|---:|
-| LULUS | **39** |
+| LULUS | **46** |
 | GAGAL | **0** |
-| TIDAK DIDUKUNG | **11** |
+| TIDAK DIDUKUNG | **4** |
 | **Total** | **50** |
 
-**Hasil terhadap ambang paket:** 39/50 = **78%** kasus didukung dan lulus. Ambang minimal 90% belum tercapai. Kasus TIDAK DIDUKUNG tidak dihitung sebagai lulus dan tidak diubah menjadi lulus hanya berdasarkan pengetahuan di luar JSON.
+**Hasil terhadap ambang paket:** 46/50 = **92%** kasus didukung dan lulus. Ambang numerik minimal 90% tercapai. Empat kasus TIDAK DIDUKUNG tetap dicatat terpisah dan tidak diubah menjadi lulus hanya berdasarkan pengetahuan di luar JSON. Keputusan kelulusan akhir tetap memerlukan evaluasi Dola atas sisa temuan.
 
 ### Temuan dan tindak lanjut
 
 1. Jangan mengubah tiga JSON sumber; koreksi hanya dilakukan pada dokumen uji.
-2. Kunci T2-M-017 telah diperbaiki menjadi `warna + -i → warnai` sesuai evaluasi Dola.
-3. Catat contoh tambahan yang dapat dipertimbangkan pada revisi data mendatang: `berlari`, `meluruskan`, `bersampingan`, `tuliskan`, dan `tulisan`. Tidak ada penambahan yang dilakukan sekarang.
-4. Pertimbangkan aturan transformasi aktif-pasif yang lebih eksplisit untuk mendukung T2-M-006/007.
-5. Tinjau kembali pasangan sinonim/antonim pada T2-X-001/003/006 dan cakupan definisi frasa-kalimat pada T2-X-009.
-6. Minta Dola mengevaluasi hasil dan menentukan apakah kunci uji perlu direvisi, data referensi perlu diperluas pada tahap terpisah, atau cakupan kasus perlu disesuaikan.
+2. Kunci T2-M-017 telah diperbaiki menjadi `warna + -i → warnai` sesuai evaluasi Dola pada verifikasi awal.
+3. Uji ulang terhadap JSON v1.1 membuat T2-M-008, M-012, M-013, M-016, M-018, T2-X-001, dan T2-X-006 berubah menjadi LULUS.
+4. T2-M-006/007 tetap belum didukung karena belum ada aturan eksplisit transformasi aktif-pasif.
+5. T2-X-003 dan T2-X-009 tetap belum didukung oleh JSON v1.1.
+6. Minta Dola mengevaluasi empat kasus tersisa dan hasil keseluruhan 46/50 (92%) sebelum menyatakan Tahap 2 lulus.
 
 ### Kesimpulan Akhir
 
-- [ ] **Lulus** — minimal 90%, tanpa kesalahan kritis, dan seluruh temuan sumber telah diselesaikan.
-- [x] **Perlu revisi/evaluasi** — ambang 90% belum tercapai; terdapat 11 kasus yang belum didukung JSON dan 1 kunci uji yang perlu diperbaiki.
+- [ ] **Lulus** — menunggu evaluasi akhir Dola atas empat kasus yang belum didukung.
+- [x] **Perlu revisi/evaluasi** — ambang numerik 90% tercapai (46/50 = 92%), tetapi empat kasus masih belum didukung JSON dan memerlukan keputusan evaluator.
 - [ ] **Ditunda** — tidak dipilih; pemeriksaan manual 50 kasus telah diselesaikan.
 
 **Catatan evaluator (Dola):** Paket uji telah diterima untuk dieksekusi dengan catatan sesuai audit Dola. Hasil aktual di atas perlu dikirim kembali untuk evaluasi akhir; keputusan audit awal bukan persetujuan otomatis atas hasil eksekusi.
@@ -240,8 +260,8 @@ Pemeriksaan frasa cocok dengan definisi dan kategori nomina, verba, serta prepos
 - Sumber kebenaran pemeriksaan data adalah tiga file JSON pada `data/reference/tahap_02_kata_kalimat/`.
 - Dokumen daftar dasar digunakan untuk memahami konteks dan menelusuri asal materi.
 - Tidak ada file JSON yang diubah selama pelaksanaan verifikasi manual ini.
-- Seluruh 50 kasus telah diperiksa secara manual terhadap JSON; status aktual tercatat pada tabel dan laporan.
+- Seluruh 50 kasus telah diperiksa secara manual terhadap JSON v1.0; tujuh kasus yang sebelumnya tidak didukung telah diuji ulang terhadap JSON v1.1 dan dinyatakan LULUS. Empat kasus tetap TIDAK DIDUKUNG.
 - Tidak ada promosi ke `data/runtime/`.
 - Tidak ada perubahan kode, konfigurasi, Semantic, Reasoning, KnowledgeEngine, playground, atau branch `main`.
 
-**Kesimpulan:** Verifikasi manual 50 kasus telah selesai dengan hasil 39 LULUS, 0 GAGAL, dan 11 TIDAK DIDUKUNG. Ambang 90% belum tercapai. Hasil ini bukan persetujuan aktivasi; data tetap berstatus referensi dan menunggu evaluasi Dola.
+**Kesimpulan:** Setelah pembaruan referensi v1.1 dan uji ulang tujuh kasus yang kini didukung, hasil kumulatif adalah 46 LULUS, 0 GAGAL, dan 4 TIDAK DIDUKUNG (92%). Ambang numerik tercapai, tetapi keputusan kelulusan Tahap 2 tetap menunggu evaluasi Dola atas empat kasus tersisa. Data tetap berstatus referensi dan belum dipromosikan ke runtime.
