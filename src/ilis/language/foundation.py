@@ -313,6 +313,15 @@ def classify_word_in_context(
     if not re.fullmatch(r"\w+", target, flags=re.UNICODE):
         raise ValueError("target_span must point to exactly one word token")
 
+    tokens = list(re.finditer(r"\w+", text, flags=re.UNICODE))
+    target_indexes = [
+        index for index, match in enumerate(tokens)
+        if match.start() == start and match.end() == end
+    ]
+    if len(target_indexes) != 1:
+        raise ValueError("target_span must match one complete token in the text")
+    target_index = target_indexes[0]
+
     entries = load_word_reference(path)
 
     def classes_for(token: str) -> list[str]:
@@ -358,15 +367,6 @@ def classify_word_in_context(
                 "kelas yang diharapkan; tidak dilakukan penyempitan."
             ),
         }
-
-    tokens = list(re.finditer(r"\w+", text, flags=re.UNICODE))
-    target_indexes = [
-        index for index, match in enumerate(tokens)
-        if match.start() == start and match.end() == end
-    ]
-    if len(target_indexes) != 1:
-        raise ValueError("target_span must match one complete token in the text")
-    target_index = target_indexes[0]
 
     clean_prefix = bool(tokens) and (
         tokens[0].start() == 0 or text[:tokens[0].start()].isspace()
