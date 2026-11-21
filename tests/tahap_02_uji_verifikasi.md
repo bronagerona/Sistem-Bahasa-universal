@@ -55,7 +55,7 @@ Status semua kasus saat dokumen dibuat: **BELUM DIUJI**.
 | T2-M-014 | baik + ke-…-an | kebaikan — konfiks | `aturan_morfologi.json` → konfiks ke-…-an | LULUS |
 | T2-M-015 | makan → makan-makan | reduplikasi; dapat menyatakan kegiatan, bukan hanya jamak | `aturan_morfologi.json` → reduplikasi | LULUS |
 | T2-M-016 | tulis + -kan → tuliskan | bentuk berakhiran -kan; fungsi harus didukung sumber | `aturan_morfologi.json` → sufiks -kan | TIDAK DIDUKUNG |
-| T2-M-017 | bersih + -i | bentuk berakhiran -i; jangan tertukar dengan bersihkan (-kan) | `aturan_morfologi.json` → sufiks -i | GAGAL |
+| T2-M-017 | warna + -i → warnai | bentuk berakhiran -i sesuai contoh pada JSON | `aturan_morfologi.json` → sufiks -i | LULUS |
 | T2-M-018 | tulis + -an → tulisan | bentuk berakhiran -an; fungsi harus didukung sumber | `aturan_morfologi.json` → sufiks -an | TIDAK DIDUKUNG |
 | T2-M-019 | buku + -nya → bukunya | dapat menandai kepunyaan atau rujukan tertentu | `aturan_morfologi.json` → sufiks -nya | LULUS |
 | T2-M-020 | pe- + tulis → penulis | penulis — nomina pelaku | `aturan_morfologi.json` → keluarga prefiks peN-/pe- | LULUS |
@@ -118,7 +118,7 @@ Bagian ini adalah catatan persiapan berdasarkan pembacaan struktur sumber, **buk
 - **T2-M-012:** JSON mencantumkan *membacakan* dan *membersihkan* untuk konfiks meN-…-kan, bukan *meluruskan*.
 - **T2-M-013:** JSON mencantumkan *berpelukan* dan *berjatuhan*, bukan *bersampingan*.
 - **T2-M-016:** JSON mencantumkan *bersihkan* dan *ambilkan* untuk -kan, bukan *tuliskan*. Fungsi spesifik “menyebabkan/kepada” tidak dinyatakan sebagai definisi umum pada JSON.
-- **T2-M-017:** *bersihkan* berakhiran -kan, bukan -i. JSON memberi contoh -i *warnai* dan *garami*.
+- **T2-M-017:** Kunci diperbaiki sesuai evaluasi Dola menjadi *warna + -i → warnai*. Contoh ini tercantum langsung pada JSON untuk sufiks -i.
 - **T2-M-018:** JSON memberi contoh -an *bacaan* dan *makanan*, bukan *tulisan*.
 
 ### B. Frasa dan kalimat
@@ -157,12 +157,12 @@ Bagian ini adalah catatan persiapan berdasarkan pembacaan struktur sumber, **buk
 ### Bagian A — Morfologi
 
 - Total: 20
-- Lulus: **12**
-- Gagal: **1**
+- Lulus: **13**
+- Gagal: **0**
 - Tidak didukung: **7**
 - Tingkat dukungan/lulus terhadap seluruh kasus: **60%**
 
-**Lulus:** T2-M-001, 002, 003, 004, 005, 009, 010, 011, 014, 015, 019, 020.
+**Lulus:** T2-M-001, 002, 003, 004, 005, 009, 010, 011, 014, 015, 017, 019, 020.
 
 **Tidak didukung oleh JSON:** 
 - T2-M-006 dan T2-M-007 — bentuk aktif dan pasif tersedia, tetapi prosedur transformasi pasif-ke-aktif belum dirumuskan eksplisit.
@@ -172,7 +172,7 @@ Bagian ini adalah catatan persiapan berdasarkan pembacaan struktur sumber, **buk
 - T2-M-016 — contoh `tuliskan` belum tercantum; JSON memuat `bersihkan` dan `ambilkan`.
 - T2-M-018 — contoh `tulisan` belum tercantum; JSON memuat `bacaan` dan `makanan`.
 
-**Gagal — T2-M-017:** Rumusan masukan `bersih + -i` tidak memiliki hasil bentuk yang didukung dalam JSON. Kunci perlu diperbaiki menggunakan contoh sufiks `-i` yang benar-benar tercantum, yaitu `warna → warnai` atau `garam → garami`. `bersihkan` adalah contoh sufiks `-kan`, bukan `-i`. Ini temuan pada kunci uji, bukan bukti bahwa JSON salah.
+**Tindak lanjut T2-M-017:** Kunci telah diperbaiki atas keputusan Dola menjadi `warna + -i → warnai`. Bentuk `warnai` tercantum pada JSON sebagai contoh sufiks `-i`; kasus sekarang berstatus LULUS. Tidak ada perubahan pada JSON sumber.
 
 ### Bagian B — Frasa & Kalimat
 
@@ -206,17 +206,17 @@ Pemeriksaan frasa cocok dengan definisi dan kategori nomina, verba, serta prepos
 
 | Status | Jumlah |
 |---|---:|
-| LULUS | **38** |
-| GAGAL | **1** |
+| LULUS | **39** |
+| GAGAL | **0** |
 | TIDAK DIDUKUNG | **11** |
 | **Total** | **50** |
 
-**Hasil terhadap ambang paket:** 38/50 = **76%** kasus didukung dan lulus. Ambang minimal 90% belum tercapai. Kasus TIDAK DIDUKUNG tidak dihitung sebagai lulus dan tidak diubah menjadi lulus hanya berdasarkan pengetahuan di luar JSON.
+**Hasil terhadap ambang paket:** 39/50 = **78%** kasus didukung dan lulus. Ambang minimal 90% belum tercapai. Kasus TIDAK DIDUKUNG tidak dihitung sebagai lulus dan tidak diubah menjadi lulus hanya berdasarkan pengetahuan di luar JSON.
 
 ### Temuan dan tindak lanjut
 
-1. Jangan mengubah tiga JSON sumber dalam pelaksanaan verifikasi ini.
-2. Revisi kunci T2-M-017 agar menggunakan contoh sufiks `-i` yang tersedia, misalnya `warna → warnai`; perubahan kunci harus dilakukan pada revisi dokumen terpisah setelah evaluasi.
+1. Jangan mengubah tiga JSON sumber; koreksi hanya dilakukan pada dokumen uji.
+2. Kunci T2-M-017 telah diperbaiki menjadi `warna + -i → warnai` sesuai evaluasi Dola.
 3. Catat contoh tambahan yang dapat dipertimbangkan pada revisi data mendatang: `berlari`, `meluruskan`, `bersampingan`, `tuliskan`, dan `tulisan`. Tidak ada penambahan yang dilakukan sekarang.
 4. Pertimbangkan aturan transformasi aktif-pasif yang lebih eksplisit untuk mendukung T2-M-006/007.
 5. Tinjau kembali pasangan sinonim/antonim pada T2-X-001/003/006 dan cakupan definisi frasa-kalimat pada T2-X-009.
@@ -244,4 +244,4 @@ Pemeriksaan frasa cocok dengan definisi dan kategori nomina, verba, serta prepos
 - Tidak ada promosi ke `data/runtime/`.
 - Tidak ada perubahan kode, konfigurasi, Semantic, Reasoning, KnowledgeEngine, playground, atau branch `main`.
 
-**Kesimpulan:** Verifikasi manual 50 kasus telah selesai dengan hasil 38 LULUS, 1 GAGAL pada kunci uji, dan 11 TIDAK DIDUKUNG. Ambang 90% belum tercapai. Hasil ini bukan persetujuan aktivasi; data tetap berstatus referensi dan menunggu evaluasi Dola.
+**Kesimpulan:** Verifikasi manual 50 kasus telah selesai dengan hasil 39 LULUS, 0 GAGAL, dan 11 TIDAK DIDUKUNG. Ambang 90% belum tercapai. Hasil ini bukan persetujuan aktivasi; data tetap berstatus referensi dan menunggu evaluasi Dola.
