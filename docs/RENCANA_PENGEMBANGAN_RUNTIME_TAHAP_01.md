@@ -118,18 +118,45 @@ Setiap hasil klasifikasi setidaknya memuat:
 
 Jangan menghasilkan satu label tunggal jika beberapa analisis masih masuk akal. Jangan menyimpulkan kelas kata dari daftar kata tanpa mempertimbangkan fungsi pemakaiannya.
 
-### 4.4 Contoh kebutuhan konteks
+### 4.4 Aturan keputusan dan batas penyempitan kelas (K-1)
 
-| Masukan | Sasaran | Prinsip hasil |
-|---|---|---|
-| `Rumah itu dekat.` | `dekat` | Uji fungsi sifat dalam predikasi |
-| `Mereka tinggal dekat sekolah.` | `dekat` | Uji fungsi relasional/preposisional |
-| `Buku itu di meja.` | `di` | Kata depan ditulis sebagai kata terpisah |
-| `Buku itu ditulis Rina.` | `ditulis` | Bentuk berimbuhan; berada di luar klasifikasi kata dasar Tahap 1 dan harus ditandai di luar cakupan, bukan dipaksakan menjadi entri `di` |
+Konteks hanya boleh mempersempit daftar kelas jika terdapat **bukti struktural yang kuat, eksplisit, dan telah dicakup oleh pola uji yang ditinjau**. Posisi kata merupakan petunjuk, bukan bukti tunggal dan bukan kepastian.
+
+Aturan operasional:
+1. Jangan memakai skor probabilistik atau ambang angka yang tidak dapat dijelaskan.
+2. Persempit kelas hanya bila pola konstruksi yang dikenali memiliki petunjuk yang cukup dan telah divalidasi dengan contoh positif, negatif, serta kasus batas.
+3. Jika hanya ada petunjuk posisi yang lemah, beberapa kelas masih masuk akal, atau pola belum diuji, pertahankan semua kelas yang didukung referensi dan gunakan `ambiguous` atau `needs_context` sesuai keadaan.
+4. Jangan menghapus kelas alternatif hanya karena satu kelas terasa lebih lazim.
+5. Setiap penyempitan wajib menyertakan bukti yang ditemukan dan alasan aturan yang dipakai.
+
+Dengan demikian, keputusan bukan hasil pemeringkatan tebakan. Ia merupakan hasil penerapan aturan struktural terbatas yang dapat diperiksa ulang.
+
+### 4.5 Contoh kebutuhan konteks (K-2)
+
+| Masukan | Sasaran | Petunjuk yang dapat diuji | Batas keputusan |
+|---|---|---|---|
+| `Jalan itu luas.` | `Jalan` | Kata sasaran mengisi posisi inti frasa nomina/subjek dan diikuti penjelas `itu`; predikatnya `luas` | Dapat mendukung nomina jika pola frasa dan kalimat ini telah divalidasi |
+| `Mereka jalan ke pasar.` | `jalan` | Kata sasaran berada pada posisi predikat setelah subjek `Mereka`; diikuti keterangan arah `ke pasar` | Dapat mendukung verba dalam pola sederhana yang telah divalidasi; ragam percakapan tetap perlu dicakup dalam data uji |
+| `Rumah itu dekat.` | `dekat` | Uji fungsi sifat dalam predikasi | Jangan simpulkan hanya dari posisi; gunakan pola yang telah diuji |
+| `Mereka tinggal dekat sekolah.` | `dekat` | Uji fungsi relasional/preposisional | Jika konstruksi tidak cukup jelas, pertahankan alternatif |
+| `Buku itu di meja.` | `di` | Kata depan ditulis sebagai kata terpisah | Klasifikasi dibatasi pada pola yang benar-benar didukung |
+| `Buku itu ditulis Rina.` | `ditulis` | Bentuk berimbuhan; berada di luar klasifikasi kata dasar Tahap 1 | Tandai di luar cakupan, bukan dipaksakan menjadi entri `di` |
+
+Contoh `Jalan itu luas` dan `Mereka jalan ke pasar` menunjukkan bahwa satu bentuk dapat berfungsi sebagai kelas berbeda. Sistem boleh membedakannya hanya jika pola struktural lokalnya sudah ditentukan dan diuji. Posisi subjek/predikat saja tidak boleh digeneralisasi menjadi aturan universal. Jika kalimat lebih kompleks, eliptis, atau memungkinkan lebih dari satu analisis, keluaran harus tetap ambigu/perlu konteks.
 
 Contoh di atas adalah kebutuhan rancangan, bukan klaim bahwa classifier sudah mampu menghasilkan label tersebut.
 
-### 4.5 Data uji yang diperlukan
+### 4.6 Batas kepercayaan dan cakupan inferensi (K-3)
+
+Classifier Tahap 1 hanya boleh memakai **petunjuk struktural sederhana dalam kalimat atau potongan teks yang diberikan**, misalnya pola frasa dan posisi lokal yang sudah ditentukan dalam spesifikasi. Classifier tidak melakukan:
+- analisis makna mendalam atau penalaran berdasarkan pengetahuan dunia;
+- analisis wacana, pragmatik, maksud penutur, atau konteks percakapan lintas giliran;
+- parsing sintaksis penuh atau penentuan kelas kata untuk semua konstruksi bahasa Indonesia;
+- inferensi atas kata berimbuhan atau bentuk di luar cakupan referensi kata dasar Tahap 1.
+
+Semua hasil harus menyertakan bukti dan penjelasan singkat. Label `classified` berarti pola terbatas yang diuji mendukung satu kelas pada masukan tersebut, bukan jaminan bahwa semua kemungkinan analisis bahasa telah disingkirkan. Jika bukti tidak cukup, pertahankan alternatif atau kembalikan `needs_context`/`ambiguous`. Sistem tidak boleh menaikkan tingkat kepastian hanya berdasarkan frekuensi, kelaziman, atau skor yang tidak transparan.
+
+### 4.7 Data uji yang diperlukan
 
 Sebelum implementasi, siapkan korpus uji kecil yang dikurasi manual dengan:
 - kalimat lengkap dan kata sasaran yang ditandai;
@@ -142,7 +169,7 @@ Sebelum implementasi, siapkan korpus uji kecil yang dikurasi manual dengan:
 
 Kasus yang labelnya diperdebatkan tidak boleh dipakai sebagai kunci tunggal sebelum evaluator menyelesaikannya. Data uji harus memisahkan contoh yang jelas dari contoh yang memerlukan konteks lebih luas.
 
-### 4.6 Tahapan kerja Jalur B
+### 4.8 Tahapan kerja Jalur B
 
 B1. Audit entri yang berpotensi memiliki lebih dari satu fungsi, dimulai dari `dekat` dan `di`.  
 B2. Susun kumpulan kalimat beranotasi untuk semua kelas kata dengan contoh yang jelas.  
