@@ -2,6 +2,8 @@
 
 The JSON files under data/reference remain the sole source of truth.
 This module deliberately does not cache, mutate, normalize, or promote them.
+Each public operation reads the reference file afresh. There is no instance
+initializer or in-memory cache; changes on disk are visible on the next call.
 """
 
 from __future__ import annotations
