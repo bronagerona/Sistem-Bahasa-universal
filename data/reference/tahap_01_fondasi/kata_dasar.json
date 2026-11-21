@@ -214,15 +214,6 @@
       "catatan": ""
     },
     {
-      "entri": "belas",
-      "jenis": [
-        "numeralia"
-      ],
-      "bentuk_dasar": true,
-      "imbuhan": null,
-      "catatan": ""
-    },
-    {
       "entri": "beli",
       "jenis": [
         "verba"
@@ -793,7 +784,6 @@
     {
       "entri": "lima",
       "jenis": [
-        "numeralia",
         "numeralia"
       ],
       "bentuk_dasar": true,
@@ -1020,15 +1010,6 @@
       "entri": "pulang",
       "jenis": [
         "verba"
-      ],
-      "bentuk_dasar": true,
-      "imbuhan": null,
-      "catatan": ""
-    },
-    {
-      "entri": "puluh",
-      "jenis": [
-        "numeralia"
       ],
       "bentuk_dasar": true,
       "imbuhan": null,
@@ -1271,7 +1252,6 @@
     {
       "entri": "tiga",
       "jenis": [
-        "numeralia",
         "numeralia"
       ],
       "bentuk_dasar": true,
