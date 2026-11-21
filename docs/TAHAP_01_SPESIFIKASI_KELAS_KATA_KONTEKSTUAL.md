@@ -1,6 +1,6 @@
 # SPESIFIKASI AWAL — DISAMBIGUASI KELAS KATA BERDASARKAN KONTEKS TAHAP 1
 
-**Status:** DRAF UNTUK EVALUASI — BELUM DISETUJUI, BELUM DIIMPLEMENTASIKAN  
+**Status:** DISETUJUI SEBAGAI SPESIFIKASI TERBATAS — implementasi awal PR #57 telah digabungkan  
 **Jalur:** B — pengenalan kelas kata berdasarkan konteks  
 **Cakupan awal yang diusulkan:** Disambiguasi terbatas entri `dekat` (adjektiva/preposisi)  
 **Acuan:** `docs/RENCANA_PENGEMBANGAN_RUNTIME_TAHAP_01.md`, `docs/IMPLEMENTASI_TAHAP_01.md`, `data/reference/tahap_01_fondasi/kata_dasar.json`, PR #50–#54.
@@ -16,7 +16,9 @@ Audit terhadap referensi aktual menemukan:
 - `jalan` hanya tercatat sebagai `nomina` pada referensi saat ini. Contoh `Mereka jalan ke pasar.` tidak boleh dipakai untuk mengajarkan keluaran `verba` karena kelas verba belum tersedia pada entri tersebut.
 - Karena itu, paket awal ini **tidak** mengklaim menyelesaikan klasifikasi 11 kelas kata atau semua kata ambigu. Ia hanya menguji apakah dua kelas yang sudah tercantum untuk `dekat` dapat dibedakan pada pola struktural yang sangat terbatas.
 
-Tidak ada perubahan atau penambahan data referensi dalam pekerjaan ini.
+Tidak ada perubahan entri atau penambahan data leksikal dalam pekerjaan spesifikasi ini. Catatan metadata jumlah artikula diperbarui terpisah sesuai keputusan audit Tahap 1.
+
+**Pengecualian batas Tahap 1:** pola struktural pada kata `dekat` adalah pengecualian yang sangat terbatas. Hanya dua pola khusus untuk satu kata ini yang diizinkan; pola tersebut tidak menjadi pola umum untuk kata lain dan bukan parser frasa/klausa.
 
 Ini BUKAN pemilah kelas kata umum. Hanya penentuan antara 2 pilihan yang sudah diketahui untuk kata `dekat` saja. Tidak berlaku untuk kata lain.
 
@@ -85,12 +87,9 @@ Tidak ada skor probabilitas atau ranking tersembunyi. Kelas alternatif tidak bol
 Pola berikut adalah hipotesis terbatas untuk dievaluasi, bukan aturan bahasa universal.
 
 ### B-DEKAT-ADJ-01 — predikat adjektiva dengan penguat eksplisit
-Bentuk seperti `Rumah itu sangat dekat.`:
-- sasaran `dekat` didahului penguat `sangat`;
-- berada sebagai predikat setelah subjek sederhana;
-- tidak diikuti objek nominal yang diperkenalkan langsung oleh `dekat`.
+**[TIDAK DIDUKUNG — `needs_context`, lihat keputusan penyelarasan PR #56]**
 
-Keluaran yang diusulkan: `classified` → [`adjektiva`].
+Contoh `Rumah itu sangat dekat.` tidak boleh menghasilkan `classified`: `sangat` belum terdaftar pada referensi kata. Posisi sebelum `dekat` saja tidak cukup menjadi bukti kelas kata. Pola ini dicatat sebagai hipotesis yang tidak didukung oleh referensi aktual saat ini.
 
 ### B-DEKAT-ADJ-02 — predikat adjektiva sederhana di akhir klausa
 Bentuk seperti `Rumah itu dekat.`:
@@ -100,13 +99,13 @@ Bentuk seperti `Rumah itu dekat.`:
 
 Keluaran yang diusulkan: `classified` → [`adjektiva`].
 
-### B-DEKAT-PRE-01 — `dekat` langsung diikuti frasa nominal
-Bentuk seperti `Mereka tinggal dekat sekolah.` atau `Kami duduk dekat pintu.`:
-- sasaran `dekat` langsung diikuti satu nomina yang terdaftar pada referensi;
-- pola kalimat sederhana memiliki predikat sebelum sasaran;
-- tidak ada tanda bahwa kata setelah sasaran merupakan awal kalimat baru.
+### B-DEKAT-PRE-01 — `dekat` langsung diikuti nomina terdaftar
+**[DIDUKUNG SECARA TERBATAS hanya untuk contoh yang seluruh komponennya terdaftar dan pola spesifiknya diuji]**
 
-Keluaran yang diusulkan: `classified` → [`preposisi`].
+- `Kami duduk dekat pintu.` → `classified: preposisi`; `pintu` tercatat sebagai nomina dan pola ini diuji pada PR #57.
+- `Mereka tinggal dekat sekolah.` → **[TIDAK DIDUKUNG — `needs_context`, lihat PR #56]**; `sekolah` belum terdaftar sebagai nomina pada referensi.
+
+Jangan memperlakukan pola ini sebagai aturan universal untuk semua nomina atau semua konstruksi setelah `dekat`.
 
 **Batas penting:** pola ini hanya boleh diterapkan pada contoh konstruksi yang benar-benar diuji. Jangan menggeneralisasi ke frasa kompleks, nama diri, atau token setelah `dekat` yang tidak dikenal. Jika bukti objek nominal tidak dapat dipastikan dari referensi dan pola sederhana, kembalikan `needs_context`.
 
@@ -119,7 +118,7 @@ Keluaran yang diusulkan: `classified` → [`preposisi`].
 
 ## 7. Paket kasus uji kandidat
 
-Kunci di bawah adalah **usulan untuk evaluator**, belum boleh dianggap sebagai kebenaran final sebelum ditinjau.
+Kunci di bawah adalah **kunci yang telah diselaraskan dengan referensi aktual dan keputusan evaluator**. Kasus yang tidak didukung tetap dipertahankan sebagai `needs_context`.
 
 | ID | Kalimat | Sasaran | Hasil usulan | Alasan/petunjuk |
 |---|---|---|---|---|
@@ -182,4 +181,4 @@ Jika diterima, implementasi berikutnya harus berada pada branch/PR terpisah, han
 
 ---
 
-**Kesimpulan:** Jalur B dimulai sebagai eksperimen disambiguasi satu entri ambigu (`dekat`), bukan classifier 11 kelas. Lebih baik kemampuan kecil dengan bukti yang dapat diaudit daripada label luas yang tampak pintar tetapi menebak.
+**Kesimpulan:** Jalur B tetap berupa disambiguasi satu entri ambigu (`dekat`), bukan classifier 11 kelas. Hanya dua pola terbatas yang didukung implementasi PR #57. Contoh dengan `sangat` atau `sekolah` secara eksplisit tidak didukung dan harus menghasilkan `needs_context`. Lebih baik kemampuan kecil dengan bukti yang dapat diaudit daripada label luas yang tampak pintar tetapi menebak.
