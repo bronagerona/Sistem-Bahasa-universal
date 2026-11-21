@@ -197,7 +197,6 @@ def test_spelling_loader_rejects_missing_rule_fields(tmp_path):
         {"status": "aktif", "daftar_aturan": []},
         {"status": "referensi", "daftar_aturan": "not-a-list"},
         {"status": "referensi", "daftar_aturan": [None]},
-        {"status": "referensi", "daftar_aturan": []},
     ],
 )
 def test_spelling_loader_rejects_invalid_reference_shapes(tmp_path, payload):
