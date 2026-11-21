@@ -239,9 +239,9 @@ Pemeriksaan frasa cocok dengan definisi dan kategori nomina, verba, serta prepos
 - Paket ini berisi tepat 50 kasus: A=20, B=20, C=10.
 - Sumber kebenaran pemeriksaan data adalah tiga file JSON pada `data/reference/tahap_02_kata_kalimat/`.
 - Dokumen daftar dasar digunakan untuk memahami konteks dan menelusuri asal materi.
-- File JSON tidak diubah dalam tugas penyusunan rencana uji ini.
+- Tidak ada file JSON yang diubah selama pelaksanaan verifikasi manual ini.
 - Seluruh 50 kasus telah diperiksa secara manual terhadap JSON; status aktual tercatat pada tabel dan laporan.
 - Tidak ada promosi ke `data/runtime/`.
 - Tidak ada perubahan kode, konfigurasi, Semantic, Reasoning, KnowledgeEngine, playground, atau branch `main`.
 
-**Kesimpulan:** Dokumen ini adalah rancangan pemeriksaan manual Tahap 2. Hasilnya kelak menjadi bukti untuk keputusan lulus, revisi, atau penundaan; bukan pernyataan bahwa data Tahap 2 sudah terverifikasi.
+**Kesimpulan:** Verifikasi manual 50 kasus telah selesai dengan hasil 38 LULUS, 1 GAGAL pada kunci uji, dan 11 TIDAK DIDUKUNG. Ambang 90% belum tercapai. Hasil ini bukan persetujuan aktivasi; data tetap berstatus referensi dan menunggu evaluasi Dola.
