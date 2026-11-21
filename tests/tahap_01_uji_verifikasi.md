@@ -125,39 +125,132 @@ Paket ini merinci 60 kasus untuk memeriksa apakah daftar kata dan aturan ejaan T
 
 ---
 
-## 5 — Lembar Hasil UJI (Kosong — untuk diisi setelah pelaksanaan)
+## 5 — Lembar Hasil UJI
 
-Bagian ini sengaja dibiarkan kosong. Jangan mengisi skor atau kesimpulan sebelum seluruh kasus benar-benar dijalankan dan hasil aktual dicatat.
-
-## LAPORAN HASIL UJI — TAHAP 1
-
-Tanggal uji: __________  Oleh: __________
+**Tanggal verifikasi:** 2026-11-21  
+**Pelaksana:** ChatGPT — pemeriksaan manual terstruktur terhadap isi file referensi pada branch `ilis-v2-development`  
+**Metode:** Pencocokan langsung setiap kasus dengan `kata_dasar.json` dan `aturan_ejaan.json`. Tidak menjalankan chatbot, tidak menguji runtime, dan tidak mengubah file referensi.
 
 ### Bagian A — Kelas Kata
+
 - Total kasus: 30
-- Lulus: ___  Gagal: ___  Tingkat keberhasilan: ___%
-- Daftar yang gagal:
-  - ___ : Masukan __ | Diharapkan __ | Hasil __
-- Catatan: ________________________________
+- Lulus: **30**
+- Gagal: **0**
+- Tingkat keberhasilan: **100%**
 
-### Bagian B — Ejaan
+| ID Uji | Keluaran aktual dari referensi | Status | Catatan |
+|---|---|---|---|
+| T1-K-001 | `buku` → nomina | PASS | Entri cocok. |
+| T1-K-002 | `rumah` → nomina | PASS | Entri cocok. |
+| T1-K-003 | `kucing` → nomina | PASS | Entri cocok. |
+| T1-K-004 | `makan` → verba | PASS | Entri cocok. |
+| T1-K-005 | `tidur` → verba | PASS | Entri cocok. |
+| T1-K-006 | `tulis` → verba | PASS | Entri cocok; tercatat sebagai bentuk dasar. |
+| T1-K-007 | `baik` → adjektiva | PASS | Entri cocok. |
+| T1-K-008 | `dingin` → adjektiva | PASS | Entri cocok. |
+| T1-K-009 | `tinggi` → adjektiva | PASS | Entri cocok. |
+| T1-K-010 | `sering` → adverbia | PASS | Entri cocok. |
+| T1-K-011 | `segera` → adverbia | PASS | Entri cocok. |
+| T1-K-012 | `mungkin` → adverbia | PASS | Entri cocok. |
+| T1-K-013 | `aku` → pronomina | PASS | Entri cocok. |
+| T1-K-014 | `mereka` → pronomina | PASS | Entri cocok. |
+| T1-K-015 | `siapa` → pronomina | PASS | Entri cocok. |
+| T1-K-016 | `dua` → numeralia | PASS | Entri cocok. |
+| T1-K-017 | `pertama` → numeralia | PASS | Entri cocok. |
+| T1-K-018 | `di` → preposisi | PASS | Entri cocok. |
+| T1-K-019 | `dari` → preposisi | PASS | Entri cocok. |
+| T1-K-020 | `kepada` → preposisi | PASS | Entri cocok. |
+| T1-K-021 | `karena` → konjungsi | PASS | Entri cocok. |
+| T1-K-022 | `tetapi` → konjungsi | PASS | Entri cocok. |
+| T1-K-023 | `aduh` → interjeksi | PASS | Entri cocok. |
+| T1-K-024 | `halo` → interjeksi | PASS | Entri cocok. |
+| T1-K-025 | `sang` → artikula | PASS | Entri cocok. |
+| T1-K-026 | `para` → artikula | PASS | Entri cocok. |
+| T1-K-027 | `-kah` → partikel terikat | PASS | Entri tercatat sebagai partikel terikat, bukan kata bebas. |
+| T1-K-028 | `dong` → partikel | PASS | Entri cocok. |
+| T1-K-029 | `dekat` → adjektiva dan preposisi; catatan menyebut fungsi bergantung konteks | PASS | Referensi mendukung dua fungsi; contoh konteks pada kasus uji selaras dengan kunci. |
+| T1-K-030 | `dekat` → adjektiva dan preposisi; catatan menyebut fungsi bergantung konteks | PASS | Referensi mendukung dua fungsi; contoh konteks pada kasus uji selaras dengan kunci. |
+
+### Bagian B — Ejaan & Penulisan
+
 - Total kasus: 20
-- Lulus: ___  Gagal: ___  Tingkat keberhasilan: ___%
-- Daftar yang gagal:
-  - ___ : Masukan __ | Diharapkan __ | Hasil __
-- Catatan: ________________________________
+- Lulus: **18**
+- Gagal: **2**
+- Tingkat keberhasilan: **90%**
 
-### Bagian C — Kasus Khusus
+| ID Uji | Keluaran aktual berdasarkan aturan referensi | Status | Catatan |
+|---|---|---|---|
+| T1-E-001 | Kata depan `di` harus terpisah → `di sekolah` | PASS | Sesuai aturan kata depan. |
+| T1-E-002 | Awal kalimat kapital; nama tempat `Bandung` kapital | PASS | Sesuai aturan kapitalisasi. |
+| T1-E-003 | Awal kalimat dan nama orang `Rina` kapital | PASS | Sesuai aturan kapitalisasi. |
+| T1-E-004 | Awal kalimat dan nama hari `Senin` kapital | PASS | Sesuai aturan kapitalisasi. |
+| T1-E-005 | Awal kalimat dan nama bulan `Januari` kapital | PASS | Sesuai aturan kapitalisasi. |
+| T1-E-006 | Awal kalimat dan nama tempat `Surabaya` kapital | PASS | Sesuai aturan kapitalisasi. |
+| T1-E-007 | Kata depan `ke` harus terpisah → `ke pasar` | PASS | Sesuai aturan kata depan. |
+| T1-E-008 | Kata depan `dari` harus terpisah → `dari sekolah`; awal kalimat kapital | PASS | Sesuai aturan kata depan dan kapitalisasi. |
+| T1-E-009 | Awalan pasif `di-` melekat → `dibaca`; awal kalimat kapital; pernyataan diakhiri titik | PASS | Seluruh perubahan didukung aturan. |
+| T1-E-010 | Awalan pasif `di-` melekat → `ditutup`; awal kalimat kapital; pernyataan diakhiri titik | PASS | Seluruh perubahan didukung aturan. |
+| T1-E-011 | Awal kalimat dan nama `Budi` kapital; pernyataan diakhiri titik | PASS | Sesuai aturan kapitalisasi dan titik. |
+| T1-E-012 | Awal kalimat kapital; koma memisahkan unsur perincian; titik penutup | PASS | Sesuai aturan kapitalisasi, koma, dan titik. |
+| T1-E-013 | Aturan menyatakan tanda tanya untuk kalimat pertanyaan; masukan berakhir titik dan tidak memberi penanda bahwa kalimat itu pertanyaan | FAIL | Kunci mengubah pernyataan menjadi pertanyaan tanpa konteks yang membenarkan perubahan maksud. Aturan referensi tidak cukup untuk menetapkan `?`. Perlu evaluasi Dola atas kunci kasus. |
+| T1-E-014 | Contoh benar aturan tanda seru adalah `Awas!`; seruan/peringatan memakai tanda seru | PASS | Kata `awas` merupakan peringatan; keluaran sesuai contoh dan aturan. |
+| T1-E-015 | Bentuk tanya `Apakah` memakai tanda tanya; `Jakarta` kapital; awal kalimat kapital | PASS | Sesuai aturan pertanyaan dan kapitalisasi. |
+| T1-E-016 | `Ani`, `Bandung`, dan `Selasa` kapital; pernyataan diakhiri titik | PASS | Sesuai aturan kapitalisasi dan titik. |
+| T1-E-017 | `Bali` kapital; `dari` terpisah; pernyataan diakhiri titik | PASS | Sesuai aturan kapitalisasi, kata depan, dan titik. |
+| T1-E-018 | Kata depan `di` terpisah → `di rumah`; awal kalimat kapital; titik penutup | PASS | Sesuai aturan. |
+| T1-E-019 | Awalan pasif `di-` melekat → `ditulis`; nama `Rina` dan awal kalimat kapital; titik | PASS | Sesuai aturan. |
+| T1-E-020 | Aturan yang tersedia mengatur kapital awal kalimat serta nama orang/tempat/hari/bulan; tidak ada aturan eksplisit tentang kapitalisasi `Ibu` sebagai sapaan/kekerabatan pada konteks ini | FAIL | Kunci `Ibu` belum dapat dibuktikan dari aturan yang tercantum. Konteks sapaan juga tidak dinyatakan. Perlu evaluasi Dola; jangan mengubah aturan atau kunci secara diam-diam. |
+
+### Bagian C — Kasus Khusus & Batas
+
 - Total kasus: 10
-- Lulus: ___  Gagal: ___  Tingkat keberhasilan: ___%
-- Catatan: ________________________________
+- Lulus: **9**
+- Gagal: **1**
+- Tingkat keberhasilan: **90%**
+
+| ID Uji | Keluaran aktual dari referensi | Status | Catatan |
+|---|---|---|---|
+| T1-X-001 | `lima belas` tercatat sebagai numeralia dengan catatan bentuk bilangan majemuk, bukan satu kata dasar tunggal | PASS | Sesuai kunci. |
+| T1-X-002 | `kah` tidak tercatat sebagai entri bebas; `-kah` tercatat sebagai partikel terikat | PASS | Sesuai kunci. |
+| T1-X-003 | Masukan literal masih berupa `[kata tidak ada di daftar]`; tidak ada token kata tertentu untuk dicari | FAIL | Kasus belum dapat dieksekusi secara konkret. Status ini menandai kekurangan spesifikasi kasus, bukan bukti bahwa kata tertentu tidak ada. |
+| T1-X-004 | `tiga puluh` tercatat sebagai numeralia dengan catatan bentuk bilangan majemuk | PASS | Sesuai kunci. |
+| T1-X-005 | `-lah` tercatat sebagai partikel terikat; catatan menyatakan bukan imbuhan pembentuk kata | PASS | Sesuai kunci. |
+| T1-X-006 | `-tah` tercatat sebagai partikel terikat; catatan menyatakan bukan imbuhan pembentuk kata | PASS | Sesuai kunci. |
+| T1-X-007 | `dekat` memiliki jenis adjektiva dan preposisi; catatan menyebut fungsi bergantung konteks | PASS | Referensi mendukung fungsi adjektiva pada konteks yang diberikan. |
+| T1-X-008 | `dekat` memiliki jenis adjektiva dan preposisi; catatan menyebut fungsi bergantung konteks | PASS | Referensi mendukung fungsi preposisi pada konteks yang diberikan. |
+| T1-X-009 | `ditulis` tidak tercatat sebagai entri; `tulis` tercatat sebagai verba dasar; aturan menyatakan awalan `di-` melekat | PASS | Sesuai batas referensi dan aturan awalan. |
+| T1-X-010 | `para` tercatat sebagai artikula; `siswa` tidak tercatat sebagai entri | PASS | Sesuai kunci; tidak mengklaim `siswa` ada dalam daftar. |
+
+### Rekapitulasi
+
+| Bagian | Total | PASS | FAIL | Keberhasilan |
+|---|---:|---:|---:|---:|
+| A — Kelas kata | 30 | 30 | 0 | 100% |
+| B — Ejaan | 20 | 18 | 2 | 90% |
+| C — Kasus khusus | 10 | 9 | 1 | 90% |
+| **Keseluruhan** | **60** | **57** | **3** | **95%** |
+
+### Temuan yang memerlukan evaluasi
+
+1. **T1-E-013:** perubahan kalimat pernyataan menjadi pertanyaan tidak dapat ditentukan hanya dari aturan tanda baca tanpa konteks maksud.
+2. **T1-E-020:** kapitalisasi `Ibu` pada konteks tersebut belum ditopang aturan eksplisit dalam `aturan_ejaan.json`.
+3. **T1-X-003:** placeholder tidak menyebut kata konkret sehingga tidak dapat diverifikasi sebagai kasus tertentu.
+
+**Catatan hitung:** Rekapitulasi yang benar adalah 57 PASS dan 3 FAIL (95%). Dua kegagalan pada Bagian B dan satu pada Bagian C merupakan ketidaksiapan/kekurangan dukungan pada kunci atau spesifikasi kasus, bukan bukti otomatis bahwa isi JSON salah. Belum ada promosi data.
 
 ### KESIMPULAN AKHIR
+
 - [ ] Lulus — Akurasi ≥90%, tidak ada kesalahan kritis → siap dipertimbangkan untuk promosi ke runtime
-- [ ] Perlu revisi — Ada kesalahan kritis atau akurasi di bawah batas
+- [x] Perlu evaluasi Dola — Ambang angka tercapai, tetapi ada 3 kasus yang belum didukung/tidak dapat dieksekusi sebagaimana ditulis
 - [ ] Ditunda — Belum siap
 
-Tanda persetujuan: __________  Tanggal: __________
+**Kesalahan kritis pada data referensi:** Belum dapat disimpulkan dari verifikasi ini.  
+**Isu kritis pada paket/kunci uji:** T1-E-013 berpotensi mengubah maksud kalimat; perlu keputusan evaluator sebelum paket dinyatakan bersih.
+
+**Status promosi:** TIDAK DIPROMOSIKAN. Kedua JSON tetap berstatus `referensi`.
+
+**Tanda persetujuan evaluator:** Menunggu Dola  
+**Tanggal persetujuan:** __________
 
 ---
 
