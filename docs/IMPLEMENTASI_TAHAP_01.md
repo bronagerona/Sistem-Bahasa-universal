@@ -77,6 +77,8 @@ Susun **minimal 10 contoh untuk setiap kelas kata** (minimal 110 entri contoh se
 
 Setiap entri sekurang-kurangnya memiliki: **bentuk kata, kelas kata, penjelasan/fungsi sederhana, dan contoh pemakaian singkat**. Contoh pemakaian hanya untuk memperjelas fungsi kata, bukan untuk mengajarkan sintaksis.
 
+**Catatan status audit:** field penjelasan/makna sederhana dan contoh pemakaian pada `kata_dasar.json` belum terisi secara sistematis. Keduanya menjadi **backlog wajib sebelum Tahap 1 dinyatakan SELESAI PENUH**, tetapi bukan penghalang bagi kemampuan runtime terbatas yang sudah berjalan dan diuji saat ini. Jangan mengisi atau memperluas data sekarang tanpa tugas dan persetujuan tersendiri.
+
 Untuk kelas yang jumlah anggotanya terbatas atau yang contoh umumnya berupa partikel terikat (misalnya -lah, -kah, -tah), jangan mengarang kata baru demi memenuhi angka. Catat bentuk yang valid, jelaskan batas jumlah contoh mandiri, dan minta evaluasi sebelum menetapkan cara menghitung target. Target 10 adalah sasaran kurasi, bukan izin membuat contoh yang tidak tepat.
 
 #### B.3 Petunjuk pengenalan dasar
