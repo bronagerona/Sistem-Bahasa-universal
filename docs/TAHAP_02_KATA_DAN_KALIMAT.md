@@ -76,7 +76,7 @@ Sufiks diletakkan **di belakang** kata dasar.
 | Akhiran | Contoh | Keterangan sederhana |
 |---|---|---|
 | -kan | `bersih` → `bersihkan`; `ambil` → `ambilkan` | Dapat menyatakan membuat sesuatu menjadi atau melakukan sesuatu untuk orang lain |
-| -i | `isi` → `isi` + `-i` = `isi`? | Bentuk ini perlu dilihat pada kata yang tepat, misalnya `garam` → `garami` |
+| -i | `warna` → `warnai`; `garam` → `garami` | Dapat menyatakan memberi warna atau garam pada sesuatu |
 | -an | `baca` → `bacaan`; `makan` → `makanan` | Dapat membentuk nomina yang berkaitan dengan dasar katanya |
 | -nya | `buku` → `bukunya`; `rumah` → `rumahnya` | Dapat menandai kepunyaan atau rujukan tertentu |
 
