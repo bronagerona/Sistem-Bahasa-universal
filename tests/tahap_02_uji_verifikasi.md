@@ -164,13 +164,10 @@ Bagian ini adalah catatan persiapan berdasarkan pembacaan struktur sumber, **buk
 
 **Lulus:** T2-M-001, 002, 003, 004, 005, 008, 009, 010, 011, 012, 013, 014, 015, 016, 017, 018, 019, 020.
 
-**Tidak didukung oleh JSON:** 
+**Tidak didukung oleh JSON v1.1:**  
 - T2-M-006 dan T2-M-007 — bentuk aktif dan pasif tersedia, tetapi prosedur transformasi pasif-ke-aktif belum dirumuskan eksplisit.
-- T2-M-008 — contoh `berlari` belum tercantum; JSON memuat `berjalan` dan `berbunga`.
-- T2-M-012 — contoh `meluruskan` belum tercantum; JSON memuat `membacakan` dan `membersihkan`.
-- T2-M-013 — contoh `bersampingan` belum tercantum; JSON memuat `berpelukan` dan `berjatuhan`.
-- T2-M-016 — contoh `tuliskan` belum tercantum; JSON memuat `bersihkan` dan `ambilkan`.
-- T2-M-018 — contoh `tulisan` belum tercantum; JSON memuat `bacaan` dan `makanan`.
+
+**Sudah didukung oleh JSON v1.1:** T2-M-008 (`berlari`), T2-M-012 (`meluruskan`), T2-M-013 (`bersampingan`), T2-M-016 (`tuliskan`), dan T2-M-018 (`tulisan`).
 
 **Tindak lanjut T2-M-017:** Kunci telah diperbaiki atas keputusan Dola menjadi `warna + -i → warnai`. Bentuk `warnai` tercantum pada JSON sebagai contoh sufiks `-i`; kasus sekarang berstatus LULUS. Tidak ada perubahan pada JSON sumber.
 
@@ -196,10 +193,12 @@ Pemeriksaan frasa cocok dengan definisi dan kategori nomina, verba, serta prepos
 
 **Lulus:** T2-X-001, T2-X-002, T2-X-004, T2-X-005, T2-X-006, T2-X-007, T2-X-008, T2-X-010.
 
-**Tidak didukung oleh JSON:**
-- T2-X-001 dan T2-X-006 — pasangan `cepat—laju` dan `masuk—keluar` kini tercantum pada JSON v1.1.
-- T2-X-003 tetap tidak didukung: pasangan `banyak—banyak sekali` tidak tercantum dalam daftar sinonim JSON.
-- T2-X-009 tetap tidak didukung oleh JSON: pembeda frasa dan kalimat dijelaskan di dokumen daftar dasar, tetapi belum dinyatakan lengkap dalam `frasa_dan_makna.json`.
+**Tidak didukung oleh JSON v1.1:**  
+- T2-X-003 — pasangan `banyak—banyak sekali` tidak tercantum dalam daftar sinonim JSON.
+- T2-X-009 — pembeda frasa dan kalimat belum dinyatakan lengkap dalam `frasa_dan_makna.json`.
+
+**Sudah didukung oleh JSON v1.1:** T2-X-001 (`cepat—laju`) dan T2-X-006 (`masuk—keluar`).
+
 
 
 ### Uji Ulang Terarah terhadap JSON v1.1 (2026-11-21)
