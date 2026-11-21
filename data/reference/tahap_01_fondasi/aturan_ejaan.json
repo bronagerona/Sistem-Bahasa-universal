@@ -1,0 +1,74 @@
+{
+  "versi_format": "1.0",
+  "sumber": "docs/DAFTAR_DASAR_TAHAP_01.md",
+  "status": "referensi",
+  "tahap": "tahap_01_fondasi",
+  "daftar_aturan": [
+    {
+      "aturan": "Huruf kapital digunakan pada awal kalimat.",
+      "contoh_benar": "Budi sedang makan.",
+      "contoh_salah": "budi sedang makan.",
+      "penjelasan": "Huruf pertama pada awal kalimat ditulis dengan huruf kapital."
+    },
+    {
+      "aturan": "Huruf kapital digunakan pada nama orang.",
+      "contoh_benar": "Rina bertemu Ani.",
+      "contoh_salah": "Rina bertemu ani.",
+      "penjelasan": "Nama orang merupakan nama diri dan diawali huruf kapital."
+    },
+    {
+      "aturan": "Huruf kapital digunakan pada nama tempat.",
+      "contoh_benar": "Mereka tinggal di Bandung.",
+      "contoh_salah": "Mereka tinggal di bandung.",
+      "penjelasan": "Nama geografi/tempat diawali huruf kapital."
+    },
+    {
+      "aturan": "Huruf kapital digunakan pada nama hari dan bulan.",
+      "contoh_benar": "Senin, 2 Januari 2026.",
+      "contoh_salah": "senin, 2 januari 2026.",
+      "penjelasan": "Nama hari dan bulan diawali huruf kapital."
+    },
+    {
+      "aturan": "Kata depan di, ke, dan dari ditulis terpisah dari kata yang mengikutinya.",
+      "contoh_benar": "di rumah; ke pasar; dari sekolah.",
+      "contoh_salah": "dirumah; kepasar; darisekolah.",
+      "penjelasan": "Kata depan ditulis terpisah karena menandai hubungan tempat, arah, atau asal."
+    },
+    {
+      "aturan": "Awalan di- pada kata kerja pasif ditulis menyatu dengan kata dasarnya.",
+      "contoh_benar": "ditulis; dibaca.",
+      "contoh_salah": "di tulis; di baca.",
+      "penjelasan": "di- merupakan awalan pembentuk kata kerja pasif, bukan kata depan."
+    },
+    {
+      "aturan": "Tanda titik (.) digunakan untuk mengakhiri kalimat pernyataan.",
+      "contoh_benar": "Ibu memasak.",
+      "contoh_salah": "Ibu memasak",
+      "penjelasan": "Titik menandai akhir kalimat pernyataan."
+    },
+    {
+      "aturan": "Tanda koma (,) digunakan untuk memisahkan unsur dalam perincian.",
+      "contoh_benar": "Saya membeli roti, susu, dan telur.",
+      "contoh_salah": "Saya membeli roti susu dan telur.",
+      "penjelasan": "Koma memisahkan unsur-unsur perincian agar batasnya jelas."
+    },
+    {
+      "aturan": "Tanda tanya (?) digunakan pada akhir kalimat pertanyaan.",
+      "contoh_benar": "Kamu sudah makan?",
+      "contoh_salah": "Kamu sudah makan.",
+      "penjelasan": "Tanda tanya menandai kalimat interogatif/pertanyaan."
+    },
+    {
+      "aturan": "Tanda seru (!) digunakan untuk menandai seruan atau perintah kuat.",
+      "contoh_benar": "Awas!",
+      "contoh_salah": "Awas.",
+      "penjelasan": "Tanda seru menandai seruan, peringatan, atau perintah dengan tekanan kuat."
+    },
+    {
+      "aturan": "Tanda pisah (—) digunakan untuk membatasi sisipan atau memberi penegasan/jeda.",
+      "contoh_benar": "Pilihan itu—menurut saya—cukup baik.",
+      "contoh_salah": "Pilihan itu-menurut saya-cukup baik.",
+      "penjelasan": "Tanda pisah (—) berbeda dari tanda hubung (-); tanda pisah dapat mengapit keterangan sisipan atau memberi penegasan."
+    }
+  ]
+}
