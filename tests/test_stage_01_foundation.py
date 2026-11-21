@@ -81,8 +81,9 @@ def test_spelling_inspection_never_rewrites_input_or_claims_full_correction():
     original = "budi pergi ke bandung"
     result = inspect_spelling(original)
     assert result["input"] == original
-    assert result["status"] == "reference_guidance_only"
+    assert result["status"] == "partial"
     assert result["findings"] == []
+    assert result["coverage"]["checked_rules"] == ["EJA-04"]
     assert "belum didukung" in result["message"]
 
 

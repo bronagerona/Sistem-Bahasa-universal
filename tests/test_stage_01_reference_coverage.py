@@ -104,12 +104,14 @@ def test_all_spelling_rules_have_required_fields_and_examples():
     "sample",
     ["disekolah", "budi pergi ke bandung", "Apakah kamu tinggal di jakarta?"],
 )
-def test_spelling_api_is_explicitly_guidance_only_and_never_rewrites(sample):
+def test_spelling_api_reports_partial_scope_and_never_rewrites(sample):
     result = inspect_spelling(sample)
-    assert result["status"] == "reference_guidance_only"
+    assert result["status"] == "partial"
     assert result["input"] == sample
     assert result["findings"] == []
     assert result["rules_available"] == 12
+    assert result["coverage"]["checked_rules"] == ["EJA-04"]
+    assert len(result["coverage"]["deferred_rules"]) == 11
     assert "belum didukung" in result["message"]
 
 
