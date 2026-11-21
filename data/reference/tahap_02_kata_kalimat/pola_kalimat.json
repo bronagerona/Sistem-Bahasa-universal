@@ -1,0 +1,63 @@
+{
+  "versi_format": "1.0",
+  "versi_data": "tahap_02-0.1.0",
+  "sumber": "docs/DAFTAR_DASAR_TAHAP_02.md",
+  "status": "referensi",
+  "tahap": "tahap_02_kata_kalimat",
+  "tanggal_dibuat": "2026-11-21",
+  "catatan": "Referensi pola dan jenis kalimat Tahap 2; belum diverifikasi dan belum boleh digunakan runtime.",
+  "pola_dasar": [
+    {
+      "kode": "S-P",
+      "rumus": "Subjek + Predikat",
+      "contoh": ["Budi tidur.", "Ibu datang.", "Kucing duduk."],
+      "keterangan": "Pola kalimat sederhana yang terdiri atas subjek dan predikat."
+    },
+    {
+      "kode": "S-P-O",
+      "rumus": "Subjek + Predikat + Objek",
+      "contoh": ["Ibu memasak nasi.", "Adik membaca buku.", "Ayah membuka pintu."]
+    },
+    {
+      "kode": "S-P-K",
+      "rumus": "Subjek + Predikat + Keterangan",
+      "contoh": ["Ibu tidur di kamar.", "Kami pergi pagi tadi.", "Ayam makan di halaman."]
+    },
+    {
+      "kode": "S-P-O-K",
+      "rumus": "Subjek + Predikat + Objek + Keterangan",
+      "contoh": ["Ibu memasak nasi di dapur.", "Adik membaca buku di kamar.", "Ayah mencuci mobil pagi tadi."]
+    }
+  ],
+  "jenis_kalimat": {
+    "deklaratif": {
+      "fungsi": "menyampaikan pernyataan atau informasi",
+      "contoh": ["Ibu memasak nasi.", "Kucing tidur di kamar."]
+    },
+    "interogatif": {
+      "fungsi": "mengajukan pertanyaan atau meminta informasi",
+      "contoh": ["Siapa yang datang?", "Kamu membaca buku?"]
+    },
+    "imperatif": {
+      "fungsi": "meminta atau memerintahkan seseorang melakukan sesuatu",
+      "contoh": ["Tutup pintu!", "Tolong ambil buku itu."]
+    },
+    "larangan": {
+      "fungsi": "meminta seseorang tidak melakukan sesuatu; kata jangan sering digunakan",
+      "contoh": ["Jangan berlari di rumah!", "Jangan membuka pintu itu!"]
+    }
+  },
+  "aktif_pasif": [
+    {"aktif": "Ibu membaca buku.", "pasif": "Buku dibaca Ibu."},
+    {"aktif": "Ayah membuka pintu.", "pasif": "Pintu dibuka Ayah."},
+    {"aktif": "Adik mencuci tangan.", "pasif": "Tangan dicuci Adik."},
+    {"aktif": "Budi menulis surat.", "pasif": "Surat ditulis Budi."},
+    {"aktif": "Kakak membeli buku.", "pasif": "Buku dibeli Kakak."}
+  ],
+  "penyangkalan": [
+    {"kata": "tidak", "fungsi": "lazim digunakan untuk menyangkal verba atau adjektiva", "contoh": ["Ibu tidak tidur.", "Air itu tidak panas."]},
+    {"kata": "bukan", "fungsi": "lazim digunakan untuk menyangkal nomina atau identitas", "contoh": ["Itu bukan buku saya.", "Budi bukan guru."]},
+    {"kata": "belum", "fungsi": "menyatakan sesuatu belum terjadi atau belum tercapai sampai waktu pembicaraan", "contoh": ["Adik belum makan.", "Ibu belum datang."]},
+    {"kata": "jangan", "fungsi": "menyatakan larangan atau meminta agar tindakan tidak dilakukan", "contoh": ["Jangan berlari!", "Jangan membuka pintu!"]}
+  ]
+}
