@@ -55,6 +55,22 @@ def test_sixteen_approved_dekat_cases(case_id, text, expected_status, expected_c
         assert result["status"] == "needs_context"
 
 
+@pytest.mark.parametrize(
+    ("case_id", "text", "expected_class"),
+    [
+        ("T1-K-029", "Rumah itu dekat.", "adjektiva"),
+        ("T1-K-030", "Mereka duduk dekat rumah.", "preposisi"),
+    ],
+    ids=["T1-K-029", "T1-K-030"],
+)
+def test_original_manual_contextual_word_class_cases(case_id, text, expected_class):
+    """Keep the two original 60-case examples aligned with the approved patterns."""
+    result = classify_word_in_context(text, _span(text))
+    assert result["status"] == "classified"
+    assert result["classes"] == [expected_class]
+    assert result["input"] == text
+
+
 def test_explicit_target_span_selects_second_occurrence_only():
     text = "Rumah itu dekat dan dekat."
     span = _span(text, occurrence=1)
