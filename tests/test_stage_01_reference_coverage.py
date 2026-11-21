@@ -188,3 +188,25 @@ def test_spelling_loader_rejects_missing_rule_fields(tmp_path):
     )
     with pytest.raises(ReferenceFormatError):
         load_spelling_rules(source)
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        [],
+        {"status": "aktif", "daftar_aturan": []},
+        {"status": "referensi", "daftar_aturan": "not-a-list"},
+        {"status": "referensi", "daftar_aturan": [None]},
+        {"status": "referensi", "daftar_aturan": []},
+    ],
+)
+def test_spelling_loader_rejects_invalid_reference_shapes(tmp_path, payload):
+    source = tmp_path / "invalid-spelling.json"
+    source.write_text(json.dumps(payload), encoding="utf-8")
+    with pytest.raises(ReferenceFormatError):
+        load_spelling_rules(source)
+
+
+def test_spelling_inspection_rejects_non_string_input():
+    with pytest.raises(TypeError):
+        inspect_spelling(None)
