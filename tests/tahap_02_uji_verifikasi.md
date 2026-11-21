@@ -106,7 +106,7 @@ Status semua kasus saat dokumen dibuat: **BELUM DIUJI**.
 
 ---
 
-## 5 — Catatan Kesesuaian Kunci Uji terhadap JSON
+## 5 — Catatan Kesesuaian Kunci Uji terhadap JSON v1.0 (Riwayat Audit Awal)
 
 Bagian ini adalah catatan persiapan berdasarkan pembacaan struktur sumber, **bukan hasil eksekusi kasus uji**. Kasus-kasus berikut perlu perhatian khusus ketika audit dan pelaksanaan manual karena masukan/contoh yang diminta tidak semuanya tercantum secara eksplisit pada JSON saat ini.
 
