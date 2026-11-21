@@ -10,6 +10,18 @@
 **Cakupan:** Maksud komunikatif, deiksis dan rujukan, elipsis, negasi, aspek, modalitas, makna kontekstual, klarifikasi dan koreksi  
 **Batas perubahan:** Hanya dokumen ini; tidak mengubah dataset JSONL, kode, konfigurasi runtime, atau branch `main`.
 
+**Versi dokumen:** 1.1  
+**Status revisi:** Rancangan pengayaan — menunggu evaluasi Dola
+
+### Riwayat Revisi
+
+| Versi | Perubahan |
+|---|---|
+| 1.0 | Daftar dasar Tahap 3 yang telah disetujui sebagai acuan awal |
+| 1.1 | Penambahan unsur partisipan percakapan, hubungan sosial, konteks situasi, dan pola dasar pertukaran pesan. Materi versi 1.0 dipertahankan. |
+
+**Prinsip revisi:** Penambahan ini memperluas cakupan pemahaman konteks dan pertukaran pesan. Materi versi sebelumnya tidak dihapus atau diganti.
+
 ---
 
 ## 1 — Bentuk Kalimat vs Maksud Sebenarnya
@@ -258,7 +270,175 @@ Klarifikasi digunakan ketika informasi belum cukup jelas. Koreksi digunakan untu
 
 ---
 
-## 7 — Verifikasi Mandiri dan Batas Penggunaan
+## 7 — Peserta, Hubungan, dan Situasi Percakapan
+
+Bagian ini menjelaskan unsur yang ikut membentuk maksud sebuah ucapan. Makna tidak hanya bergantung pada kata dan susunan kalimat, tetapi juga pada siapa yang berbicara, kepada siapa pesan ditujukan, dan dalam keadaan apa pesan disampaikan.
+
+### A. Pembicara dan Mitra Bicara
+
+| Unsur | Pengertian | Contoh |
+|---|---|---|
+| Pembicara | Pihak yang menyampaikan ujaran | Orang yang berkata, "Saya perlu bantuan." |
+| Mitra bicara | Pihak yang menjadi tujuan ujaran | Orang yang dimintai bantuan |
+| Pihak yang dibicarakan | Orang atau pihak yang menjadi pokok pembicaraan | Orang yang disebut dalam kalimat "Dia sudah datang." |
+
+**Contoh:**
+
+Rina berkata kepada Budi:
+
+- "Saya sudah makan." — *Saya* merujuk kepada Rina sebagai pembicara.
+- "Kamu sudah makan?" — *Kamu* merujuk kepada Budi sebagai mitra bicara.
+- "Dia sudah makan." — *Dia* merujuk kepada pihak lain yang sedang dibicarakan.
+
+**Prinsip:** Peran pembicara dan mitra bicara membantu menentukan acuan kata seperti *saya*, *aku*, *kamu*, dan *Anda*. Acuan harus mengikuti siapa yang benar-benar sedang berbicara, bukan ditetapkan secara tetap dari kata itu saja.
+
+### B. Hubungan Sosial Antar Peserta
+
+Hubungan sosial dapat memengaruhi pilihan kata, sapaan, tingkat kesopanan, dan bentuk permintaan.
+
+| Hubungan | Contoh penggunaan bahasa |
+|---|---|
+| Akrab | "Tolong ambilkan itu, ya." |
+| Sopan atau resmi | "Mohon bantuannya untuk memeriksa dokumen ini." |
+| Sebaya | "Kamu sudah selesai?" |
+| Atasan kepada bawahan | "Tolong kirim laporan hari ini." |
+| Bawahan kepada atasan | "Apakah Bapak/Ibu berkenan memeriksa laporan ini?" |
+| Orang yang belum dikenal | "Permisi, boleh saya bertanya?" |
+
+**Catatan penting:**
+
+- Contoh di atas menunjukkan kecenderungan penggunaan bahasa, bukan aturan mutlak.
+- Hubungan atasan-bawahan tidak boleh disimpulkan hanya dari satu kata atau satu kalimat.
+- Sapaan dan tingkat kesopanan dapat berbeda menurut kebiasaan, daerah, usia, dan situasi.
+- Jangan menganggap bahasa santai sebagai bahasa yang tidak sopan secara otomatis.
+
+### C. Konteks Situasi
+
+Konteks situasi adalah keadaan yang melatarbelakangi suatu ujaran.
+
+| Unsur konteks | Fungsi | Contoh |
+|---|---|---|
+| Situasi | Keadaan umum ketika pesan disampaikan | Percakapan santai, rapat, meminta bantuan |
+| Tempat | Lokasi yang relevan dengan ujaran | Rumah, kantor, jalan, tempat umum |
+| Waktu | Waktu atau keadaan temporal ketika ujaran disampaikan | Pagi hari, saat bekerja, ketika terburu-buru |
+| Aktivitas | Kegiatan yang sedang berlangsung | Memasak, bekerja, menunggu, bepergian |
+| Hubungan peserta | Relasi antara pembicara dan mitra bicara | Teman, keluarga, rekan kerja, orang asing |
+
+Tidak semua unsur konteks harus tersedia untuk memahami sebuah pesan. Sistem hanya boleh menggunakan unsur yang benar-benar diketahui atau didukung percakapan.
+
+**Contoh:**
+
+- "Tolong kecilkan suaranya." — Dapat menjadi permintaan biasa ketika seseorang sedang berbicara terlalu keras.
+- Ucapan yang sama dalam rapat resmi mungkin memerlukan bentuk yang lebih sopan.
+- Tanpa mengetahui situasi, sistem tidak boleh mengarang alasan mengapa suara perlu dikecilkan.
+
+### D. Maksud Ucapan dalam Interaksi
+
+Satu ujaran dapat memiliki fungsi komunikatif yang berbeda dari bentuk kalimatnya.
+
+| Maksud | Fungsi | Contoh |
+|---|---|---|
+| Memberi informasi | Menyampaikan informasi | "Rapat dimulai pukul sepuluh." |
+| Meminta informasi | Menanyakan sesuatu | "Jam berapa rapat dimulai?" |
+| Meminta tindakan | Meminta mitra bicara melakukan sesuatu | "Tolong tutup pintunya." |
+| Menyatakan keadaan atau sikap | Menjelaskan keadaan diri atau pendirian | "Saya belum selesai." |
+| Menolak atau menyangkal | Menyatakan ketidakbersediaan atau ketidakbenaran | "Maaf, saya tidak bisa hadir." |
+| Menegaskan | Memperjelas atau menekankan pesan | "Yang penting, kita harus selesai hari ini." |
+
+**Prinsip:** Fungsi komunikatif ditentukan dari bentuk ujaran bersama konteksnya. Jangan menganggap semua kalimat tanya hanya meminta informasi atau semua kalimat perintah selalu merupakan perintah keras.
+
+---
+
+## 8 — Pola Dasar Pertukaran Pesan
+
+Percakapan terdiri dari ujaran yang saling berhubungan. Sebuah pesan biasanya diikuti respons, tetapi bentuk dan isi respons bergantung pada maksud serta konteks sebelumnya.
+
+### A. Ujaran dan Respons
+
+| Pola | Penjelasan | Contoh |
+|---|---|---|
+| Ujaran → Respons | Pesan disampaikan dan ditanggapi | "Sudah makan?" — "Sudah, terima kasih." |
+| Pertanyaan → Jawaban | Informasi diminta dan diberikan | "Di mana buku saya?" — "Ada di meja." |
+| Permintaan → Pemenuhan | Permintaan diterima dan dilakukan | "Tolong ambilkan air." — "Baik." |
+| Permintaan → Penolakan | Permintaan tidak dapat atau tidak bersedia dipenuhi | "Bisa pinjam pulpen?" — "Maaf, sedang saya pakai." |
+| Pemberitahuan → Pengakuan | Informasi disampaikan dan ditanggapi | "Saya berangkat dulu." — "Hati-hati di jalan." |
+
+Pola ini merupakan gambaran hubungan antarujaran, bukan aturan bahwa setiap ujaran harus diikuti satu jenis respons tertentu.
+
+### B. Hubungan antara Pertanyaan dan Jawaban
+
+Jawaban perlu dikaitkan dengan informasi yang benar-benar diminta.
+
+**Contoh 1:**
+
+- A: "Kapan kamu pulang?"
+- B: "Besok pagi."
+
+Jawaban B memberikan informasi waktu.
+
+**Contoh 2:**
+
+- A: "Siapa yang membawa buku itu?"
+- B: "Rina."
+
+Jawaban B memberikan informasi orang.
+
+**Contoh 3:**
+
+- A: "Kamu sudah makan?"
+- B: "Belum."
+
+Jawaban B dapat dipahami dari konteks pertanyaan, meskipun tidak mengulang seluruh kalimat.
+
+Jika jawaban tidak sesuai dengan pertanyaan atau informasi yang diminta belum tersedia, jangan menganggap pertanyaan telah terjawab.
+
+### C. Hubungan antara Permintaan dan Respons
+
+Permintaan dapat menghasilkan beberapa jenis respons:
+
+1. **Diterima:** "Baik, saya bantu."
+2. **Ditolak:** "Maaf, saya belum bisa membantu."
+3. **Ditunda:** "Nanti saya kerjakan."
+4. **Dimintai penjelasan:** "Bagian mana yang perlu saya periksa?"
+5. **Belum ada jawaban:** Mitra bicara belum memberikan tanggapan.
+
+**Catatan:** Penundaan tidak otomatis berarti penolakan. Tidak adanya jawaban juga tidak boleh dianggap sebagai persetujuan.
+
+### D. Perubahan Maksud Berdasarkan Konteks
+
+Ujaran yang sama dapat mempunyai maksud berbeda ketika situasinya berubah.
+
+| Ujaran | Konteks | Kemungkinan maksud |
+|---|---|---|
+| "Pintu itu belum ditutup." | Memberi informasi biasa | Menyampaikan keadaan pintu |
+| "Pintu itu belum ditutup." | Udara dingin dan pintu terbuka | Permintaan halus agar pintu ditutup |
+| "Kamu sudah selesai?" | Memeriksa kemajuan pekerjaan | Meminta informasi tentang pekerjaan |
+| "Kamu sudah selesai?" | Sedang menunggu untuk pergi bersama | Memeriksa kesiapan agar dapat segera berangkat |
+
+**Prinsip penafsiran:**
+
+- Konteks dapat mengubah fungsi komunikatif suatu ujaran.
+- Maksud yang tersirat harus didukung petunjuk situasi atau percakapan.
+- Satu konteks dapat tetap memungkinkan lebih dari satu penafsiran.
+- Jika bukti tidak cukup, pertahankan ketidakpastian atau minta klarifikasi.
+
+### E. Giliran Berbicara
+
+Giliran berbicara adalah kesempatan peserta untuk menyampaikan ujaran dalam percakapan.
+
+Prinsip dasar:
+
+- Peserta umumnya berbicara secara bergantian.
+- Setelah satu pihak menyelesaikan ujaran, pihak lain dapat memberikan respons.
+- Ujaran yang belum selesai dapat menunjukkan bahwa pembicara masih melanjutkan pesan.
+- Pergantian giliran tidak selalu harus menunggu jeda panjang.
+- Percakapan dapat berakhir ketika peserta memberikan tanda penutup atau menyatakan bahwa pembicaraan selesai.
+
+**Batas Tahap 3:** Bagian ini hanya mengenalkan konsep giliran dan hubungan antarujaran. Aturan pengelolaan percakapan panjang, penentuan giliran otomatis, pemulihan topik, dan strategi respons sistem belum dibahas di sini.
+
+---
+
+## 9 — Verifikasi Mandiri dan Batas Penggunaan
 
 Pemeriksaan ini menilai kelengkapan dan kehati-hatian isi dokumen. Ini bukan validasi ahli eksternal dan bukan pengujian runtime ILIS.
 
@@ -275,6 +455,11 @@ Pemeriksaan ini menilai kelengkapan dan kehati-hatian isi dokumen. Ini bukan val
 | Tiga ujaran ambigu dibahas tanpa menebak emosi | ✅ | Terserah kamu, ya sudah, bagus sekali |
 | Klarifikasi dan koreksi disertai contoh | ✅ | Empat bentuk sesuai acuan |
 | Tidak memasukkan pengetahuan umum/ensiklopedis | ✅ | Isi berfokus pada penggunaan bahasa dan konteks |
+| Pembicara, mitra bicara, dan pihak yang dibicarakan dibedakan | ✅ | Peran peserta dijelaskan dengan contoh |
+| Hubungan sosial dan situasi percakapan dibahas | ✅ | Contoh bersifat kecenderungan, bukan aturan mutlak |
+| Pola pertukaran pesan dijelaskan | ✅ | Ujaran/respons, pertanyaan/jawaban, permintaan/pemenuhan atau penolakan |
+| Perubahan maksud berdasarkan konteks dibahas | ✅ | Contoh menunjukkan kemungkinan fungsi berbeda |
+| Konsep giliran berbicara diperkenalkan tanpa implementasi runtime | ✅ | Batas Tahap 3 dan Tahap 4 tetap jelas |
 | Siap menjadi dataset aktif | ❌ | Belum melalui audit evaluator, konversi skema, atau pengujian |
 
 ### Batas Aktivasi
