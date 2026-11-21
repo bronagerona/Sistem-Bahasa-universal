@@ -104,12 +104,14 @@ def test_all_spelling_rules_have_required_fields_and_examples():
     "sample",
     ["disekolah", "budi pergi ke bandung", "Apakah kamu tinggal di jakarta?"],
 )
-def test_spelling_api_is_explicitly_guidance_only_and_never_rewrites(sample):
+def test_spelling_api_reports_partial_scope_and_never_rewrites(sample):
     result = inspect_spelling(sample)
-    assert result["status"] == "reference_guidance_only"
+    assert result["status"] == "partial"
     assert result["input"] == sample
     assert result["findings"] == []
     assert result["rules_available"] == 12
+    assert result["coverage"]["checked_rules"] == ["EJA-04"]
+    assert len(result["coverage"]["deferred_rules"]) == 11
     assert "belum didukung" in result["message"]
 
 
@@ -177,7 +179,7 @@ def test_word_loader_rejects_invalid_reference_shapes(tmp_path, payload):
     source = tmp_path / "invalid.json"
     source.write_text(json.dumps(payload), encoding="utf-8")
     with pytest.raises(ReferenceFormatError):
-        load_word_reference(source)
+        load_word_reference(source,)
 
 
 def test_spelling_loader_rejects_missing_rule_fields(tmp_path):
