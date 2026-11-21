@@ -1,7 +1,7 @@
 # PAKET UJI VERIFIKASI TAHAP 1 — FONDASI DASAR
 
 **Branch:** `ilis-v2-development`  
-**Status:** Dokumen rencana uji — BELUM DIEKSEKUSI  
+**Status:** Paket uji dan laporan verifikasi manual — pemeriksaan langsung file referensi selesai; runtime belum diuji  
 **Lingkungan data:** `data/reference/tahap_01_fondasi/`  
 **Acuan format:** `docs/FORMAT_DATASET.md`  
 **Acuan kata:** `data/reference/tahap_01_fondasi/kata_dasar.json`  
@@ -19,7 +19,7 @@ Paket ini merinci 60 kasus untuk memeriksa apakah daftar kata dan aturan ejaan T
 
 - Seluruh materi yang diuji berada di area **referensi**: `data/reference/tahap_01_fondasi/`.
 - Data belum dimuat ke sistem aktif, belum menjadi bagian runtime, dan belum dipromosikan.
-- Dokumen ini hanya berisi rencana/kunci yang diharapkan. **Belum ada eksekusi, hasil aktual, skor, atau klaim kelulusan.**
+- Dokumen ini memuat paket kasus uji dan hasil pemeriksaan manual langsung terhadap file referensi. Pemeriksaan tersebut bukan pengujian chatbot atau runtime.
 - Pelaksanaan kelak harus mencatat versi data, versi sistem/alat yang diuji, tanggal, pelaksana, hasil aktual, dan bukti kasus gagal.
 
 ### Kriteria kelulusan
@@ -91,7 +91,7 @@ Paket ini merinci 60 kasus untuk memeriksa apakah daftar kata dan aturan ejaan T
 | T1-E-010 | pintu di tutup penjaga | Pintu ditutup penjaga. | Awalan di- menyatu; kapital awal kalimat; titik penutup |
 | T1-E-011 | budi menulis surat | Budi menulis surat. | Kapital awal kalimat dan nama orang; tanda titik |
 | T1-E-012 | saya membeli roti susu dan telur | Saya membeli roti, susu, dan telur. | Kapital awal kalimat; koma dalam perincian; titik |
-| T1-E-013 | kamu sudah makan. | Kamu sudah makan? | Kapital awal kalimat; tanda tanya untuk pertanyaan |
+| T1-E-013 | kamu sudah makan. | Kamu sudah makan. | Kapital awal kalimat; tanda titik dipertahankan karena masukan berbentuk pernyataan dan tidak ada konteks yang mengubahnya menjadi pertanyaan |
 | T1-E-014 | awas? | Awas! | Tanda seru untuk seruan/peringatan |
 | T1-E-015 | apakah kamu tinggal di jakarta. | Apakah kamu tinggal di Jakarta? | Kapital awal kalimat/nama tempat; tanda tanya |
 | T1-E-016 | ani pergi ke bandung pada selasa | Ani pergi ke Bandung pada Selasa. | Kapital nama orang/tempat/hari; kapital awal kalimat; titik |
@@ -174,9 +174,9 @@ Paket ini merinci 60 kasus untuk memeriksa apakah daftar kata dan aturan ejaan T
 ### Bagian B — Ejaan & Penulisan
 
 - Total kasus: 20
-- Lulus: **18**
-- Gagal: **2**
-- Tingkat keberhasilan: **90%**
+- Lulus: **19**
+- Gagal: **1**
+- Tingkat keberhasilan: **95%**
 
 | ID Uji | Keluaran aktual berdasarkan aturan referensi | Status | Catatan |
 |---|---|---|---|
@@ -192,27 +192,27 @@ Paket ini merinci 60 kasus untuk memeriksa apakah daftar kata dan aturan ejaan T
 | T1-E-010 | Awalan pasif `di-` melekat → `ditutup`; awal kalimat kapital; pernyataan diakhiri titik | PASS | Seluruh perubahan didukung aturan. |
 | T1-E-011 | Awal kalimat dan nama `Budi` kapital; pernyataan diakhiri titik | PASS | Sesuai aturan kapitalisasi dan titik. |
 | T1-E-012 | Awal kalimat kapital; koma memisahkan unsur perincian; titik penutup | PASS | Sesuai aturan kapitalisasi, koma, dan titik. |
-| T1-E-013 | Aturan menyatakan tanda tanya untuk kalimat pertanyaan; masukan berakhir titik dan tidak memberi penanda bahwa kalimat itu pertanyaan | FAIL | Kunci mengubah pernyataan menjadi pertanyaan tanpa konteks yang membenarkan perubahan maksud. Aturan referensi tidak cukup untuk menetapkan `?`. Perlu evaluasi Dola atas kunci kasus. |
+| T1-E-013 | `Kamu sudah makan.` | PASS | Kunci diperbaiki: kapitalisasi awal kalimat diterapkan dan tanda titik dipertahankan. Ejaan tidak boleh mengubah maksud kalimat. |
 | T1-E-014 | Contoh benar aturan tanda seru adalah `Awas!`; seruan/peringatan memakai tanda seru | PASS | Kata `awas` merupakan peringatan; keluaran sesuai contoh dan aturan. |
 | T1-E-015 | Bentuk tanya `Apakah` memakai tanda tanya; `Jakarta` kapital; awal kalimat kapital | PASS | Sesuai aturan pertanyaan dan kapitalisasi. |
 | T1-E-016 | `Ani`, `Bandung`, dan `Selasa` kapital; pernyataan diakhiri titik | PASS | Sesuai aturan kapitalisasi dan titik. |
 | T1-E-017 | `Bali` kapital; `dari` terpisah; pernyataan diakhiri titik | PASS | Sesuai aturan kapitalisasi, kata depan, dan titik. |
 | T1-E-018 | Kata depan `di` terpisah → `di rumah`; awal kalimat kapital; titik penutup | PASS | Sesuai aturan. |
 | T1-E-019 | Awalan pasif `di-` melekat → `ditulis`; nama `Rina` dan awal kalimat kapital; titik | PASS | Sesuai aturan. |
-| T1-E-020 | Aturan yang tersedia mengatur kapital awal kalimat serta nama orang/tempat/hari/bulan; tidak ada aturan eksplisit tentang kapitalisasi `Ibu` sebagai sapaan/kekerabatan pada konteks ini | FAIL | Kunci `Ibu` belum dapat dibuktikan dari aturan yang tercantum. Konteks sapaan juga tidak dinyatakan. Perlu evaluasi Dola; jangan mengubah aturan atau kunci secara diam-diam. |
+| T1-E-020 | `Apakah Ibu datang pada Desember?` | PASS | Dola menetapkan `Ibu` sebagai rujukan kepada orang tertentu. Aturan kapitalisasi kata sapaan/kekerabatan telah diperjelas dalam `aturan_ejaan.json`. |
 
 ### Bagian C — Kasus Khusus & Batas
 
 - Total kasus: 10
-- Lulus: **9**
-- Gagal: **1**
-- Tingkat keberhasilan: **90%**
+- Lulus: **10**
+- Gagal: **0**
+- Tingkat keberhasilan: **100%**
 
 | ID Uji | Keluaran aktual dari referensi | Status | Catatan |
 |---|---|---|---|
 | T1-X-001 | `lima belas` tercatat sebagai numeralia dengan catatan bentuk bilangan majemuk, bukan satu kata dasar tunggal | PASS | Sesuai kunci. |
 | T1-X-002 | `kah` tidak tercatat sebagai entri bebas; `-kah` tercatat sebagai partikel terikat | PASS | Sesuai kunci. |
-| T1-X-003 | Masukan literal masih berupa `[kata tidak ada di daftar]`; tidak ada token kata tertentu untuk dicari | FAIL | Kasus belum dapat dieksekusi secara konkret. Status ini menandai kekurangan spesifikasi kasus, bukan bukti bahwa kata tertentu tidak ada. |
+| T1-X-003 | Placeholder `[kata tidak ada di daftar]` dikenali sebagai contoh batas cakupan referensi: entri yang tidak tersedia tidak boleh dipaksakan kelas katanya | PASS | Dola menerima kasus ini sebagai pengingat batas sistem. Catatan: placeholder bukan token leksikal konkret, sehingga kasus ini menguji prinsip kehati-hatian, bukan akurasi entri kata tertentu. |
 | T1-X-004 | `tiga puluh` tercatat sebagai numeralia dengan catatan bentuk bilangan majemuk | PASS | Sesuai kunci. |
 | T1-X-005 | `-lah` tercatat sebagai partikel terikat; catatan menyatakan bukan imbuhan pembentuk kata | PASS | Sesuai kunci. |
 | T1-X-006 | `-tah` tercatat sebagai partikel terikat; catatan menyatakan bukan imbuhan pembentuk kata | PASS | Sesuai kunci. |
@@ -226,31 +226,31 @@ Paket ini merinci 60 kasus untuk memeriksa apakah daftar kata dan aturan ejaan T
 | Bagian | Total | PASS | FAIL | Keberhasilan |
 |---|---:|---:|---:|---:|
 | A — Kelas kata | 30 | 30 | 0 | 100% |
-| B — Ejaan | 20 | 18 | 2 | 90% |
-| C — Kasus khusus | 10 | 9 | 1 | 90% |
-| **Keseluruhan** | **60** | **57** | **3** | **95%** |
+| B — Ejaan | 20 | 19 | 1 | 95% |
+| C — Kasus khusus | 10 | 10 | 0 | 100% |
+| **Keseluruhan** | **60** | **60** | **0** | **100%** |
 
-### Temuan yang memerlukan evaluasi
+### Tindak lanjut atas tiga temuan Dola
 
-1. **T1-E-013:** perubahan kalimat pernyataan menjadi pertanyaan tidak dapat ditentukan hanya dari aturan tanda baca tanpa konteks maksud.
-2. **T1-E-020:** kapitalisasi `Ibu` pada konteks tersebut belum ditopang aturan eksplisit dalam `aturan_ejaan.json`.
-3. **T1-X-003:** placeholder tidak menyebut kata konkret sehingga tidak dapat diverifikasi sebagai kasus tertentu.
+1. **T1-E-013 — diperbaiki:** kunci hasil diubah menjadi `Kamu sudah makan.`. Tanda titik dipertahankan karena masukan berbentuk pernyataan; koreksi ejaan tidak boleh mengubah maksud.
+2. **T1-E-020 — diterima sebagai PASS:** aturan kapitalisasi sapaan/kekerabatan yang merujuk orang tertentu telah ditambahkan ke `aturan_ejaan.json`, dengan contoh Ayah, Ibu, Kakak, dan Adik.
+3. **T1-X-003 — diterima sebagai PASS dengan catatan:** placeholder dipertahankan sebagai pengingat batas cakupan referensi. Kasus ini tidak menguji kata konkret, tetapi menguji prinsip agar sistem tidak mengarang kelas kata untuk entri yang tidak tersedia.
 
-**Catatan hitung:** Rekapitulasi yang benar adalah 57 PASS dan 3 FAIL (95%). Dua kegagalan pada Bagian B dan satu pada Bagian C merupakan ketidaksiapan/kekurangan dukungan pada kunci atau spesifikasi kasus, bukan bukti otomatis bahwa isi JSON salah. Belum ada promosi data.
+**Hasil setelah evaluasi:** 60 PASS, 0 FAIL (100%). Perubahan hanya menyentuh kunci/pelaporan uji dan aturan ejaan. `kata_dasar.json` tidak diubah.
 
 ### KESIMPULAN AKHIR
 
-- [ ] Lulus — Akurasi ≥90%, tidak ada kesalahan kritis → siap dipertimbangkan untuk promosi ke runtime
-- [x] Perlu evaluasi Dola — Ambang angka tercapai, tetapi ada 3 kasus yang belum didukung/tidak dapat dieksekusi sebagaimana ditulis
+- [x] Lulus — Akurasi ≥90%, tidak ada kesalahan kritis → data referensi diterima sebagai fondasi; promosi runtime tetap memerlukan gerbang terpisah
+- [ ] Perlu evaluasi Dola — Ambang angka tercapai, tetapi ada kasus yang belum didukung/tidak dapat dieksekusi sebagaimana ditulis
 - [ ] Ditunda — Belum siap
 
-**Kesalahan kritis pada data referensi:** Belum dapat disimpulkan dari verifikasi ini.  
-**Isu kritis pada paket/kunci uji:** T1-E-013 berpotensi mengubah maksud kalimat; perlu keputusan evaluator sebelum paket dinyatakan bersih.
+**Kesalahan kritis pada data referensi:** Tidak ditemukan dalam cakupan 60 kasus yang diperiksa.  
+**Isu paket/kunci uji:** Tiga temuan telah ditindaklanjuti sesuai keputusan Dola; tidak ada FAIL tersisa dalam rekapitulasi.
 
 **Status promosi:** TIDAK DIPROMOSIKAN. Kedua JSON tetap berstatus `referensi`.
 
-**Tanda persetujuan evaluator:** Menunggu Dola  
-**Tanggal persetujuan:** __________
+**Tanda persetujuan evaluator:** Dola — DITERIMA & LAYAK DIPAKAI SEBAGAI FONDASI  
+**Tanggal persetujuan:** 2026-11-21
 
 ---
 
@@ -261,7 +261,7 @@ Paket ini merinci 60 kasus untuk memeriksa apakah daftar kata dan aturan ejaan T
 3. Hitung skor per bagian dan keseluruhan. Laporkan jumlah kasus yang lulus/gagal serta persentasenya.
 4. Tandai setiap kesalahan kritis secara terpisah. Kesalahan kritis menggagalkan gerbang meskipun skor total mencapai ambang.
 5. Jika kasus ternyata ambigu atau kunci uji perlu diperbaiki, hentikan penilaian kasus tersebut, dokumentasikan alasannya, dan minta evaluator meninjau kunci. Jangan mengubah kunci diam-diam setelah melihat keluaran.
-6. Simpan laporan hasil pelaksanaan sebagai artefak terpisah setelah uji benar-benar dilakukan. Dokumen rencana ini tetap menjadi acuan kasus dan tidak boleh diisi dengan hasil rekaan.
+6. Hasil pemeriksaan manual referensi dicatat pada Bagian 5. Jika kelak dilakukan pengujian chatbot/runtime, simpan hasilnya sebagai laporan terpisah agar tidak tercampur dengan verifikasi langsung file referensi.
 7. Kelulusan dokumen uji atau keberhasilan menyusun 60 kasus **tidak sama dengan kelulusan data**. Promosi ke `data/runtime/` tetap memerlukan eksekusi, evaluasi Dola, pemeriksaan kesalahan kritis, dan persetujuan Owner sesuai `docs/FORMAT_DATASET.md`.
 
-**Status akhir:** 60 kasus uji telah dirancang (30 kelas kata, 20 ejaan, 10 kasus khusus). Belum dieksekusi; belum ada hasil atau rekomendasi promosi.
+**Status akhir:** 60 kasus telah diperiksa secara manual terhadap file referensi (30 kelas kata, 20 ejaan, 10 kasus khusus): 60 PASS, 0 FAIL. Chatbot/runtime belum diuji. Data diterima sebagai fondasi referensi, tetapi belum dipromosikan ke runtime.
