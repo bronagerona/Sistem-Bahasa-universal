@@ -1,7 +1,7 @@
 # PAKET UJI VERIFIKASI TAHAP 1 — FONDASI DASAR
 
 **Branch:** `ilis-v2-development`  
-**Status:** Paket uji dan laporan verifikasi manual — revisi T1-E-014 sedang ditindaklanjuti; runtime belum diuji  
+**Status:** Paket uji dan laporan verifikasi manual — 60 kasus terverifikasi ulang terhadap referensi; runtime belum diuji  
 **Lingkungan data:** `data/reference/tahap_01_fondasi/`  
 **Acuan format:** `docs/FORMAT_DATASET.md`  
 **Acuan kata:** `data/reference/tahap_01_fondasi/kata_dasar.json`  
@@ -174,10 +174,10 @@ Paket ini merinci 60 kasus untuk memeriksa apakah daftar kata dan aturan ejaan T
 ### Bagian B — Ejaan & Penulisan
 
 - Total kasus: 20
-- Lulus: **19**
-- Perlu revisi: **1**
+- Lulus: **20**
+- Perlu revisi: **0**
 - Gagal: **0**
-- Tingkat kelulusan sementara: **95%** (19/20 kasus Bagian B)
+- Tingkat keberhasilan: **100%**
 
 | ID Uji | Keluaran aktual berdasarkan aturan referensi | Status | Catatan |
 |---|---|---|---|
@@ -194,7 +194,7 @@ Paket ini merinci 60 kasus untuk memeriksa apakah daftar kata dan aturan ejaan T
 | T1-E-011 | Awal kalimat dan nama `Budi` kapital; pernyataan diakhiri titik | PASS | Sesuai aturan kapitalisasi dan titik. |
 | T1-E-012 | Awal kalimat kapital; koma memisahkan unsur perincian; titik penutup | PASS | Sesuai aturan kapitalisasi, koma, dan titik. |
 | T1-E-013 | `Kamu sudah makan.` | PASS | Kunci diperbaiki: kapitalisasi awal kalimat diterapkan dan tanda titik dipertahankan. Ejaan tidak boleh mengubah maksud kalimat. |
-| T1-E-014 | `awas?` dipertahankan; perlu konteks untuk menentukan apakah tanda tanya atau tanda seru sesuai maksud penutur | PERLU REVISI | Kasus awal keliru menganggap `?` harus diubah menjadi `!`. Tanda baca mengubah fungsi komunikatif; masukan tunggal tidak cukup untuk menentukan maksud. |
+| T1-E-014 | `awas?` dipertahankan; sistem menjelaskan bahwa tanda tanya dan tanda seru memiliki fungsi komunikatif berbeda dan meminta konteks bila pengguna ingin menentukan tanda yang tepat | PASS | Kunci revisi sesuai keputusan evaluator. Tidak ada perubahan tanda baca karena maksud penutur tidak dapat dipastikan dari masukan tunggal. |
 | T1-E-015 | Bentuk tanya `Apakah` memakai tanda tanya; `Jakarta` kapital; awal kalimat kapital | PASS | Sesuai aturan pertanyaan dan kapitalisasi. |
 | T1-E-016 | `Ani`, `Bandung`, dan `Selasa` kapital; pernyataan diakhiri titik | PASS | Sesuai aturan kapitalisasi dan titik. |
 | T1-E-017 | `Bali` kapital; `dari` terpisah; pernyataan diakhiri titik | PASS | Sesuai aturan kapitalisasi, kata depan, dan titik. |
@@ -227,27 +227,27 @@ Paket ini merinci 60 kasus untuk memeriksa apakah daftar kata dan aturan ejaan T
 | Bagian | Total | PASS | Perlu revisi | FAIL | Kelulusan |
 |---|---:|---:|---:|---:|---:|
 | A — Kelas kata | 30 | 30 | 0 | 0 | 100% |
-| B — Ejaan | 20 | 19 | 1 | 0 | 95% |
+| B — Ejaan | 20 | 20 | 0 | 0 | 100% |
 | C — Kasus khusus | 10 | 10 | 0 | 0 | 100% |
-| **Keseluruhan** | **60** | **59** | **1** | **0** | **98,3%** |
+| **Keseluruhan** | **60** | **60** | **0** | **0** | **100%** |
 
 ### Tindak lanjut atas temuan evaluator
 
 1. **T1-E-013 — diperbaiki sebelumnya:** kunci hasil `Kamu sudah makan.` mempertahankan tanda titik karena masukan berbentuk pernyataan.
 2. **T1-E-020 — diterima sebelumnya:** aturan kapitalisasi sapaan/kekerabatan untuk rujukan orang tertentu telah ditambahkan ke `aturan_ejaan.json`.
 3. **T1-X-003 — diterima sebelumnya dengan catatan:** placeholder menguji batas cakupan referensi, bukan akurasi entri kata konkret.
-4. **T1-E-014 — perlu revisi:** hasil yang mewajibkan `awas?` menjadi `Awas!` keliru karena mengubah fungsi komunikatif tanpa konteks. Kunci diperbaiki agar bentuk asli dipertahankan dan sistem meminta konteks/menjelaskan perbedaan fungsi tanda baca.
+4. **T1-E-014 — diperbaiki dan diverifikasi ulang:** kunci tidak lagi mengubah `awas?` menjadi `Awas!`. Bentuk asli dipertahankan; penjelasan menyatakan bahwa tanda tanya dan tanda seru memiliki fungsi komunikatif berbeda dan konteks diperlukan untuk memilih tanda yang tepat.
 
-**Hasil sementara setelah audit:** 59 LULUS, 1 PERLU REVISI, 0 GAGAL (59/60 = 98,3%). Setelah kunci T1-E-014 diperbaiki, seluruh 60 kasus harus diverifikasi ulang. Perubahan ini hanya menyentuh dokumen uji; tidak mengubah kode atau JSON referensi.
+**Verifikasi ulang:** seluruh 60 kasus dicocokkan kembali dengan file referensi dan kunci revisi. Hasil: 60 LULUS, 0 PERLU REVISI, 0 GAGAL (100%). Pemeriksaan ini tetap merupakan verifikasi manual referensi, bukan pengujian runtime. Perubahan hanya pada dokumen uji; kode dan JSON referensi tidak diubah.
 
 ### KESIMPULAN AKHIR
 
-- [ ] Lulus — Akurasi ≥90%, tidak ada kesalahan kritis → data referensi diterima sebagai fondasi; promosi runtime tetap memerlukan gerbang terpisah
-- [x] Perlu revisi — Ambang angka tercapai, tetapi satu rancangan kasus uji (T1-E-014) perlu diperbaiki dan diverifikasi ulang
+- [x] Lulus — Akurasi ≥90%, tidak ada kesalahan kritis → data referensi diterima sebagai fondasi; promosi runtime tetap memerlukan gerbang terpisah
+- [ ] Perlu revisi — Ambang angka tercapai, tetapi satu rancangan kasus uji (T1-E-014) perlu diperbaiki dan diverifikasi ulang
 - [ ] Ditunda — Belum siap
 
 **Kesalahan kritis pada data referensi:** Tidak ditemukan dalam cakupan 60 kasus yang diperiksa.  
-**Isu paket/kunci uji:** T1-E-014 masih berstatus PERLU REVISI sampai verifikasi ulang atas rumusan baru selesai.
+**Isu paket/kunci uji:** T1-E-014 telah diperbaiki dan lulus verifikasi ulang. Tidak ada kasus yang masih berstatus PERLU REVISI atau FAIL.
 
 **Status promosi:** TIDAK DIPROMOSIKAN. Kedua JSON tetap berstatus `referensi`.
 
@@ -266,4 +266,4 @@ Paket ini merinci 60 kasus untuk memeriksa apakah daftar kata dan aturan ejaan T
 6. Hasil pemeriksaan manual referensi dicatat pada Bagian 5. Jika kelak dilakukan pengujian chatbot/runtime, simpan hasilnya sebagai laporan terpisah agar tidak tercampur dengan verifikasi langsung file referensi.
 7. Kelulusan dokumen uji atau keberhasilan menyusun 60 kasus **tidak sama dengan kelulusan data**. Promosi ke `data/runtime/` tetap memerlukan eksekusi, evaluasi Dola, pemeriksaan kesalahan kritis, dan persetujuan Owner sesuai `docs/FORMAT_DATASET.md`.
 
-**Status akhir:** 60 kasus telah diperiksa secara manual terhadap file referensi (30 kelas kata, 20 ejaan, 10 kasus khusus): 60 PASS, 0 FAIL. Chatbot/runtime belum diuji. Data diterima sebagai fondasi referensi, tetapi belum dipromosikan ke runtime.
+**Status akhir verifikasi manual referensi:** 60 kasus (30 kelas kata, 20 ejaan, 10 kasus khusus) telah diverifikasi: 60 LULUS, 0 PERLU REVISI, 0 GAGAL (100%). T1-E-014 telah diperbaiki dan diverifikasi ulang. Chatbot/runtime belum diuji. Data tetap berstatus `referensi` dan belum dipromosikan.
