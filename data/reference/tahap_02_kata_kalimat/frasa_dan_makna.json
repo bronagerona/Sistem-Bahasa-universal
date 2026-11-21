@@ -1,5 +1,5 @@
 {
-  "versi_format": "1.0",
+  "versi_format": "1.1",
   "versi_data": "tahap_02-0.1.0",
   "sumber": "docs/DAFTAR_DASAR_TAHAP_02.md",
   "status": "referensi",
@@ -9,42 +9,159 @@
   "frasa": {
     "nomina": {
       "definisi": "frasa yang intinya berupa nomina atau kata benda",
-      "contoh": ["buku baru", "rumah besar", "air dingin", "meja kayu", "anak kecil"]
+      "contoh": [
+        "buku baru",
+        "rumah besar",
+        "air dingin",
+        "meja kayu",
+        "anak kecil"
+      ]
     },
     "verba": {
       "definisi": "frasa yang intinya berupa verba atau kata kerja",
-      "contoh": ["sedang makan", "sudah tidur", "akan pergi", "sedang membaca", "ingin minum"]
+      "contoh": [
+        "sedang makan",
+        "sudah tidur",
+        "akan pergi",
+        "sedang membaca",
+        "ingin minum"
+      ]
     },
     "preposisional": {
       "definisi": "frasa yang diawali preposisi atau kata depan, lalu diikuti unsur yang melengkapinya",
-      "contoh": ["di rumah", "ke pasar", "dari sekolah", "dengan ibu", "untuk adik"]
+      "contoh": [
+        "di rumah",
+        "ke pasar",
+        "dari sekolah",
+        "dengan ibu",
+        "untuk adik"
+      ]
     }
   },
   "hubungan_makna": {
     "sinonim": [
-      {"kata1": "pintar", "kata2": "cerdas", "catatan": "memiliki makna sama atau hampir sama"},
-      {"kata1": "senang", "kata2": "gembira", "catatan": "makna berdekatan; ragam dapat berbeda"},
-      {"kata1": "cepat", "kata2": "lekas", "catatan": "memiliki makna sama atau hampir sama"},
-      {"kata1": "indah", "kata2": "elok", "catatan": "memiliki makna sama atau hampir sama"},
-      {"kata1": "cantik", "kata2": "elok", "catatan": "memiliki makna sama atau hampir sama"},
-      {"kata1": "sulit", "kata2": "sukar", "catatan": "memiliki makna sama atau hampir sama"},
-      {"kata1": "mudah", "kata2": "gampang", "catatan": "ragam pemakaian dapat berbeda"},
-      {"kata1": "melihat", "kata2": "memandang", "catatan": "makna berdekatan; tidak selalu dapat saling menggantikan"},
-      {"kata1": "berkata", "kata2": "berbicara", "catatan": "makna berdekatan; pemakaian bergantung konteks"},
-      {"kata1": "haus", "kata2": "dahaga", "catatan": "dahaga lebih formal atau sastrawi"}
+      {
+        "kata1": "pintar",
+        "kata2": "cerdas",
+        "catatan": "memiliki makna sama atau hampir sama"
+      },
+      {
+        "kata1": "senang",
+        "kata2": "gembira",
+        "catatan": "makna berdekatan; ragam dapat berbeda"
+      },
+      {
+        "kata1": "cepat",
+        "kata2": "lekas",
+        "catatan": "memiliki makna sama atau hampir sama"
+      },
+      {
+        "kata1": "indah",
+        "kata2": "elok",
+        "catatan": "memiliki makna sama atau hampir sama"
+      },
+      {
+        "kata1": "cantik",
+        "kata2": "elok",
+        "catatan": "memiliki makna sama atau hampir sama"
+      },
+      {
+        "kata1": "sulit",
+        "kata2": "sukar",
+        "catatan": "memiliki makna sama atau hampir sama"
+      },
+      {
+        "kata1": "mudah",
+        "kata2": "gampang",
+        "catatan": "ragam pemakaian dapat berbeda"
+      },
+      {
+        "kata1": "melihat",
+        "kata2": "memandang",
+        "catatan": "makna berdekatan; tidak selalu dapat saling menggantikan"
+      },
+      {
+        "kata1": "berkata",
+        "kata2": "berbicara",
+        "catatan": "makna berdekatan; pemakaian bergantung konteks"
+      },
+      {
+        "kata1": "haus",
+        "kata2": "dahaga",
+        "catatan": "dahaga lebih formal atau sastrawi"
+      },
+      {
+        "kata1": "cepat",
+        "kata2": "laju",
+        "catatan": "laju lebih formal/teknis; kesepadanan bergantung konteks"
+      }
     ],
     "antonim": [
-      {"kata1": "besar", "kata2": "kecil", "konteks": "ukuran"},
-      {"kata1": "tinggi", "kata2": "rendah", "konteks": "ukuran atau posisi vertikal"},
-      {"kata1": "panas", "kata2": "dingin", "konteks": "suhu"},
-      {"kata1": "jauh", "kata2": "dekat", "konteks": "jarak"},
-      {"kata1": "cepat", "kata2": "lambat", "konteks": "kecepatan"},
-      {"kata1": "baik", "kata2": "buruk", "konteks": "penilaian sifat atau keadaan"},
-      {"kata1": "bersih", "kata2": "kotor", "konteks": "keadaan kebersihan"},
-      {"kata1": "mahal", "kata2": "murah", "konteks": "harga"},
-      {"kata1": "datang", "kata2": "pergi", "konteks": "arah atau peristiwa perpindahan"},
-      {"kata1": "naik", "kata2": "turun", "konteks": "arah gerakan"}
+      {
+        "kata1": "besar",
+        "kata2": "kecil",
+        "konteks": "ukuran"
+      },
+      {
+        "kata1": "tinggi",
+        "kata2": "rendah",
+        "konteks": "ukuran atau posisi vertikal"
+      },
+      {
+        "kata1": "panas",
+        "kata2": "dingin",
+        "konteks": "suhu"
+      },
+      {
+        "kata1": "jauh",
+        "kata2": "dekat",
+        "konteks": "jarak"
+      },
+      {
+        "kata1": "cepat",
+        "kata2": "lambat",
+        "konteks": "kecepatan"
+      },
+      {
+        "kata1": "baik",
+        "kata2": "buruk",
+        "konteks": "penilaian sifat atau keadaan"
+      },
+      {
+        "kata1": "bersih",
+        "kata2": "kotor",
+        "konteks": "keadaan kebersihan"
+      },
+      {
+        "kata1": "mahal",
+        "kata2": "murah",
+        "konteks": "harga"
+      },
+      {
+        "kata1": "datang",
+        "kata2": "pergi",
+        "konteks": "arah atau peristiwa perpindahan"
+      },
+      {
+        "kata1": "naik",
+        "kata2": "turun",
+        "konteks": "arah gerakan"
+      },
+      {
+        "kata1": "masuk",
+        "kata2": "keluar",
+        "konteks": "arah gerakan"
+      }
     ]
   },
-  "catatan_konteks": "Sinonim menunjukkan kesamaan atau kedekatan makna, bukan kesamaan mutlak. Antonim ditafsirkan menurut konteks makna yang dicantumkan."
+  "catatan_konteks": "Sinonim menunjukkan kesamaan atau kedekatan makna, bukan kesamaan mutlak. Antonim ditafsirkan menurut konteks makna yang dicantumkan.",
+  "catatan_reduplikasi": [
+    {
+      "bentuk": "kata dasar diulang",
+      "contoh": "jalan → jalan-jalan",
+      "catatan": "tidak sekadar jamak — dapat berarti kegiatan berjalan santai/rekreatif; makna ditentukan konteks"
+    }
+  ],
+  "tanggal_diperbarui": "2026-11-21",
+  "catatan_pembaruan": "v1.1 — ditambahkan: cepat↔laju, masuk↔keluar, dan catatan makna reduplikasi jalan-jalan; senang↔gembira sudah tercantum pada v1.0 sehingga tidak diduplikasi."
 }
