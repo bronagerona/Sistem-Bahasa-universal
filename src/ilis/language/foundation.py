@@ -277,3 +277,165 @@ def inspect_spelling(text: str, path: str | Path = _SPELLING_REFERENCE) -> dict[
             "belum didukung; masukan asli tidak diubah."
         ),
     }
+
+
+def classify_word_in_context(
+    text: str,
+    target_span: dict[str, int],
+    path: str | Path = _WORD_REFERENCE,
+) -> dict[str, Any]:
+    """Disambiguate only the registered ambiguous form dekat.
+
+    Recognizes two narrow, reference-supported constructions:
+    - [nomina/pronomina] itu dekat at the end of a simple clause;
+    - [pronomina] [verba] dekat [nomina] as a simple clause.
+
+    The caller must provide the exact Unicode code-point span of one token.
+    No token is selected automatically, no lexical inventory is embedded,
+    and every invocation reads the reference file afresh.
+    """
+    if not isinstance(text, str):
+        raise TypeError("text must be a string")
+    if not isinstance(target_span, dict):
+        raise TypeError("target_span must be a dictionary with start and end")
+
+    start = target_span.get("start")
+    end = target_span.get("end")
+    if (
+        not isinstance(start, int) or isinstance(start, bool)
+        or not isinstance(end, int) or isinstance(end, bool)
+    ):
+        raise ValueError("target_span.start and target_span.end must be integers")
+    if start < 0 or end <= start or end > len(text):
+        raise ValueError("target_span is outside the text or empty")
+
+    target = text[start:end]
+    if not re.fullmatch(r"\w+", target, flags=re.UNICODE):
+        raise ValueError("target_span must point to exactly one word token")
+
+    entries = load_word_reference(path)
+
+    def classes_for(token: str) -> list[str]:
+        matches = [
+            entry for entry in entries
+            if entry["entri"].casefold() == token.casefold()
+        ]
+        return sorted({kind for entry in matches for kind in entry["jenis"]})
+
+    reference_match = classes_for(target)
+    base = {
+        "input": text,
+        "target": target,
+        "target_span": {"start": start, "end": end},
+        "classes": list(reference_match),
+        "evidence": [],
+        "reference_match": list(reference_match),
+    }
+
+    if not reference_match:
+        return {
+            **base,
+            "status": "unknown",
+            "explanation": "Kata sasaran belum tercantum dalam referensi Tahap 1.",
+        }
+
+    if target.casefold() != "dekat":
+        return {
+            **base,
+            "status": "needs_context",
+            "explanation": (
+                "Fungsi ini hanya mendisambiguasi kata dekat; "
+                "kelas kata lain tidak dianalisis."
+            ),
+        }
+
+    if set(reference_match) != {"adjektiva", "preposisi"}:
+        return {
+            **base,
+            "status": "needs_context",
+            "explanation": (
+                "Kandidat referensi untuk dekat tidak sesuai dengan dua "
+                "kelas yang diharapkan; tidak dilakukan penyempitan."
+            ),
+        }
+
+    tokens = list(re.finditer(r"\w+", text, flags=re.UNICODE))
+    target_indexes = [
+        index for index, match in enumerate(tokens)
+        if match.start() == start and match.end() == end
+    ]
+    if len(target_indexes) != 1:
+        raise ValueError("target_span must match one complete token in the text")
+    target_index = target_indexes[0]
+
+    clean_prefix = bool(tokens) and (
+        tokens[0].start() == 0 or text[:tokens[0].start()].isspace()
+    )
+    clean_gaps = all(
+        text[left.end():right.start()].isspace()
+        for left, right in zip(tokens, tokens[1:])
+    )
+    clean_suffix = bool(tokens) and bool(
+        re.fullmatch(r"\s*[.!?…]*\s*", text[tokens[-1].end():])
+    )
+    clean_sequence = clean_prefix and clean_gaps and clean_suffix
+
+    # Pattern B-DEKAT-ADJ-02: registered nominal/pronominal subject,
+    # followed by registered itu, then dekat at clause end.
+    if clean_sequence and len(tokens) == 3 and target_index == 2:
+        subject_classes = classes_for(tokens[0].group())
+        itu_classes = classes_for(tokens[1].group())
+        if (
+            set(subject_classes) & {"nomina", "pronomina"}
+            and tokens[1].group().casefold() == "itu"
+            and "pronomina" in itu_classes
+        ):
+            return {
+                **base,
+                "status": "classified",
+                "classes": ["adjektiva"],
+                "evidence": [
+                    "Subjek terdaftar sebagai nomina/pronomina.",
+                    "Kata itu terdaftar sebagai pronomina.",
+                    "dekat berada pada akhir konstruksi sederhana.",
+                ],
+                "explanation": (
+                    "Pola sederhana nomina/pronomina + itu + dekat cocok "
+                    "dengan kasus adjektiva yang disetujui."
+                ),
+            }
+
+    # Pattern B-DEKAT-PRE-01: registered pronoun + verb + target + noun.
+    if clean_sequence and len(tokens) == 4 and target_index == 2:
+        subject_classes = classes_for(tokens[0].group())
+        predicate_classes = classes_for(tokens[1].group())
+        object_classes = classes_for(tokens[3].group())
+        if (
+            "pronomina" in subject_classes
+            and "verba" in predicate_classes
+            and "nomina" in object_classes
+        ):
+            return {
+                **base,
+                "status": "classified",
+                "classes": ["preposisi"],
+                "evidence": [
+                    "Subjek terdaftar sebagai pronomina.",
+                    "Predikat sebelum dekat terdaftar sebagai verba.",
+                    "Kata setelah dekat terdaftar sebagai nomina.",
+                ],
+                "explanation": (
+                    "Pola sederhana pronomina + verba + dekat + nomina "
+                    "cocok dengan kasus preposisi yang disetujui."
+                ),
+            }
+
+    return {
+        **base,
+        "status": "needs_context",
+        "explanation": (
+            "Bukti struktural tidak cocok dengan pola terbatas yang telah "
+            "disetujui atau ada unsur pola yang belum terverifikasi dalam "
+            "referensi. Kedua kelas kandidat dipertahankan."
+        ),
+    }
