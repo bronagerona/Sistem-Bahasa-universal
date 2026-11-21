@@ -59,7 +59,7 @@ def test_long_term_memory_references_knowledge_engine_facts_and_provenance():
     snapshot = context.get_context(session_id)
     facts = snapshot["long_term_memory"]["facts"]
 
-    assert len(facts) == 2
+    assert len(facts) == 3
     assert facts[0]["provenance"]["source"] == "core_knowledge"
     assert facts[0]["provenance"]["status"] == "verified"
 

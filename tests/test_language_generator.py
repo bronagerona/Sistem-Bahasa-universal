@@ -101,3 +101,61 @@ def test_invalid_inputs_and_register_are_rejected():
         generator.generate(_reasoning_result(), register="regional")
     with pytest.raises(ValueError):
         LanguageGenerator().generate(_reasoning_result(), session_id="missing")
+
+
+def _semantic_payload(text, tokens):
+    return {"contract_version": "1.0", "original_text": text,
+            "ilve": {"normalized_text": text.casefold(), "tokens": tokens, "variation_hints": []}}
+
+
+def test_question_answer_generation_uses_reasoning_confidence():
+    from ilis.semantics.semantic_engine import SemanticEngine
+    semantic = SemanticEngine().analyze(_semantic_payload("Apakah api bisa membakar kayu?",
+        ["apakah", "api", "bisa", "membakar", "kayu", "?"]))
+    reasoning = {"conclusion": "Ya, berdasarkan fakta yang tersimpan, api dapat membakar kayu.",
+        "confidence_score": 0.72, "reasoning_type": "verified_inference",
+        "evidence": ["fact_1"], "uncertainty": "Kesimpulan berbasis aturan."}
+    result = LanguageGenerator().generate(reasoning, semantic_result=semantic, register="formal")
+    assert result["text"] == "Ya, kemungkinan api bisa membakar kayu."
+    assert result["uncertainty_preserved"] is True
+    assert result["confidence_score"] == 0.72
+
+
+def test_command_intent_generates_acknowledgement_not_an_answer():
+    from ilis.semantics.semantic_engine import SemanticEngine
+    semantic = SemanticEngine().analyze(_semantic_payload("Bunyikan lonceng", ["bunyikan", "lonceng"]))
+    reasoning = {"conclusion": "Input dikenali sebagai perintah, bukan pertanyaan yang perlu dijawab.",
+        "confidence_score": 0.0, "reasoning_type": "command", "evidence": [], "uncertainty": "Gunakan pertanyaan eksplisit."}
+    result = LanguageGenerator().generate(reasoning, semantic_result=semantic)
+    assert result["text"] == "Baik, lonceng akan dibunyikan."
+
+
+def test_dragon_bell_has_formal_informal_and_slang_variants():
+    reasoning = {"conclusion": "Lonceng dapat menakuti naga karena menghasilkan suara keras yang ditakuti naga.",
+        "confidence_score": 0.72, "reasoning_type": "verified_inference",
+        "evidence": ["fact_1", "fact_2"], "uncertainty": "Kesimpulan bergantung pada fakta."}
+    generator = LanguageGenerator()
+    outputs = [generator.generate(reasoning, register=register) for register in ("formal", "informal", "slang")]
+    assert all("naga" in item["text"].casefold() for item in outputs)
+    assert len({item["text"] for item in outputs}) == 3
+    assert all(item["uncertainty_preserved"] for item in outputs)
+
+def test_explicit_polite_generation_adds_polite_formal_opening():
+    from ilis.semantics.semantic_engine import SemanticEngine
+    semantic = SemanticEngine().analyze(_semantic_payload(
+        "Apakah api bisa membakar kayu?", ["apakah", "api", "bisa", "membakar", "kayu", "?"]
+    ))
+    reasoning = {
+        "conclusion": "Ya, berdasarkan fakta yang tersimpan, api dapat membakar kayu.",
+        "confidence_score": 0.72,
+        "reasoning_type": "verified_inference",
+        "evidence": ["fact_1"],
+        "uncertainty": "Kesimpulan berbasis aturan.",
+    }
+
+    result = LanguageGenerator().generate(
+        reasoning, semantic_result=semantic, register="formal", polite=True
+    )
+
+    assert result["register"] == "formal"
+    assert result["text"].startswith("Dengan senang hati,")

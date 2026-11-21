@@ -86,9 +86,21 @@ def validate_output(payload: Any) -> dict[str, Any]:
         return dict(payload)
     if not isinstance(semantics, Mapping):
         raise ContractValidationError("supported/low_confidence output needs semantics object")
-    missing = [field for field in SEMANTIC_FIELDS if field not in semantics]
-    if missing:
-        raise ContractValidationError(f"missing semantic fields: {', '.join(missing)}")
+    actual_fields = set(semantics)
+    expected_fields = set(SEMANTIC_FIELDS)
+    missing = sorted(expected_fields - actual_fields)
+    extra = sorted(actual_fields - expected_fields)
+    if missing or extra:
+        details = []
+        if missing:
+            details.append(f"missing: {', '.join(missing)}")
+        if extra:
+            details.append(f"unexpected: {', '.join(extra)}")
+        raise ContractValidationError(
+            "semantics must contain exactly the twelve contract fields ("
+            + "; ".join(details)
+            + ")"
+        )
 
     for field in SEMANTIC_FIELDS[:6]:
         value = semantics[field]

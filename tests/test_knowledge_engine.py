@@ -3,19 +3,24 @@ import pytest
 from ilis.cognition import KnowledgeEngine
 
 
-def test_core_knowledge_seed_contains_api_kayu_rumah():
+def test_core_knowledge_seed_contains_verified_api_kayu_kertas_and_rumah_facts():
     engine = KnowledgeEngine()
 
     facts = engine.fact_store.all()
-    assert len(facts) == 2
+    assert len(facts) == 3
     assert {
         (fact["subject"], fact["relation"], fact["object"], fact["status"], fact["source"])
         for fact in facts
     } == {
         ("api", "can_burn", "kayu", "verified", "core_knowledge"),
         ("rumah", "made_of", "kayu", "verified", "core_knowledge"),
+        ("api", "can_burn", "kertas", "verified", "core_knowledge"),
     }
-    assert engine.concept_store.all() == ["api", "kayu", "rumah"]
+    paper_fact = next(f for f in facts if f["object"] == "kertas")
+    assert engine.get_provenance(paper_fact["id"]) == {
+        "fact_id": paper_fact["id"], "source": "core_knowledge", "status": "verified",
+    }
+    assert engine.concept_store.all() == ["api", "kayu", "kertas", "rumah"]
     assert engine.relation_store.all() == ["can_burn", "made_of"]
 
 
@@ -49,8 +54,9 @@ def test_add_fact_records_provenance():
 def test_search_facts_by_subject_or_object():
     engine = KnowledgeEngine()
 
-    assert len(engine.search_facts("api")) == 1
+    assert len(engine.search_facts("api")) == 2
     assert len(engine.search_facts("kayu")) == 2
+    assert len(engine.search_facts("kertas")) == 1
     assert len(engine.search_facts("rumah")) == 1
     assert engine.search_facts("tidak-ada") == []
 
@@ -67,6 +73,15 @@ def test_conflicting_objects_mark_all_related_facts_conflicting():
     assert engine.get_provenance(first["id"])["status"] == "conflicting"
     assert engine.get_provenance(second["id"])["status"] == "conflicting"
     assert len(engine.detect_conflicts()) == 1
+
+
+def test_can_burn_relation_accepts_multiple_verified_materials_without_conflict():
+    engine = KnowledgeEngine()
+    burn_facts = [fact for fact in engine.search_facts("api")]
+    assert {fact["object"] for fact in burn_facts} == {"kayu", "kertas"}
+    assert {fact["status"] for fact in burn_facts} == {"verified"}
+    assert {fact["source"] for fact in burn_facts} == {"core_knowledge"}
+    assert engine.detect_conflicts() == []
 
 
 def test_semantic_engine_result_is_stored_as_hypothesis():

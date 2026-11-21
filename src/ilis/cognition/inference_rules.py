@@ -28,7 +28,35 @@ BURN_RISK_RULE: dict[str, Any] = {
     ),
 }
 
-INFERENCE_RULES: tuple[dict[str, Any], ...] = (BURN_RISK_RULE,)
+DRAGON_BELL_RULE: dict[str, Any] = {
+    "id": "dragon_bell_fear_v2",
+    "name": "dragon_fears_loud_sound",
+    "premises": (
+        ("naga", "fears", "suara_keras"),
+        ("lonceng", "produces", "suara_keras"),
+    ),
+    "conclusion_relation": "may_scare",
+    "conclusion": "Lonceng dapat menakuti naga karena menghasilkan suara keras yang ditakuti naga.",
+    "uncertainty": "Kesimpulan bergantung pada fakta yang tersimpan dan bukan simulasi respons semua naga.",
+}
+
+INFERENCE_RULES: tuple[dict[str, Any], ...] = (BURN_RISK_RULE, DRAGON_BELL_RULE)
+
+
+def matching_rule_premises(
+    facts: list[dict[str, Any]], rule: dict[str, Any]
+) -> tuple[dict[str, Any], dict[str, Any]] | None:
+    """Match the two explicit triples declared by a rule, sharing its variable."""
+    first, second = rule["premises"]
+    first_matches = [f for f in facts if
+        f.get("subject") == first[0] and f.get("relation") == first[1]]
+    second_matches = [f for f in facts if
+        f.get("subject") == second[0] and f.get("relation") == second[1]]
+    for left in first_matches:
+        for right in second_matches:
+            if left.get("object") == first[2] and right.get("object") == second[2]:
+                return left, right
+    return None
 
 
 def matching_burn_risk_premises(

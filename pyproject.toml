@@ -23,4 +23,4 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py", "beta_suite.py"]
+python_files = ["test_*.py", "beta_suite.py", "benchmark_v2_suite.py"]

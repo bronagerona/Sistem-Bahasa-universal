@@ -55,14 +55,17 @@ BETA_DATASET = [
 def test_beta_chatbot_full_pipeline_and_register():
     core = ILISCore()
     session_id = core.create_session(metadata={"register": "formal"})
-    result = core.chatbot().respond("Api menyentuh rumah kayu", session_id)
+    adapter = core.chatbot()
+    result = adapter.respond("Api menyentuh rumah kayu", session_id)
 
-    assert result["answer"].startswith("Ada kemungkinan")
+    assert result["generation"]["text"].startswith("Ada kemungkinan")
+    assert result["answer"].startswith("Saya ILIS, sistem kecerdasan bahasa.")
     assert result["metadata"]["reasoning_type"] == "verified_inference"
     assert result["metadata"]["confidence_score"] == 0.72
     assert result["metadata"]["conflict_status"] == "clear"
     assert result["metadata"]["semantic_status"] in {"unsupported", "low_confidence"}
-    assert len(core.context_engine.get_context(session_id)["conversation_history"]) == 1
+    assert len(core.context_engine.get_context(session_id)["conversation_history"]) == 0
+    assert len(adapter.session_manager.get_recent_turns(session_id)) == 1
 
 
 def test_beta_semantic_and_slang_pipeline_preserves_register():
@@ -108,7 +111,7 @@ def test_beta_game_event_is_episodic_and_yields_cautious_npc_dialogue():
     assert result["metadata"]["confidence_score"] == 0.48
     assert "naga takut pada lonceng" in result["dialogue"].casefold()
     assert len(core.context_engine.get_context(session_id)["episodic_memory"]) == 1
-    assert len(core.knowledge_engine.fact_store.all()) == 2
+    assert len(core.knowledge_engine.fact_store.all()) == core.knowledge_dataset_loaded + 3
 
 
 def test_beta_unknown_game_event_is_retained_without_invented_reasoning():

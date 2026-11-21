@@ -60,6 +60,29 @@ def analyze_semantics(text: str) -> dict[str, object]:
 
     normalized_text = " ".join(normalized_tokens)
     normalized_text = re.sub(r"\s+([.,!?;:])", r"\1", normalized_text)
+    # A trailing response-style instruction is metadata for generation, not part
+    # of the proposition. Preserve it when it is the entire user utterance so
+    # the semantic engine can recognize it as a standalone command.
+    standalone_style_command = re.fullmatch(
+        r"(?:tolong\s+)?(?:jawab|jelaskan|uraikan|terangkan)\s+"
+        r"(?:dengan\s+)?(?:sopan|singkat|ringkas|jelas|santai)[.!?]*",
+        normalized_text, flags=re.IGNORECASE,
+    )
+    if not standalone_style_command:
+        # Remove a leading style command when it introduces a question.
+        # Example: "Tolong jawab dengan sopan, apakah naga takut lonceng?"
+        normalized_text = re.sub(
+            r"^(?:tolong\s+)?(?:jawab|jelaskan|uraikan|terangkan)\s+"
+            r"(?:dengan\s+)?(?:sopan|singkat|ringkas|jelas|santai)"
+            r"\s*[,;:]?\s*(?=(?:apakah|siapa|apa|mengapa|kenapa|"
+            r"bagaimana|kapan|dimana|di\s+mana|mana)\b)",
+            "", normalized_text, flags=re.IGNORECASE,
+        ).strip()
+        normalized_text = re.sub(
+            r"\s+(?:tolong\s+)?(?:jawab|jelaskan|uraikan|terangkan)\s+"
+            r"(?:dengan\s+)?(?:sopan|singkat|ringkas|jelas|santai)\s*[.!?]*$",
+            "", normalized_text, flags=re.IGNORECASE,
+        ).strip()
     payload = {
         "contract_version": "1.0",
         "original_text": text,

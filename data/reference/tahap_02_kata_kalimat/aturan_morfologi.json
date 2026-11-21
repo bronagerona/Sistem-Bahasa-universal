@@ -1,0 +1,350 @@
+{
+  "versi_format": "1.1",
+  "versi_data": "tahap_02-0.1.0",
+  "sumber": "docs/DAFTAR_DASAR_TAHAP_02.md",
+  "status": "referensi",
+  "tahap": "tahap_02_kata_kalimat",
+  "tanggal_dibuat": "2026-11-21",
+  "catatan": "Referensi morfologi Tahap 2; belum diverifikasi dan belum boleh digunakan runtime.",
+  "daftar_aturan": {
+    "prefiks": [
+      {
+        "keluarga_awalan": "meN-",
+        "bentuk_dalam_contoh": [
+          "me-",
+          "mem-",
+          "men-",
+          "meng-",
+          "meny-"
+        ],
+        "fungsi": "membentuk verba aktif",
+        "contoh": [
+          {
+            "kata_dasar": "tulis",
+            "kata_berimbuhan": "menulis"
+          },
+          {
+            "kata_dasar": "baca",
+            "kata_berimbuhan": "membaca"
+          },
+          {
+            "kata_dasar": "ambil",
+            "kata_berimbuhan": "mengambil"
+          },
+          {
+            "kata_dasar": "pakai",
+            "kata_berimbuhan": "memakai"
+          },
+          {
+            "kata_dasar": "sapu",
+            "kata_berimbuhan": "menyapu"
+          },
+          {
+            "kata_dasar": "kirim",
+            "kata_berimbuhan": "mengirim"
+          },
+          {
+            "kata_dasar": "lihat",
+            "kata_berimbuhan": "melihat"
+          },
+          {
+            "kata_dasar": "ukur",
+            "kata_berimbuhan": "mengukur"
+          }
+        ],
+        "catatan": "meN- adalah lambang keluarga awalan. Bentuk nyata menyesuaikan bunyi awal kata dasar; tidak semua bunyi awal luluh."
+      },
+      {
+        "awalan": "ber-",
+        "fungsi": "membentuk kata yang menyatakan tindakan, keadaan, atau memiliki sesuatu sesuai konteks",
+        "contoh": [
+          {
+            "kata_dasar": "jalan",
+            "kata_berimbuhan": "berjalan"
+          },
+          {
+            "kata_dasar": "bunga",
+            "kata_berimbuhan": "berbunga"
+          },
+          {
+            "kata_dasar": "lari",
+            "kata_berimbuhan": "berlari"
+          }
+        ]
+      },
+      {
+        "awalan": "di-",
+        "fungsi": "membentuk verba pasif",
+        "contoh": [
+          {
+            "kata_dasar": "tulis",
+            "kata_berimbuhan": "ditulis"
+          },
+          {
+            "kata_dasar": "baca",
+            "kata_berimbuhan": "dibaca"
+          }
+        ],
+        "catatan": "Awalan di- ditulis melekat pada kata kerja pasif. Bedakan dari kata depan di yang ditulis terpisah, misalnya di rumah."
+      },
+      {
+        "awalan": "ter-",
+        "fungsi": "membentuk kata yang menyatakan keadaan atau kejadian; makna bergantung pada kata dasar dan konteks",
+        "contoh": [
+          {
+            "kata_dasar": "jatuh",
+            "kata_berimbuhan": "terjatuh"
+          },
+          {
+            "kata_dasar": "buka",
+            "kata_berimbuhan": "terbuka"
+          }
+        ]
+      },
+      {
+        "awalan": "ke-",
+        "fungsi": "membentuk bilangan tingkat pada contoh yang dicantumkan",
+        "contoh": [
+          {
+            "kata_dasar": "dua",
+            "kata_berimbuhan": "kedua"
+          },
+          {
+            "kata_dasar": "tiga",
+            "kata_berimbuhan": "ketiga"
+          }
+        ],
+        "catatan": "Bedakan awalan ke- pada kedua/ketiga dari kata depan ke, misalnya ke pasar."
+      },
+      {
+        "keluarga_awalan": "peN-/pe-",
+        "bentuk_dalam_contoh": [
+          "pe-",
+          "pen-",
+          "pem-"
+        ],
+        "fungsi": "membentuk nomina pelaku",
+        "contoh": [
+          {
+            "kata_dasar": "tulis",
+            "kata_berimbuhan": "penulis"
+          },
+          {
+            "kata_dasar": "baca",
+            "kata_berimbuhan": "pembaca"
+          },
+          {
+            "kata_dasar": "lari",
+            "kata_berimbuhan": "pelari"
+          },
+          {
+            "kata_dasar": "kerja",
+            "kata_berimbuhan": "pekerja"
+          }
+        ],
+        "catatan": "Bentuk keluarga peN-/pe- menyesuaikan kata dasar; contoh menunjukkan bentuk nyata yang digunakan."
+      }
+    ],
+    "sufiks": [
+      {
+        "akhiran": "-kan",
+        "fungsi": "membentuk kata turunan dengan fungsi yang bergantung pada kata dasar dan konteks",
+        "contoh": [
+          {
+            "kata_dasar": "bersih",
+            "kata_berimbuhan": "bersihkan"
+          },
+          {
+            "kata_dasar": "ambil",
+            "kata_berimbuhan": "ambilkan"
+          },
+          {
+            "kata_dasar": "tulis",
+            "kata_berimbuhan": "tuliskan"
+          }
+        ]
+      },
+      {
+        "akhiran": "-an",
+        "fungsi": "sering membentuk nomina, misalnya hasil atau sesuatu yang berkaitan dengan kata dasar",
+        "contoh": [
+          {
+            "kata_dasar": "baca",
+            "kata_berimbuhan": "bacaan"
+          },
+          {
+            "kata_dasar": "makan",
+            "kata_berimbuhan": "makanan"
+          },
+          {
+            "kata_dasar": "tulis",
+            "kata_berimbuhan": "tulisan"
+          }
+        ]
+      },
+      {
+        "akhiran": "-i",
+        "fungsi": "membentuk kata turunan; makna bergantung pada kata dasar dan konteks",
+        "contoh": [
+          {
+            "kata_dasar": "warna",
+            "kata_berimbuhan": "warnai"
+          },
+          {
+            "kata_dasar": "garam",
+            "kata_berimbuhan": "garami"
+          }
+        ]
+      },
+      {
+        "akhiran": "-nya",
+        "fungsi": "dapat menandai kepunyaan atau rujukan tertentu",
+        "contoh": [
+          {
+            "kata_dasar": "buku",
+            "kata_berimbuhan": "bukunya"
+          },
+          {
+            "kata_dasar": "rumah",
+            "kata_berimbuhan": "rumahnya"
+          }
+        ]
+      }
+    ],
+    "konfiks": [
+      {
+        "pasangan": "meN-…-kan",
+        "fungsi": "awalan dan akhiran bekerja bersama mengapit kata dasar",
+        "contoh": [
+          {
+            "kata_dasar": "baca",
+            "kata_berimbuhan": "membacakan"
+          },
+          {
+            "kata_dasar": "bersih",
+            "kata_berimbuhan": "membersihkan"
+          },
+          {
+            "kata_dasar": "lurus",
+            "kata_berimbuhan": "meluruskan"
+          }
+        ]
+      },
+      {
+        "pasangan": "ber-…-an",
+        "fungsi": "awalan dan akhiran bekerja bersama; makna bergantung pada kata dasar",
+        "contoh": [
+          {
+            "kata_dasar": "peluk",
+            "kata_berimbuhan": "berpelukan"
+          },
+          {
+            "kata_dasar": "jatuh",
+            "kata_berimbuhan": "berjatuhan"
+          },
+          {
+            "kata_dasar": "samping",
+            "kata_berimbuhan": "bersampingan"
+          }
+        ]
+      },
+      {
+        "pasangan": "ke-…-an",
+        "fungsi": "awalan dan akhiran bekerja bersama; makna bergantung pada kata dasar",
+        "contoh": [
+          {
+            "kata_dasar": "baik",
+            "kata_berimbuhan": "kebaikan"
+          },
+          {
+            "kata_dasar": "hujan",
+            "kata_berimbuhan": "kehujanan"
+          }
+        ]
+      }
+    ],
+    "reduplikasi": [
+      {
+        "bentuk": "pengulangan seluruh kata",
+        "makna": "dapat menyatakan jamak atau kegiatan; makna tidak selalu jamak dan harus dilihat dari konteks",
+        "contoh": [
+          {
+            "kata_dasar": "rumah",
+            "kata_ulang": "rumah-rumah",
+            "catatan": "dapat menyatakan banyak rumah"
+          },
+          {
+            "kata_dasar": "buku",
+            "kata_ulang": "buku-buku",
+            "catatan": "dapat menyatakan banyak buku"
+          },
+          {
+            "kata_dasar": "anak",
+            "kata_ulang": "anak-anak",
+            "catatan": "dapat menyatakan lebih dari satu anak"
+          },
+          {
+            "kata_dasar": "jalan",
+            "kata_ulang": "jalan-jalan",
+            "catatan": "dapat menyatakan kegiatan berjalan santai"
+          },
+          {
+            "kata_dasar": "makan",
+            "kata_ulang": "makan-makan",
+            "catatan": "dapat menyatakan kegiatan makan bersama atau santai"
+          }
+        ]
+      }
+    ],
+    "perubahan_bunyi": [
+      {
+        "aturan": "meN- + t → men-; bunyi awal t luluh",
+        "kata_dasar": "tulis",
+        "hasil": "menulis"
+      },
+      {
+        "aturan": "meN- + p → mem-; bunyi awal p luluh",
+        "kata_dasar": "pakai",
+        "hasil": "memakai"
+      },
+      {
+        "aturan": "meN- + s → meny-; bunyi awal s luluh",
+        "kata_dasar": "sapu",
+        "hasil": "menyapu"
+      },
+      {
+        "aturan": "meN- + k → meng-; bunyi awal k luluh",
+        "kata_dasar": "kirim",
+        "hasil": "mengirim"
+      },
+      {
+        "aturan": "meN- + vokal → bentuk awalan menyesuaikan; bunyi awal vokal tetap",
+        "kata_dasar": "ambil",
+        "hasil": "mengambil",
+        "catatan": "Bunyi awal a tetap ada dan tidak luluh."
+      },
+      {
+        "aturan": "meN- + b → mem-; bunyi awal b tetap",
+        "kata_dasar": "baca",
+        "hasil": "membaca"
+      },
+      {
+        "aturan": "meN- + l → me-; bunyi awal l tetap",
+        "kata_dasar": "lihat",
+        "hasil": "melihat"
+      },
+      {
+        "aturan": "meN- + vokal → meng-; bunyi awal vokal tetap",
+        "kata_dasar": "ukur",
+        "hasil": "mengukur"
+      },
+      {
+        "aturan": "meN- + p → mem-; bunyi awal p luluh",
+        "kata_dasar": "pukul",
+        "hasil": "memukul"
+      }
+    ]
+  },
+  "tanggal_diperbarui": "2026-11-21",
+  "catatan_pembaruan": "v1.1 — ditambahkan: memukul, berlari, meluruskan, bersampingan, tuliskan, tulisan; penulis sudah tercantum pada v1.0 sehingga tidak diduplikasi."
+}

@@ -118,3 +118,82 @@ python -m pytest
 Tes mencakup inferensi verified, hipotesis, konflik relevan, data tidak
 tersedia, provenance hilang/tidak konsisten, konflik yang tidak relevan,
 dan validasi input.
+
+
+## Perluasan Reasoning Engine V2
+
+V2 menambahkan aturan deterministik `dragon_bell_fear_v2` dengan dua premis:
+
+1. `naga --fears--> suara_keras`
+2. `lonceng --produces--> suara_keras`
+
+Jika kedua fakta tersedia, status fakta dan provenance konsisten, dan tidak ada
+konflik, sistem menyimpulkan bahwa lonceng dapat menakuti naga. Kedua ID fakta
+disimpan pada `evidence`. Skor 0.72 digunakan untuk premis verified dan 0.48
+jika ada premis hypothesis; nilai ini skor heuristik, bukan probabilitas.
+
+### Pertanyaan dari Semantic Engine
+
+Gunakan `ReasoningEngine.infer_semantic(hasil_semantic)` untuk menerima hasil
+`SemanticEngine.analyze()`. Untuk pertanyaan sederhana dengan pola subjek-
+predikat-objek, relasi `membakar`/ `bakar` dipetakan ke fakta `can_burn`.
+Contoh `Apakah api bisa membakar kayu?` dijawab dari fakta
+`api --can_burn--> kayu`, beserta confidence score dan ID evidence.
+
+Intent `question`, `command`, dan `assertion` dibedakan. Perintah dan
+pernyataan tidak diperlakukan sebagai pertanyaan. Pertanyaan yang belum
+tercakup, negasi yang belum memiliki aturan khusus, fakta hilang, dan
+provenance yang tidak lengkap menghasilkan status `unknown`; konflik tetap
+menghasilkan `conflicting`.
+
+Nilai `reasoning_type` tambahan yang dapat dikembalikan oleh
+`infer_semantic()` untuk input non-pertanyaan adalah:
+
+- `command`: Semantic Engine memvalidasi Intent sebagai `command`; input dikenali
+  sebagai perintah dan tidak dijalankan sebagai pertanyaan.
+- `assertion`: Semantic Engine memvalidasi Intent sebagai `assertion`; input
+  dikenali sebagai pernyataan dan tidak dijawab sebagai pertanyaan.
+
+Kedua nilai ini hanya memperluas enum `reasoning_type` pada jalur
+`infer_semantic()`. Bentuk hasil Reasoning tetap enam key yang sama. Konsumen
+yang memakai enum tertutup harus menerima `command` dan `assertion` selain
+status inferensi yang sudah didokumentasikan di atas.
+
+### Kompatibilitas
+
+Bentuk hasil tidak berubah: `conclusion`, `confidence_score`, `evidence`,
+`reasoning_type`, `reasons`, dan `uncertainty`. Aturan risiko kebakaran
+V1 dan API `infer_burn_risk()`/`infer()` tetap dipertahankan. Semantic Engine
+dan Storage tidak dimodifikasi.
+
+
+## Integrasi Concept Engine V3-C
+
+Mulai V3-C, `ReasoningEngine.infer_semantic()` menggunakan Concept Engine sebagai
+fallback terbatas setelah lookup fakta persis KnowledgeEngine lama tidak
+menemukan kecocokan. Fakta persis dan konflik relevan dari KnowledgeEngine
+tetap diproses dengan perilaku lama dan tidak boleh ditimpa oleh inferensi
+konsep. Aturan khusus naga–lonceng juga tetap menggunakan jalur lama.
+
+Urutan fallback:
+
+1. Cari fakta persis berdasarkan subject, relation, dan object pada FactStore.
+2. Jika ditemukan, validasi fakta/provenance dan kembalikan hasil lama.
+3. Jika konflik relevan ditemukan, hentikan inferensi seperti sebelumnya.
+4. Jika tidak ada fakta persis dan tidak ada konflik penghalang, jalankan
+   InferenceEngine V3-B dengan ConceptStore statis V3-A.
+5. Petakan status ke enam key Reasoning yang sudah ada.
+
+Pemetaan status fallback:
+- `KNOWN` → `concept_inference_known`, label Tahu Pasti, skor heuristik 0.72.
+- `PARTIAL` → `concept_inference_partial`, label Tahu Sebagian, skor heuristik 0.48.
+- `UNKNOWN` → `concept_inference_unknown`, label Tidak Tahu, skor 0.0.
+
+Tidak ada key baru. Kontrak Semantic tetap 12 field dan kontrak Reasoning
+tetap `conclusion`, `confidence_score`, `evidence`, `reasoning_type`,
+`reasons`, dan `uncertainty`. Skor di atas merupakan pemetaan kompatibilitas,
+bukan probabilitas terkalibrasi.
+
+Implementasi dan contoh pengujian lebih lengkap tersedia di
+`docs/v3_concept_engine_developer_guide.md`. Integrasi tidak mengubah
+KnowledgeEngine, SQLite, SessionManager, Persona, atau Identity Intent.

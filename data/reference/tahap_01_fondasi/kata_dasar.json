@@ -1,0 +1,1380 @@
+{
+  "versi_format": "1.0",
+  "versi_data": "1.0",
+  "sumber": "docs/DAFTAR_DASAR_TAHAP_01.md",
+  "status": "referensi",
+  "tahap": "tahap_01_fondasi",
+  "tanggal_dibuat": "2026-11-21",
+  "catatan": "Belum diverifikasi. Promosi ke runtime setelah lulus uji. Audit Tahap 1: terdapat 6 entri artikula dari 10 yang direncanakan; kelas ini terbatas dan belum lengkap. Jumlah ini diterima dengan keterbatasan tertulis, tanpa memaksakan penambahan entri.",
+  "daftar": [
+    {
+      "entri": "-kah",
+      "jenis": [
+        "partikel"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": "Partikel terikat; tanda hubung menandai bentuk yang melekat pada kata sebelumnya, bukan imbuhan pembentuk kata."
+    },
+    {
+      "entri": "-lah",
+      "jenis": [
+        "partikel"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": "Partikel terikat; tanda hubung menandai bentuk yang melekat pada kata sebelumnya, bukan imbuhan pembentuk kata."
+    },
+    {
+      "entri": "-tah",
+      "jenis": [
+        "partikel"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": "Partikel terikat; tanda hubung menandai bentuk yang melekat pada kata sebelumnya, bukan imbuhan pembentuk kata."
+    },
+    {
+      "entri": "aduh",
+      "jenis": [
+        "interjeksi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "agak",
+      "jenis": [
+        "adverbia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "agar",
+      "jenis": [
+        "konjungsi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "ah",
+      "jenis": [
+        "interjeksi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "air",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "aku",
+      "jenis": [
+        "pronomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "ambil",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "ampun",
+      "jenis": [
+        "interjeksi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "astaga",
+      "jenis": [
+        "interjeksi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "atas",
+      "jenis": [
+        "preposisi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "atau",
+      "jenis": [
+        "konjungsi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "ayam",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "baca",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "bagi",
+      "jenis": [
+        "preposisi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "bahkan",
+      "jenis": [
+        "konjungsi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "bahwa",
+      "jenis": [
+        "konjungsi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "baik",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "bangun",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "baru",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "bawah",
+      "jenis": [
+        "preposisi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "beli",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "beliau",
+      "jenis": [
+        "pronomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "bersih",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "besar",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "buat",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "buku",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "bunga",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "buruk",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "cepat",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "dalam",
+      "jenis": [
+        "preposisi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "dan",
+      "jenis": [
+        "konjungsi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "dang",
+      "jenis": [
+        "artikula"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "dari",
+      "jenis": [
+        "preposisi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "datang",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "daun",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "deh",
+      "jenis": [
+        "partikel"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "dekat",
+      "jenis": [
+        "adjektiva",
+        "preposisi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": "Dapat berfungsi sebagai adjektiva atau preposisi bergantung pada konstruksi dan konteks."
+    },
+    {
+      "entri": "delapan",
+      "jenis": [
+        "numeralia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "dengan",
+      "jenis": [
+        "preposisi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "di",
+      "jenis": [
+        "preposisi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "dia",
+      "jenis": [
+        "pronomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "dingin",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "dong",
+      "jenis": [
+        "partikel"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "dua",
+      "jenis": [
+        "numeralia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "duduk",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "eh",
+      "jenis": [
+        "interjeksi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "empat",
+      "jenis": [
+        "numeralia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "enam",
+      "jenis": [
+        "numeralia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "engkau",
+      "jenis": [
+        "pronomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "gigi",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "gula",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "hai",
+      "jenis": [
+        "interjeksi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "halo",
+      "jenis": [
+        "interjeksi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "hampir",
+      "jenis": [
+        "adverbia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "hang",
+      "jenis": [
+        "artikula"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "hore",
+      "jenis": [
+        "interjeksi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "ibu",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "itu",
+      "jenis": [
+        "pronomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "jalan",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "jarang",
+      "jenis": [
+        "adverbia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "jauh",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "kadang",
+      "jenis": [
+        "adverbia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "kain",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "kaki",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "kalau",
+      "jenis": [
+        "konjungsi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "kamar",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "kami",
+      "jenis": [
+        "pronomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "kamu",
+      "jenis": [
+        "pronomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "kan",
+      "jenis": [
+        "partikel"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "karena",
+      "jenis": [
+        "konjungsi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "ke",
+      "jenis": [
+        "preposisi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "kecil",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "kepada",
+      "jenis": [
+        "preposisi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "keras",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "ketika",
+      "jenis": [
+        "konjungsi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "kita",
+      "jenis": [
+        "pronomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "kok",
+      "jenis": [
+        "partikel"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "kotor",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "kucing",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "lalu",
+      "jenis": [
+        "konjungsi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "langsung",
+      "jenis": [
+        "adverbia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "lho",
+      "jenis": [
+        "partikel"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "lihat",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "lima",
+      "jenis": [
+        "numeralia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "lima belas",
+      "jenis": [
+        "numeralia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": "Bentuk bilangan majemuk dari daftar acuan; bukan satu kata dasar tunggal."
+    },
+    {
+      "entri": "mahal",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "makan",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "mandi",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "masih",
+      "jenis": [
+        "adverbia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "maupun",
+      "jenis": [
+        "konjungsi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "meja",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "mereka",
+      "jenis": [
+        "pronomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "minum",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "mungkin",
+      "jenis": [
+        "adverbia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "murah",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "nasi",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "nih",
+      "jenis": [
+        "partikel"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "nol",
+      "jenis": [
+        "numeralia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "oh",
+      "jenis": [
+        "interjeksi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "oleh",
+      "jenis": [
+        "preposisi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "padi",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "panas",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "para",
+      "jenis": [
+        "artikula"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "pendek",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "pergi",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "pernah",
+      "jenis": [
+        "adverbia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "pertama",
+      "jenis": [
+        "numeralia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "pintu",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "pulang",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "pun",
+      "jenis": [
+        "partikel"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "ramai",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "rasa",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "ringan",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "rumah",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "sang",
+      "jenis": [
+        "artikula"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "satu",
+      "jenis": [
+        "numeralia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "saya",
+      "jenis": [
+        "pronomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "segera",
+      "jenis": [
+        "adverbia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "selalu",
+      "jenis": [
+        "adverbia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "sembilan",
+      "jenis": [
+        "numeralia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "sepuluh",
+      "jenis": [
+        "numeralia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "seratus",
+      "jenis": [
+        "numeralia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "sering",
+      "jenis": [
+        "adverbia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "sesuatu",
+      "jenis": [
+        "pronomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "si",
+      "jenis": [
+        "artikula"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "siapa",
+      "jenis": [
+        "pronomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "sih",
+      "jenis": [
+        "partikel"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "sri",
+      "jenis": [
+        "artikula"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "sudah",
+      "jenis": [
+        "adverbia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "supaya",
+      "jenis": [
+        "konjungsi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "susu",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "tahu",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "tangan",
+      "jenis": [
+        "nomina"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "tetapi",
+      "jenis": [
+        "konjungsi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "tidur",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "tiga",
+      "jenis": [
+        "numeralia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "tiga puluh",
+      "jenis": [
+        "numeralia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": "Bentuk bilangan majemuk dari daftar acuan; bukan satu kata dasar tunggal."
+    },
+    {
+      "entri": "tinggal",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "tinggi",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "tua",
+      "jenis": [
+        "adjektiva"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "tuh",
+      "jenis": [
+        "partikel"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "tujuh",
+      "jenis": [
+        "numeralia"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "tulis",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "ukur",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "untuk",
+      "jenis": [
+        "preposisi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "usap",
+      "jenis": [
+        "verba"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "waduh",
+      "jenis": [
+        "interjeksi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "wah",
+      "jenis": [
+        "interjeksi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    },
+    {
+      "entri": "wow",
+      "jenis": [
+        "interjeksi"
+      ],
+      "bentuk_dasar": true,
+      "imbuhan": null,
+      "catatan": ""
+    }
+  ]
+}

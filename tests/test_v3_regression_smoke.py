@@ -1,0 +1,127 @@
+"""Focused ILIS V3.1 regression smoke tests.
+
+These scenarios protect Concept Engine confidence states, multi-turn session
+behavior, register handling, and application/NPC persona routing.
+"""
+from ilis.interfaces import ChatbotAdapter, GameEngineAdapter, ILISCore
+from ilis.persona import (
+    ApplicationProfile,
+    CharacterProfile,
+    MODE_B,
+    MODE_C,
+    PersonaConfig,
+)
+
+ILIS_PREFIX = "Saya ILIS, sistem kecerdasan bahasa."
+
+
+def test_smoke_concept_partial_and_unknown_without_identity_prefix():
+    partial_core = ILISCore(seed_core_knowledge=False)
+    partial_adapter = ChatbotAdapter(partial_core)
+    partial_session = partial_adapter.create_session()
+    partial = partial_adapter.respond("Apakah api bisa membakar paper?", partial_session)
+
+    assert partial["reasoning_result"]["reasoning_type"] == "concept_inference_partial"
+    assert partial["generation"]["reasoning_type"] == "concept_inference_partial"
+    assert partial["generation"]["uncertainty_preserved"] is True
+    assert partial["generation"]["text"].endswith(
+        "Informasi belum lengkap, ini hanya dugaan."
+    )
+    assert not partial["answer"].startswith(ILIS_PREFIX)
+
+    unknown_core = ILISCore(seed_core_knowledge=False)
+    unknown_adapter = ChatbotAdapter(unknown_core)
+    unknown_session = unknown_adapter.create_session()
+    unknown = unknown_adapter.respond("Apakah api bisa membakar besi?", unknown_session)
+
+    assert unknown["reasoning_result"]["reasoning_type"] == "concept_inference_unknown"
+    assert unknown["generation"]["reasoning_type"] == "concept_inference_unknown"
+    assert unknown["generation"]["text"] == (
+        "Belum cukup informasi untuk memastikan jawaban atas pertanyaanmu."
+    )
+    assert not unknown["answer"].startswith(ILIS_PREFIX)
+
+
+def test_smoke_multi_turn_identity_and_reset_keep_one_session():
+    core = ILISCore()
+    adapter = ChatbotAdapter(core)
+    session_id = adapter.create_session()
+
+    first = adapter.respond("Apakah api bisa membakar kayu?", session_id)
+    second = adapter.respond("Lalu apakah api juga bisa membakar kertas?", session_id)
+    identity = adapter.respond("Lu siapa?", session_id)
+
+    assert first["metadata"]["session_id"] == session_id
+    assert second["metadata"]["session_id"] == session_id
+    assert second["metadata"]["context_turns_used"] == 1
+    assert second["reasoning_result"]["evidence"] == ["fact_3"]
+    assert not first["answer"].startswith(ILIS_PREFIX)
+    assert not second["answer"].startswith(ILIS_PREFIX)
+    assert identity["metadata"]["response_type"] == "identity_intent"
+    assert identity["answer"].startswith(ILIS_PREFIX)
+    assert len(adapter.session_manager.get_recent_turns(session_id)) == 3
+
+    reset = adapter.respond("reset percakapan", session_id)
+    assert reset["metadata"]["response_type"] == "session_reset"
+    assert reset["metadata"]["session_id"] == session_id
+    assert adapter.session_manager.get_context_snapshot(session_id)["turns"] == []
+
+
+def test_smoke_style_instruction_reaches_generation_without_leaking_or_prefix():
+    core = ILISCore()
+    adapter = ChatbotAdapter(core)
+    session_id = adapter.create_session()
+
+    formal = adapter.respond(
+        "Apakah api bisa membakar kayu? Jawab dengan sopan.", session_id
+    )
+    informal = adapter.respond(
+        "Apakah api bisa membakar kayu? Jawab dengan santai.", session_id
+    )
+
+    assert formal["metadata"]["register"] == "formal"
+    assert formal["generation"]["text"].startswith("Dengan senang hati,")
+    assert informal["metadata"]["register"] == "informal"
+    assert informal["generation"]["text"].startswith("Iya, kayaknya")
+    assert "jawab dengan" not in formal["answer"].casefold()
+    assert "jawab dengan" not in informal["answer"].casefold()
+    assert not formal["answer"].startswith(ILIS_PREFIX)
+    assert not informal["answer"].startswith(ILIS_PREFIX)
+
+
+def test_smoke_game_adapter_preserves_application_and_npc_personas():
+    application = PersonaConfig(
+        mode=MODE_B,
+        application=ApplicationProfile(
+            application_id="smoke-game",
+            display_name="Penjaga Dunia",
+            role="narator permainan",
+            identity_reply="Saya Penjaga Dunia, narator permainan ini.",
+        ),
+    )
+    app_adapter = GameEngineAdapter(ILISCore(), persona_config=application)
+    app_session = app_adapter.create_session()
+    app_result = app_adapter.handle_event("naga takut lonceng", app_session, npc="narator")
+
+    assert app_result["dialogue"].startswith(
+        "Saya Penjaga Dunia, narator permainan ini."
+    )
+    assert app_result["metadata"]["session_id"] == app_session
+    assert app_result["episode"]["episode_id"] == app_result["metadata"]["episode_id"]
+
+    character = PersonaConfig(
+        mode=MODE_C,
+        character=CharacterProfile(
+            character_id="smoke-guardian",
+            display_name="Penjaga Gua",
+            role="penjaga gua",
+            identity_reply="Aku Penjaga Gua, pelindung tempat ini.",
+        ),
+    )
+    npc_adapter = GameEngineAdapter(ILISCore(), persona_config=character)
+    npc_session = npc_adapter.create_session()
+    npc_result = npc_adapter.handle_event("naga takut lonceng", npc_session, npc="Penjaga Gua")
+
+    assert npc_result["dialogue"].startswith("Aku Penjaga Gua, pelindung tempat ini.")
+    assert "ilis" not in npc_result["dialogue"].casefold()
+    assert npc_result["metadata"]["session_id"] == npc_session

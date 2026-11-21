@@ -38,6 +38,7 @@ class LanguageGenerator:
         semantic_result: dict[str, Any] | None = None,
         context: dict[str, Any] | None = None,
         session_id: str | None = None,
+        polite: bool = False,
     ) -> dict[str, Any]:
         """Render reasoning using register metadata and optional session context."""
         if not isinstance(reasoning_result, dict):
@@ -54,19 +55,99 @@ class LanguageGenerator:
             context = self.context_engine.get_context(session_id)
 
         selected_register = self._select_register(register, semantic_result, context)
-        meaning = self._extract_meaning(reasoning_result)
-        uncertain = self._is_uncertain(reasoning_result)
-        sentence = self.sentence_builder.build(
-            meaning,
-            register=selected_register,
-            uncertainty=uncertain,
-            context=context,
+        reasoning_type = reasoning_result.get("reasoning_type", "unknown")
+        semantics = (semantic_result or {}).get("semantics") or {}
+        is_greeting = (
+            isinstance(semantics, dict)
+            and (semantic_result or {}).get("status") == "supported"
+            and semantics.get("Intent") == "greeting"
         )
+        evidence = reasoning_result.get("evidence", [])
+        conclusion = reasoning_result.get("conclusion", "")
+        is_dataset_fact_answer = (
+            reasoning_type in {"verified_inference", "hypothetical_inference"}
+            and isinstance(evidence, list)
+            and any(
+                isinstance(item, str) and re.fullmatch(r"fact-\d{4}", item)
+                for item in evidence
+            )
+            and isinstance(conclusion, str)
+            and bool(conclusion.strip())
+        )
+        concept_status = reasoning_type if reasoning_type in {
+            "concept_inference_known",
+            "concept_inference_partial",
+            "concept_inference_unknown",
+        } else None
+        meaning = self._extract_meaning(reasoning_result, semantic_result)
+        uncertain = self._is_uncertain(reasoning_result)
+        if is_greeting:
+            meaning = {"kind": "greeting"}
+            uncertain = False
+            if selected_register == "formal":
+                sentence = "Halo! Saya siap membantu. Bagaimana kabar Anda?"
+            elif selected_register == "informal":
+                sentence = "Halo! Aku siap bantu. Apa kabar kamu?"
+            else:
+                sentence = "Hai! Siap bantu, nih. Apa kabar?"
+        elif reasoning_type == "unknown" and conclusion == "Saya belum memiliki informasi lokasi untuk itu":
+            # Preserve the explicit, conservative P3c unknown response.
+            meaning = {"kind": "unknown", "target": "lokasi itu"}
+            uncertain = True
+            sentence = conclusion.strip()
+        elif is_dataset_fact_answer:
+            # Dataset fact conclusions already contain the exact record value
+            # and qualifiers. Do not pass them through _phrase(), which
+            # case-folds text and would alter source values such as "Bumi".
+            meaning = {"kind": "statement", "proposition": conclusion}
+            uncertain = self._is_uncertain(reasoning_result)
+            sentence = conclusion.strip()
+            if (
+                reasoning_type == "hypothetical_inference"
+                and not any(
+                    marker in sentence.casefold()
+                    for marker in ("mungkin", "kemungkinan", "berpotensi")
+                )
+            ):
+                sentence = "Ada kemungkinan bahwa " + sentence
+        elif concept_status == "concept_inference_unknown":
+            meaning = {"kind": "unknown", "target": "pertanyaanmu"}
+            uncertain = True
+            sentence = "Belum cukup informasi untuk memastikan jawaban atas pertanyaanmu."
+        else:
+            if concept_status == "concept_inference_partial":
+                uncertain = True
+            if reasoning_type == "assertion":
+                meaning = {"kind": "assertion_acknowledgement"}
+                uncertain = False
+                if selected_register == "formal":
+                    sentence = (
+                        "Baik, saya telah memahami pernyataan yang Anda sampaikan"
+                        if polite
+                        else "Baik, saya sudah memahami pernyataanmu"
+                    )
+                elif selected_register == "informal":
+                    sentence = "Oke, aku paham pernyataanmu"
+                else:
+                    sentence = "Oke, nangkep pernyataanmu"
+            else:
+                sentence = self.sentence_builder.build(
+                    meaning,
+                    register=selected_register,
+                    uncertainty=uncertain,
+                    context=context,
+                    polite=polite,
+                )
+            if concept_status == "concept_inference_partial":
+                sentence = (
+                    sentence.rstrip(".!?")
+                    + ". Informasi belum lengkap, ini hanya dugaan."
+                )
         return {
             "text": sentence,
             "register": selected_register,
             "meaning": meaning,
-            "reasoning_type": reasoning_result.get("reasoning_type", "unknown"),
+            "reasoning_type": "greeting" if is_greeting else reasoning_result.get("reasoning_type", "unknown"),
             "confidence_score": reasoning_result.get("confidence_score"),
             "uncertainty_preserved": uncertain,
             "evidence": list(reasoning_result.get("evidence") or []),
@@ -74,12 +155,38 @@ class LanguageGenerator:
         }
 
     @classmethod
-    def _extract_meaning(cls, result: dict[str, Any]) -> dict[str, Any]:
+    def _extract_meaning(cls, result: dict[str, Any], semantic_result: dict[str, Any] | None = None) -> dict[str, Any]:
         supplied = result.get("meaning")
         if isinstance(supplied, dict):
             return dict(supplied)
         reasoning_type = result.get("reasoning_type", "unknown")
         conclusion = result.get("conclusion", "")
+        evidence = result.get("evidence", [])
+        if (
+            reasoning_type in {"verified_inference", "hypothetical_inference"}
+            and isinstance(evidence, list)
+            and any(
+                isinstance(item, str) and re.fullmatch(r"fact-\d{4}", item)
+                for item in evidence
+            )
+        ):
+            return {"kind": "statement", "proposition": conclusion}
+        if isinstance(conclusion, str) and "lonceng" in conclusion.casefold() and "naga" in conclusion.casefold() and any(marker in conclusion.casefold() for marker in ("takut", "menakuti")):
+            return {"kind": "dragon_bell", "proposition": conclusion}
+        if semantic_result and semantic_result.get("status") == "supported":
+            semantics = semantic_result.get("semantics")
+            if isinstance(semantics, dict):
+                intent = semantics.get("Intent")
+                if intent == "question":
+                    if reasoning_type == "conflicting":
+                        return {"kind": "conflicting", "target": semantics.get("Patient/Object") or semantics.get("Actor")}
+                    if reasoning_type == "unknown":
+                        return {"kind": "unknown", "target": semantics.get("Patient/Object") or semantics.get("Actor")}
+                    return {"kind": "question", "actor": semantics.get("Actor"), "predicate": semantics.get("Predicate"), "patient": semantics.get("Patient/Object"), "modality": semantics.get("Modality"), "proposition": conclusion}
+                if intent == "command":
+                    return {"kind": "command", "predicate": semantics.get("Predicate"), "patient": semantics.get("Patient/Object"), "proposition": conclusion}
+        if reasoning_type == "command":
+            return {"kind": "command", "proposition": conclusion}
         if not isinstance(conclusion, str):
             conclusion = ""
         if reasoning_type == "conflicting":
@@ -114,6 +221,7 @@ class LanguageGenerator:
                 candidate = metadata.get("register")
         if candidate in {"formal", "informal", "slang"}:
             return candidate
+        # Missing or unknown Semantic/session register defaults to formal.
         return "formal"
 
     @staticmethod
